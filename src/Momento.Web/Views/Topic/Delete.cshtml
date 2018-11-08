@@ -1,0 +1,16 @@
+﻿@model TopicDelete
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Are you sure you want to delete "@Model.Name" Topic</h2>
+
+<form method="post">
+    <input asp-for="SheetId" hidden="hidden">
+    <input asp-for="TopicId" hidden="hidden">
+    <button type="submit">Yes</button>
+</form>
+
+<a asp-area="" asp-controller="CheatSheet" asp-action="Edit" asp-route-id="@Model.SheetId">No</a>
+

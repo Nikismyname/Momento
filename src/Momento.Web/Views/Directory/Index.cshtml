@@ -1,0 +1,45 @@
+﻿@model DirectoryIndex
+@{
+    var m = Model;
+    ViewData["Title"] = "Index";
+}
+
+<link rel="stylesheet" href="~/css/contextMenu.css" />
+
+<div id='cntnr'>
+    <ul id='items'>
+        <li>Create Folder</li>
+        <li>Create Content</li>
+        <li>Delete</li>
+        <li>Download Data</li>
+        <li>Upload Data</li>
+    </ul>
+    <div id="dirId" val=""></div>
+</div>
+
+<form method="post" action="/Data/Download" hidden="hidden">
+    <input id="dl-id-input" name="id" value="" hidden="hidden" />
+    <button id="dl-submit-button" type="submit" hidden="hidden"></button>
+</form>
+
+<form method="get" action="/Data/Upload" hidden ="hidden">
+    <input id="ul-id-input" name="dirId" value="" hidden ="hidden"/>
+    <button id="ul-submit-button" type="submit" hidden ="hidden"></button>
+</form>
+
+@await Html.PartialAsync("_IndexPartial", Model)
+
+@section scripts
+    {
+    <script>
+        var f = $.fn.tooltip.noConflict();
+        $.fn.bootstrapTooltip = f;
+    </script>
+
+    @*sortable lists*@
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    <script src="~/js/Directory/directory.js"></script>
+}
+

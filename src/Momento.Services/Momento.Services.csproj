@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="HtmlSanitizer" Version="4.0.187" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Momento.Data\Momento.Data.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+﻿@model List<VideoNoteView>
+
+@{
+    @foreach (var note in Model.OrderBy(x=>x.SeekTo).ToList())
+    {
+        <div id ="infoDiv@(note.Id)">
+            <div class="row">
+                <div class="offset-@(note.Level-1) col-9 no-padding">
+                    <button class="btn btn-primary btn-sm btn-block btn-view">View</button>
+                    <button class="seek btn btn-primary btn-sm btn-block" value="@note.SeekTo" id="@note.Id">GoTo</button>
+                </div>
+               <div noteId ="@note.Id"state ="0" class="col-sm-8 note-view-div">
+                    @if (new int[] { 0, 1 }.Contains((int)note.Formatting))
+                    {
+                        @note.Content
+                    }
+                    else
+                    {
+                        <pre class="prettyprint">@note.Content</pre>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (note.ChildNotes.Any())
+        {
+            @await Html.PartialAsync("_NoteViewPartial", note.ChildNotes.OrderBy(x=>x.SeekTo).ToList())
+        }
+    }
+}

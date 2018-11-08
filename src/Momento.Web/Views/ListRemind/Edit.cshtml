@@ -1,0 +1,29 @@
+﻿@model ListCreate
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Name" />
+    @Html.LabelFor(x => x.Name)
+    <br />
+    <button id="newItem" type="button">New Item</button>
+
+    <div id="listItems">
+        @foreach (var listItem in Model.ListItems)
+        {
+            <textarea rows="2" cols="50" name="ListItems[@(listItem.InPageId)].Content">@(listItem.Content)</textarea>
+        }
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+@section scripts
+    {
+    <script src="~/js/List/ListCreate.js"></script>
+    <script>
+        noteCreate(@(Model.ListItems.Count));
+    </script>
+}

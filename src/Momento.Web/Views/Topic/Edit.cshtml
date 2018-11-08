@@ -1,0 +1,16 @@
+﻿@model TopicEdit
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<form method="post">
+    <input asp-for="Name"/>
+    @Html.LabelFor(x=>x.Name)
+    <br/>
+    <input asp-for="SheetId" hidden="hidden"/>
+    <input asp-for="TopicId" hidden ="hidden">
+    <button type="submit">Edit</button>
+</form>
+
+<a asp-area="" asp-controller="CheatSheet" asp-action="Edit" asp-route-id="@Model.SheetId">Back</a>
+

@@ -1,0 +1,137 @@
+﻿@model ListToDoUse
+@{
+    ViewData["Title"] = "Use";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var tabs = Model.Categories.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+    var itemsByCategorie = new Dictionary<string, List<ListToDoItemUse>>();
+    foreach (var tab in tabs)
+    {
+        itemsByCategorie[tab] = new List<ListToDoItemUse>();
+    }
+
+    foreach (var item in Model.Items)
+    {
+        if (tabs.Contains(item.Status))
+        {
+            itemsByCategorie[item.Status].Add(item);
+        }
+        else
+        {
+            itemsByCategorie["unassigned"].Add(item);
+        }
+    }
+
+    foreach (var tabName in tabs)
+    {
+        itemsByCategorie[tabName] = itemsByCategorie[tabName].OrderBy(x => x.Order).ToList();
+    }
+}
+
+<link rel="stylesheet" href="~/css/contextMenu.css" />
+
+@* THe right click items *@
+<div id='cntnr'>
+    <ul id='items'>
+        <li>MoveTo</li>
+        <li>Delete</li>
+    </ul>
+    <div id="itemId" val=""></div>
+</div>
+
+<form method="post" action="/ListToDo/Save">
+    <div class="row">
+        <div class="col-sm-2">
+            <button id="btn-create" type="button" class="btn btn-primary btn-block">Create Item</button>
+            <button id="btn-new-tab" type="button" class="btn btn-primary btn-block">Create Tab</button>
+            <button id="btn-rename" type="button" class="btn btn-primary btn-block">Rename Tab</button>
+            <button id="btn-save-list" type="submit" class="btn btn-success btn-block">Save List</button>
+            <button id="btn-delete-all-items" type="button" class="btn btn-warning btn-block">Delete All Items</button>
+            <button id="btn-delete-tab" type="button" class="btn btn-warning btn-block">Delete Tab</button>
+            @*<button id="btn-test" type="button" class="btn btn-secondary btn-block">Test</button>*@
+        </div>
+        <div class="col-sm-10">
+            @* THe tabs thenself *@
+            <ul class="nav nav-tabs" id="tab-ul" role="tablist">
+                @for (int i = 0; i < tabs.Length; i++)
+                {
+                    var tab = tabs[i];
+                    <li class="nav-item nav-item-tab">
+                        <a id="heading-@(tab)" class="nav-link @(i == 0 ? "active" : null) nav-link-tab" data-toggle="tab" href="#@(tab)">@(tab)</a>
+                    </li>
+                }
+            </ul>
+
+            @{ var counter = 0; }
+            @* Tab contents *@
+            <div class="tab-content">
+                @for (int i = 0; i < tabs.Length; i++)
+                {
+                    var tab = tabs[i];
+                    <div id="@(tab)" class="container tab-pane @(i==0? "active":"fade")">
+                        <ul class="sortableList non-list" style="display:inline-block" id="content@(i)" parentId="@(i)" type="@(tab)">
+                            @for (int j = 0; j < itemsByCategorie[tab].Count; j++)
+                            {
+                                var item = itemsByCategorie[tab][j];
+                                <li class="ui-state-default non-li margin-top-1-percent">
+                                    <div id="box@(counter)" ident="@(counter)" class="todo-item content-none box"><p id="text@(counter)">@(item.Content)</p></div>
+                                    <div>
+                                        <textarea name="Items[@(counter)].Content" id="text-area@(counter)" ident="@(counter)" class="text-area" rows="1" cols="50" style="display:none">@(item.Content)</textarea>
+                                    </div>
+                                    <div>
+                                        <textarea name="Items[@(counter)].Comment" id="comment@(counter)" ident="@(counter)" class="comment" rows="3" cols="50" style="display:none">@(item.Comment)</textarea>
+                                    </div>
+                                    <input id="status@(counter)" class="status-input" name="Items[@(counter)].Status" value="@(tab)" hidden="hidden" />
+                                    @{var deleted = itemsByCategorie[tab][j].Deleted.ToString().ToLower();
+                                        var order = itemsByCategorie[tab][j].Order;}
+                                    <input id="deleted@(counter)" class="delete-input" name="Items[@(counter)].Deleted" value="@(deleted)" hidden="hidden" />
+                                    <input id="order@(counter)" class="order-input" name="Items[@(counter)].Order" value="@(order)" hidden="hidden" />
+                                </li>
+                                counter++;
+                            }
+                        </ul>
+                        <br />
+                    </div>
+                }
+                <div id="newTabContentHere"></div>
+            </div>
+        </div>
+    </div>
+
+    <input id="todo-list-categories" name="Categories" value="@(Model.Categories)" hidden="hidden" />
+    <input id="parent-directory-id" name="DirectoryId" value="@(Model.DirectoryId)" hidden="hidden" />
+    <input id="todo-list-desctiption" name="Description" value="@(Model.Description)" hidden="hidden" />
+    <input id="todo-list-id" name="Id" value="@(Model.Id)" hidden="hidden" />
+    <input id="todo-list-name" name="Name" value="@(Model.Name)" hidden="hidden" />
+</form>
+
+<textarea id="for-scale" rows="1" cols="50" style="display:none">for scale</textarea>
+
+@section Scripts{
+    @*used for sortable lists*@
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    <script src="~/js/ListToDo/ListToDoUse.js"></script>
+    <script type="text/javascript">
+
+        let tabCounts = {};
+        let htmlEl;
+        let itemsCount = @(Model.Items.Count);
+        //TODO: INSANE it interprets my string as HTML element with the same name WTF?????!!!!!!
+        @foreach (var tab in tabs)
+        {
+            @:htmlEl = @(tab);
+            @:tabCounts[$(htmlEl).attr('id')] = @(itemsByCategorie[tab].Count);
+        }
+
+        ToDoList(tabCounts, itemsCount);
+    </script>
+}
+
+
+
+
+
+

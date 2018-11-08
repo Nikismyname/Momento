@@ -1,0 +1,128 @@
+﻿@model DirectoryIndex
+
+@{
+    var id = this.Model.Id;
+}
+
+@{
+    string CreateTooltip(ICollection<VideoNoteMouseOver> notes)
+    {
+        var result = string.Empty;
+        foreach (var note in notes)
+        {
+            result += $"<p>{note.FormattedPreview}</p>";
+            if (note.ChildNotes.Count > 0)
+            {
+                result += $"<div style=\"margin-left: 20px;\">";
+                result += CreateTooltip(note.ChildNotes);
+                result += "</div>";
+            }
+        }
+
+        return result;
+    }
+}
+
+@{
+    if (Model.Name == "Root")
+    {
+        var openDir = Model.CurrentDirId == null ? Model.Id : Model.CurrentDirId;
+        <input id="currDir" hidden="hidden" value="@(openDir)" />
+    }
+}
+
+<div id="dir@(id)" class="dirDiv" style="display:none;">
+    <div class="parent-directory">
+        <b>@Model.Name</b>
+        <form method="post" action="/Directory/Create">
+            <input name="id" value="@(id)" hidden="hidden" />
+            <input id="directoryName@(id)" name="name" value="" hidden="hidden" />
+            <input name="returnDirId" value="@(id)" hidden="hidden" />
+            <button id="createFolder@(id)" class="btn-link createDir" pid="@(id)" type="submit">Create Folder</button>
+        </form>
+        <a id="createContent@(id)" asp-area="" asp-controller="Video" asp-action="Create" asp-route-id="@(id)">Create Video Notes</a>
+        <br />
+        <a id="createCodeSnippet@(id)" asp-area="" asp-controller="Code" asp-action="Create" asp-route-id="@(id)">Create Code Snippet</a>
+        <br />
+        <a id="createListToDo@(id)" asp-area="" asp-controller="ListToDo" asp-action="Create" asp-route-id="@(id)">Create ToDo List</a>
+        <br />
+
+        @if (Model.Name != "Root")
+        {
+            var dict = new Dictionary<string, string>();
+            dict.Add("id", id.ToString());
+            dict.Add("returnDirId", Model.ParentDirectoryId.ToString());
+            <a id="delLink@(id)" class="dirDel" asp-area="" asp-controller="Directory" asp-action="Delete" asp-all-route-data="@(dict)">Delete Folder</a>
+            <br />
+            <a id="@(id)" pid="@(Model.ParentDirectoryId)" class="backLink">Back</a>
+        }
+    </div>
+
+    <ul class="sortableList non-list" id="directory@(id)" parentId="@(id)" type="dir">
+        @{
+            var counter = 0;
+        }
+        @foreach (var subDir in Model.Subdirectories.OrderBy(x => x.Order))
+        {
+            <li class="ui-state-default non-li">
+                <div pid="@(Model.Id)" id="@(subDir.Id)" order="@(counter++)" class="directory">
+                    @subDir.Name
+                </div>
+            </li>
+        }
+    </ul>
+
+    <ul class="sortableList non-list" id="content@(id)" parentId="@(id)" type="cnt">
+        @{
+            var counter1 = 0;
+        }
+        @foreach (var vid in Model.Videos.OrderBy(x => x.Order))
+        {
+            <li class="ui-state-default non-li">
+                <div class="content" id="@(vid.Id)" order="@(counter1++)">
+                    <b>@vid.Name</b>
+                    <h6>@vid.Description</h6>
+                    <h6 title="@CreateTooltip(vid.Notes.Where(x => x.IsRoot == true).ToList())" data-toggle="tooltip" data-html="true">Notes:@vid.NotesCount</h6>
+                    <div class="flex">
+                        <a asp-area="" asp-controller="Video" asp-action="View" asp-route-id="@vid.Id">View</a>
+                        <a class="content-link" asp-area="" asp-controller="Video" asp-action="Edit" asp-route-id="@vid.Id">Edit</a>
+                        <form method="post" action="/Video/Delete">
+                            <button class="content-link btn-link deleteContent" type="submit">Delete</button>
+                            <input name="contentId" value="@(vid.Id)" hidden="hidden" />
+                            <input name="directoryId" value="@(Model.Id)" hidden="hidden" />
+                        </form>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+    @{
+        var counter2 = 0;
+    }
+
+
+    <ul class="sortableList non-list" id="todo@(id)" parentId="@(id)" type="todo">
+        @foreach (var todo in Model.ListsToDo)
+        {
+            <li class="ui-state-default non-li">
+                <div class="todo-list" id="@(todo.Id)" order="@(counter2++)">
+                    <b>@todo.Name</b>
+                    <h6>@todo.Description</h6>
+                    <div class="flex">
+                        <a class="content-link" asp-area="" asp-controller="ListToDo" asp-action="Use" asp-route-id="@todo.Id">Use</a>
+                        <form method="post" action="/ListToDo/Delete">
+                            <button class="content-link btn-link deleteContent" type="submit">Delete</button>
+                            <input name="id" value="@(todo.Id)" hidden="hidden" />
+                            <input name="dirId" value="@(Model.Id)" hidden="hidden" />
+                        </form>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+@foreach (var subdir in Model.Subdirectories)
+{
+    @await Html.PartialAsync("_IndexPartial", subdir)
+}

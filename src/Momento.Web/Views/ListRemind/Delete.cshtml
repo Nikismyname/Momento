@@ -1,0 +1,13 @@
+﻿@model ListRemindDelete
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Are you sure you want to delete list "@(Model.Name)"</h2>
+<form method="post">
+    <input asp-for="Id" hidden="hidden"/>
+    <button type="submit">Yes</button>
+</form>
+<a asp-area="" asp-controller="List" asp-action="Index">No</a>
+

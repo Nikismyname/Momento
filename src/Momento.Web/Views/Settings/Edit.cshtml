@@ -1,0 +1,136 @@
+﻿@model UserSettings
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<form method="post">
+    <div class="container">
+        <h2>Settings</h2>
+        <br>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#style">Style</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#video">Video notes</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="style" class="container tab-pane active">
+                <div class="form-group row">
+                    <lable for="stypeSelect" class="col-sm-3 col-form-label text-right">Style</lable>
+                    <div class="col-sm-6">
+                        <select asp-for="LACSSTheme" asp-items="Html.GetEnumSelectList<CSSTheme>()" id="stypeSelect" class="form-control-black"></select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStyle" class="col-sm-3 col-form-label text-right">Dark inputs</lable>
+                    <div class="col-sm-6">
+                        <input asp-for="LADarkInputs" type="checkbox" id="inputStyle" class="form-control-black" />
+                    </div>
+                </div>
+            </div>
+
+            <div id="video" class="container tab-pane fade">
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on top new note</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnTopNewNote" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on bottom new note</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnBottomNewNote" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on sub note top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnSubNoteTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on top sub note regular</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnSubNoteRegular" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on topic top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnTopicTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on topic bottom</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnTopicBottom" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on time stamp top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnTimeStampTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Pause video on time stamp bottom</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNPauseVideoOnTimeStampBottom" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Go down on new note top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNGoDownOnNewNoteTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Go down on sub note all</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNGoDownOnSubNoteAll" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Go down on new topic top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNGoDownOnNewTopicTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Go down on new time stamp top</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNGoDownOnNewTimeStampTop" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <lable for="inputStle" class="col-sm-6 col-form-label text-right">Auto save progress</lable>
+                    <div class="col-sm-2">
+                        <input asp-for="VNAutoSaveProgress" type="checkbox" class="form-control-black" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="number" asp-for="Id" hidden />
+
+    <button class="btn btn-success" type="submit">Save Changes</button>
+</form>
+

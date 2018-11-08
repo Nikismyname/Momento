@@ -1,0 +1,22 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Upload";
+}
+
+<div id="dirId" val="@(Model)"></div>
+
+<form method="post" enctype="multipart/form-data" asp-controller="Data" asp-action="Upload">
+    <div class="form-group">
+        <div class="col-md-10">
+            <p>Upload one file using this form:</p>
+            <input type="file" name="file" class="form-control-black"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <input type="submit" value="Upload" class="form-control-black"/>
+        </div>
+    </div>
+    <input name="dirId" value="@(Model)" hidden="hidden"/>
+</form>
+

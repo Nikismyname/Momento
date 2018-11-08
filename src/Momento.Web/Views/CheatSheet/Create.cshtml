@@ -1,0 +1,12 @@
+﻿@model CheatSheet
+
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Name"/>
+    @Html.LabelFor(x=>x.Name)
+    <br/>
+    <input asp-for="Description">
+    @Html.LabelFor(x=>x.Description)
+    <br/>
+    <button type="submit">Submit</button>
+</form>

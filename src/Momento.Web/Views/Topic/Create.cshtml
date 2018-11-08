@@ -1,0 +1,13 @@
+﻿@model TopicCreate
+@{
+    ViewData["Title"] = "Create";
+}
+
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Name" />
+    <br />
+    <input hidden="hidden" asp-for="SheetId" />
+    <button type="submit">Submit</button>
+</form>
+

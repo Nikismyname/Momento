@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.1",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "https://localhost:44307",
+            "sourceMaps": true,
+            "webRoot": "C:/Users/ASUS G751JY/source/repos/Projects/Momento/Momento.Web/wwwroot"
+        }
+    ]
+}

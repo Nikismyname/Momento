@@ -1,0 +1,92 @@
+﻿@using System.Linq;
+@model VideoCreatePartial
+
+@{
+    var id = Model.Note.InPageId;
+    var lvl = Model.Note.Level;
+    var pid = Model.Note.InPageParentId;
+    var delStat = Model.Note.Deleted.ToString().ToLower();
+
+    var options = (Formatting[])Enum.GetValues(typeof(Formatting));
+}
+
+@if (Model.Note.Deleted == true)
+{
+    <input id="id@(id)" type="number" name="ContentCreate.Notes[@(id)].Id" value="@(Model.Note.Id)" hidden="hidden">
+    <input id="deleted@(id)" type="text" name="ContentCreate.Notes[@(id)].Deleted" value="@(delStat)" hidden="hidden" />
+    <input type="number" name="ContentCreate.Notes[@(id)].InPageId" value="@(id)" hidden="hidden" />
+}
+else if (Model.Note.Type == VideoNoteType.Note)
+{
+    <div class="note note-identifier" id="mainNoteDiv@(id)">
+        <div class="flex">
+            <textarea class="form form-control-black size-auto" id="textarea@(id)" rows="2" cols="50" name="ContentCreate.Notes[@(id)].Content">@(Model.Note.Content)</textarea>
+        </div>
+
+        <div class="flex">
+            @if (Model.Note.Level < 4)
+            {
+                <button id="subNoteButton@(id)" type="button" class="subNoteButton btn btn-secondary" level="@(lvl)" parentId="@(id)">Sub-note</button>
+            }
+
+            <select class="form-control-black size-width-auto" id="select@(id)" name="ContentCreate.Notes[@(id)].Formatting" selected>
+                @for (int i = 0; i < options.Length; i++)
+                {
+                    var displayName = options[i].ToString().Replace('_', ' ');
+                    if (i == (int)Model.Note.Formatting)
+                    {
+                        <option selected="selected" value="@(i)">@(displayName)</option>
+                    }
+                    else
+                    {
+                        <option value="@(i)">@(displayName)</option>
+                    }
+                }
+            </select>
+            <button id="delButton@(id)" class="delButton btn btn-warning" noteId="@(id)" type="button">Delete</button>
+        </div>
+
+        <input id="id@(id)" type="number" name="ContentCreate.Notes[@(id)].Id" value="@(Model.Note.Id)" hidden="hidden">
+        <input id="deleted@(id)" type="text" name="ContentCreate.Notes[@(id)].Deleted" value="@(delStat)" hidden="hidden" />
+        <input id="seekTo@(id)" type="number" name="ContentCreate.Notes[@(id)].SeekTo" value="@(Model.Note.SeekTo)" hidden="hidden" />
+        <input id="inPageParentId@(id)" type="number" name="ContentCreate.Notes[@(id)].InPageParentId" value="@(pid)" hidden="hidden" />
+        <input id="type@(id)" type="number" name="ContentCreate.Notes[@(id)].Type" value="@((int)Model.Note.Type)" hidden="hidden" />
+        <input id ="level@(id)" type="number" name="ContentCreate.Notes[@(id)].Level" value="@(lvl)" hidden="hidden" />
+        @*inPageId*@<input type="number" name="ContentCreate.Notes[@(id)].InPageId" value="@(id)" hidden="hidden" />
+    </div>
+}
+else
+{
+    <div class="note note-identifier" id="mainNoteDiv@(id)">
+        <div class="flex">
+            @if (Model.Note.Type == VideoNoteType.TimeStamp)
+            {
+                <textarea class="form-control-black size-auto time-stamp" id="textarea@(id)" rows="1" cols="50" name="ContentCreate.Notes[@(id)].Content"></textarea>
+            }
+            else
+            {
+                <textarea class="form-control-black size-auto new-topic" id="textarea@(id)" rows="1" cols="50" name="ContentCreate.Notes[@(id)].Content"></textarea>
+            }
+            <button class="btn btn-warning" id="delButton@(id)" type="button">Delete</button>
+        </div>
+
+        <input id="id@(id)" type="number" name="ContentCreate.Notes[@(id)].Id" value="@(Model.Note.Id)" hidden="hidden">
+        <input id="deleted@(id)" type="text" name="ContentCreate.Notes[@(id)].Deleted" value="@(delStat)" hidden="hidden" />
+        <input id="seekTo@(id)" type="number" name="ContentCreate.Notes[@(id)].SeekTo" value="@(Model.Note.SeekTo)" hidden="hidden" />
+        <input id="type@(id)" type="number" name="ContentCreate.Notes[@(id)].Type" value="@((int)Model.Note.Type)" hidden="hidden" />
+        @*inPageId*@<input type="number" name="ContentCreate.Notes[@(id)].InPageId" value="@(id)" hidden="hidden" />
+    </div>
+}
+
+<div class="note-offset" id="div@(id)">
+    @{
+        var children = Model.Notes.Where(x => x.InPageParentId == Model.Note.InPageId).ToArray();
+        if (children.Length > 0)
+        {
+            foreach (var child in children)
+            {
+                @await Html.PartialAsync("_NoteCreatePartial", new VideoCreatePartial { Note = child, Notes = Model.Notes });
+            }
+        }
+    }
+</div>

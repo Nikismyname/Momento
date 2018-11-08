@@ -1,0 +1,12 @@
+﻿@model CheatSheetCreate[]
+
+@foreach (var csvm in Model)
+{
+    <h4>@csvm.Title</h4>
+    <h5>@csvm.Description</h5>
+    <a asp-area="" asp-controller="CheatSheet" asp-action="Edit" asp-route-id="@csvm.Id">Edit</a>
+    <a asp-area="" asp-controller="CheatSheet" asp-action="Delete" asp-route-id="@csvm.Id">Delete</a>
+    <br />
+}
+
+<a asp-area="" asp-controller="CheatSheet" asp-action="Create">Create New</a>

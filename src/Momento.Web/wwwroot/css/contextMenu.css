@@ -1,0 +1,42 @@
+﻿#items {
+    list-style: none;
+    margin: 0px;
+    margin-top: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    font-size: 17px;
+    color: #333333;
+}
+
+hr {
+    width: 85%;
+    background-color: #E4E4E4;
+    border-color: #E4E4E4;
+    color: #E4E4E4;
+}
+
+#cntnr {
+    display: none;
+    position: fixed;
+    border: 1px solid #B2B2B2;
+    width: 160px;
+    background: #F9F9F9;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+#items :hover {
+    color: white;
+    background: #284570;
+    border-radius: 2px;
+}
+
+.list-item-reloaction-div{
+    left: 25%;
+    top: 25%;
+    position: fixed;
+    width: 160px;
+    border-radius: 4px;
+    z-index: 11;
+}

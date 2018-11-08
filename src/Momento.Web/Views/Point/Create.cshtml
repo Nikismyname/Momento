@@ -1,0 +1,20 @@
+﻿@model PointCreate
+    ViewData["Title"] = "Create";
+}
+
+<form method="post">
+    <div asp-validation-summary="All" />
+    <input asp-for="Name">
+    @Html.LabelFor(x=>x.Name)
+    <br/>
+    <textarea asp-for="Content"></textarea>
+    <br />
+    <select asp-for="Formatting" asp-items="Html.GetEnumSelectList<Formatting>()">
+    </select>
+
+    <br />
+    <input hidden="hidden" asp-for="TopicId">
+    <input hidden="hidden" asp-for="SheetId">
+    <button type="submit">Submit</button>
+</form>
+

@@ -1,0 +1,107 @@
+﻿@*@model ContentCreateSettings
+
+@{
+    ViewData["Title"] = "NotesEdit";
+}
+
+@await Html.PartialAsync("_VideAndTopControll")
+
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ContentCreate.Url" type="text" id="txtUrl" hidden="hidden" />
+    <div class="form-group row">
+        <lable for="nameInput" class="col-sm-2 col-form-label text-right">Name</lable>
+        <div class="col-sm-6">
+            <input id="nameInput" class="form-control-black" asp-for="ContentCreate.Name">
+        </div>
+    </div>
+    <div class="form-group row">
+        <lable for="descriptionInput" class="col-sm-2 col-form-label text-right">Description</lable>
+        <div class="col-sm-6">
+            <input id="descriptionInput" class="form-control-black" asp-for="ContentCreate.Description">
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_SettingsPartial")
+
+    <input asp-for="ContentCreate.Id" hidden="hidden" />
+    <input asp-for="ContentCreate.DirectoryId" hidden="hidden">
+    <input id="contentSeekTo" type="number" name="SeekTo" value="@(Model.ContentCreate.SeekTo)" hidden="hidden" />
+
+    <br />
+    <br />
+    <div id="NewNoteLocation" level=1>
+        @foreach (var note in Model.ContentCreate.Notes.Where(x => x.InPageParentId == null).OrderBy(x => x.InPageId))
+        {
+            @await Html.PartialAsync("_NoteCreatePartial", new ContentCreatePartial { Note = note, Notes = Model.ContentCreate.Notes });
+        }
+    </div>
+    <br />
+
+    @await Html.PartialAsync("_BottomControllPartial");
+
+    <button class="btn btn-success" id="submitBtn" type="submit">Save Content</button>
+    <a class="btn btn-danger" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="@(Model.ContentCreate.DirectoryId)">Don't Save</a>
+    <br />
+</form>
+
+@{
+    var n = Model.ContentCreate.Notes.OrderBy(x => x.InPageId).ToList();
+}
+
+@foreach (var i in n)
+{
+    if (i.Deleted == false)
+    {
+        <div class="info" id="infoDiv@(i.InPageId)" idd="@(i.InPageId)" pid="@(i.InPageParentId)"></div>
+    }
+    else
+    {
+        <div class="info" id="infoDiv@(i.InPageId)" idd="@(i.InPageId)" pid="-1"></div>
+    }
+}
+
+@section scripts
+    {
+    <script type="text/javascript" src="~/js/Video/ExtractVideoToken.js"></script>
+    <script type="text/javascript" src="~/js/Video/editVideoSetUp.js"></script>
+    <script type="text/javascript" src="~/js/Video/notesCreate.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let enumerators = JSON.parse('@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+                Enum.GetValues(typeof(Formatting)),new Newtonsoft.Json.Converters.StringEnumConverter()))');
+            let nextId = @Model.ContentCreate.Notes.Count;
+
+            let notes = [];
+            for (var i = 0; i < nextId; i++) {
+                let div = $('#infoDiv' + i);
+                notes[i] = Number(div.attr('pid'));
+            }
+
+            var settings = {};
+
+            settings.PauseVideoOnBottomNewNote = @(Model.Settings.VNPauseVideoOnBottomNewNote.ToString().ToLower());
+            settings.PauseVideoOnSubNoteTop = @(Model.Settings.VNPauseVideoOnSubNoteTop.ToString().ToLower());
+            settings.PauseVideoOnSubNoteRegular = @(Model.Settings.VNPauseVideoOnSubNoteRegular.ToString().ToLower());
+            settings.PauseVideoOnTimeStampBottom = @(Model.Settings.VNPauseVideoOnTimeStampBottom.ToString().ToLower());
+            settings.PauseVideoOnTimeStampTop = @(Model.Settings.VNPauseVideoOnTimeStampTop.ToString().ToLower());
+            settings.PauseVideoOnTopicBottom = @(Model.Settings.VNPauseVideoOnTopicBottom.ToString().ToLower());
+            settings.PauseVideoOnTopicTop = @(Model.Settings.VNPauseVideoOnTopicTop.ToString().ToLower());
+            settings.PauseVideoOnTopNewNote = @(Model.Settings.VNPauseVideoOnTopNewNote.ToString().ToLower());
+            ///go down on new note all
+            settings.GoDownOnNewNoteTop = @(Model.Settings.VNGoDownOnNewNoteTop.ToString().ToLower());
+            settings.GoDownOnSubNoteAll = @(Model.Settings.VNGoDownOnSubNoteAll.ToString().ToLower());
+            //all
+            settings.GoDownOnNewTimeStampTop = @(Model.Settings.VNGoDownOnNewTimeStampTop.ToString().ToLower());
+            //all
+            settings.GoDownOnNewTopicTop = @(Model.Settings.VNGoDownOnNewTopicTop.ToString().ToLower());
+
+            notesFunction(enumerators, nextId, notes, settings);
+        });
+    </script>
+}*@
+
+
+
+
+

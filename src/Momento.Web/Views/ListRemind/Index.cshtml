@@ -1,0 +1,18 @@
+﻿@model List<ListIndex>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<a asp-area="" asp-controller="List" asp-action="Create"> Create list</a>
+
+@foreach (var list in Model)
+{
+    <h1>@(list.Name)</h1>
+    <h4>@(list.ListItemsCount)</h4>
+    <a asp-area="" asp-controller="List" asp-action="Edit" asp-route-id="@(list.Id)">Edit</a>
+    <a asp-area="" asp-controller="List" asp-action="View" asp-route-id="@(list.Id)">View</a>
+    <a asp-area="" asp-controller="List" asp-action="Delete" asp-route-id="@(list.Id)">Delete</a>
+}
+
+

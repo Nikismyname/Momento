@@ -1,0 +1,24 @@
+﻿@model VideoView
+@{
+    ViewData["Title"] = "View";
+}
+
+<link rel="stylesheet" href="~/css/google-prettify/vibrant-ink.css" />
+
+<div class="row">
+    <div id="iframeDiv" class="col-sm-9 no-padding">
+        <div id="video"></div>
+    </div>
+</div>
+
+<br />
+
+<input id="txtUrl" value="@Model.Url" hidden="hidden" />
+
+@await Html.PartialAsync("_NoteViewPartial", Model.Notes)
+
+@section scripts
+{
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <script type="text/javascript" src="~/js/Video/notesView.js"></script>
+}
