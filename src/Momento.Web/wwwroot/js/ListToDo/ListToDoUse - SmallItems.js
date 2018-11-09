@@ -6,54 +6,77 @@ function ToDoList(tabCounts, itemsCount) {
     ///Create new ITEM
     $('#btn-create').on('click', function () {
 
+        ///delete
+        //var div = $('<div class="form-control-black">');
+        //let tabName = getActiveTabName();
+        //let tab = $('#' + tabName);
+        //let appendTarget = $('ul', tab);
+        //$(appendTarget).append(div);
+
+        let newLi = $('<li class="ui-state-default non-li ui-sortable-handle"></li>');
+        let disabledInput = $('<textarea disabled="disabled" class="form-control-black">test</textarea>');
         let tabName = getActiveTabName();
         let tab = $('#' + tabName);
         let appendTarget = $('ul', tab);
-
-        let box = $('<div id="box' + nextId + '" ident="' + nextId + '" class="todo-item content-none box" style="display:inline-block"><p id="text' + nextId + '"></p></div>')
-        sizeBox(box);
-
-        let newLi = $('<li class="ui-state-default non-li"></li>');
-
-        let contentDiv = $('<div></div>');
-        let commentDiv = $('<div></div>');
-        let contentTextArea = $('<textarea id="text-area' + nextId + '" name="Items[' + nextId + '].Content" class="text-area form-control-black" ident="' + nextId + '" rows="1" cols="100" style="display:none"></textArea>');
-        let commentTextArea = $('<textarea id="comment' + nextId + '" name="Items[' + nextId + '].Comment"  class="comment form-control-black" ident="' + nextId + '" rows="3" cols="100" style="display:none;height:100%"></textarea>');
-        let statusInput = $('<input id="status' + nextId + '" class="status-input" name="Items[' + nextId + '].Status" value="' + tabName + '" hidden="hidden" />');
-        let deletedInput = $('<input id="deleted' + nextId + '" class="delete-input" name="Items[' + nextId + '].Deleted" value="false" hidden ="hidden"/>');
-        let orderInput = $('<input id="order' + nextId + '" class="order-input" name="Items[' + nextId + '].Order" value="' + tabCounts[tabName] + '" hidden="hidden"/>');
-
-        $(contentDiv).append(contentTextArea);
-        $(commentDiv).append(commentTextArea);
-
-        $(newLi).append(box);
-        $(newLi).append(contentDiv);
-        $(newLi).append(commentDiv);
-        $(newLi).append(statusInput);
-        $(newLi).append(deletedInput);
-        $(newLi).append(orderInput);
-        $(newLi).addClass("margin-top-1-percent");
+        newLi.append(disabledInput);
         $(appendTarget).append(newLi);
 
-        $(commentTextArea).mousedown(function () { textAreaMouseDown(commentTextArea, false) });
-        $(commentTextArea).blur(function () { textAreaBlur(commentTextArea, false) });
-        $(contentTextArea).mousedown(function () { textAreaMouseDown(contentTextArea, true) });
-        $(contentTextArea).blur(function () { textAreaBlur(contentTextArea, true) });
-        $(box).click(boxClick);
+        //let scale = $('#for-scale');
+        //let width = $(scale).width();
+        //let height = $(scale).height();
 
-        tabCounts[tabName]++;
-        nextId++;
+        //let tabName = getActiveTabName();
+        //let tab = $('#' + tabName);
+        //let appendTarget = $('ul', tab);
 
-        ///binding right click to new boxes
-        $(box).bind("contextmenu", function (e) {
+        //let box = $('<div id="box' + nextId + '" ident="' + nextId + '" class="todo-item content-none box"><p id="text' + nextId + '"></p></div>')
+        //box.innerWidth(width);
+        //box.innerHeight(height);
+        //$(box).css("padding", $(scale).css("padding"));
+        //$(box).css("padding", $(scale).css("padding"));
 
-            e.preventDefault();
-            $('#cntnr').css("left", e.pageX);
-            $('#cntnr').css("top", e.pageY - dw_getScrollOffsets().y);
-            $('#cntnr').fadeIn(200, startFocusOut());
+        //let newLi = $('<li class="ui-state-default non-li"></li>');
 
-            rightClickedElement = this.parentElement;
-        });
+        //let contentDiv = $('<div></div>');
+        //let commentDiv = $('<div></div>');
+        //let contentTextArea = $('<textarea id="text-area' + nextId + '" name="Items[' + nextId + '].Content" class="text-area" ident="' + nextId + '" rows="1" cols="100" style="display:none"></textArea>');
+        //let commentTextArea = $('<textarea id="comment' + nextId + '" name="Items[' + nextId + '].Comment"  class="comment" ident="' + nextId + '" rows="3" cols="100" style="display:none"></textarea>');
+        //let statusInput = $('<input id="status' + nextId + '" class="status-input" name="Items[' + nextId + '].Status" value="' + tabName + '" hidden="hidden" />');
+        //let deletedInput = $('<input id="deleted' + nextId + '" class="delete-input" name="Items[' + nextId + '].Deleted" value="false" hidden ="hidden"/>');
+        //let orderInput = $('<input id="order' + nextId + '" class="order-input" name="Items[' + nextId + '].Order" value="' + tabCounts[tabName] + '" hidden="hidden"/>');
+
+        //$(contentDiv).append(contentTextArea);
+        //$(commentDiv).append(commentTextArea);
+
+        //$(newLi).append(box);
+        //$(newLi).append(contentDiv);
+        ////$(newLi).append($('<br/>'));
+        //$(newLi).append(commentDiv);
+        //$(newLi).append(statusInput);
+        //$(newLi).append(deletedInput);
+        //$(newLi).append(orderInput);
+        //$(newLi).addClass("margin-top-1-percent");
+        //$(appendTarget).append(newLi);
+
+        //$(commentTextArea).mousedown(function () { textAreaMouseDown(commentTextArea, false) });
+        //$(commentTextArea).blur(function () { textAreaBlur(commentTextArea, false) });
+        //$(contentTextArea).mousedown(function () { textAreaMouseDown(contentTextArea, true) });
+        //$(contentTextArea).blur(function () { textAreaBlur(contentTextArea, true) });
+        //$(box).click(boxClick);
+
+        //tabCounts[tabName]++;
+        //nextId++;
+
+        /////binding right click to new boxes
+        //$(box).bind("contextmenu", function (e) {
+
+        //    e.preventDefault();
+        //    $('#cntnr').css("left", e.pageX);
+        //    $('#cntnr').css("top", e.pageY - dw_getScrollOffsets().y);
+        //    $('#cntnr').fadeIn(200, startFocusOut());
+
+        //    rightClickedElement = this.parentElement;
+        //});
     });
 
     ///New TAB 
@@ -352,8 +375,8 @@ function ToDoList(tabCounts, itemsCount) {
 
     function moveListItemTo(relocationDiv, newLocation, oldTabName) {
         let bodyUl = $('#' + newLocation + ' ul');
-        //console.log(bodyUl);
-        //console.log(rightClickedElement);
+        console.log(bodyUl);
+        console.log(rightClickedElement);
 
         $(bodyUl).append(rightClickedElement);
         ///changing the status so the transfer is registered by the ASP
@@ -363,16 +386,22 @@ function ToDoList(tabCounts, itemsCount) {
         tabCounts[newLocation] += 1;
     }
 
+    ///Fixing and adding functuonality to pre-existing items
     $('#btn-test').click(function () {
         //console.log("test stuff here");
     });
-
-    ///Fixing and adding functuonality to pre-existing items
     $('.box').click(boxClick);
     $('.box').each(function () {
-        sizeBox($(this));
-    });
+        let scale = $('#for-scale');
+        let width = $(scale).width();
+        let height = $(scale).height();
 
+        let box = $(this);
+        box.innerWidth(width);
+        box.innerHeight(height);
+        $(box).css("padding", $(scale).css("padding"));
+        $(box).css("padding", $(scale).css("padding"));
+    });
     $('.comment').each(function (ind, element) {
         $(element).mousedown(function () { textAreaMouseDown($(element), false) });
         $(element).blur(function () { textAreaBlur($(element), false) });
@@ -383,23 +412,10 @@ function ToDoList(tabCounts, itemsCount) {
     });
 }
 
-function sizeBox(box) {
-    console.log(box);
-    let scale = $('#for-scale');
-    let width = $(scale).width();
-    let height = $(scale).height();
-    console.log(width + ' ' + height);
-    box.width(width);
-    box.height(height);
-    console.log(box.height());
-    $(box).css("padding", $(scale).css("padding"));
-    $(box).css("margin", $(scale).css("margin"));
-}
-
 function getActiveTabName() {
     let result = 'No active nav-link-tabs found!';
     let tabs = $('a.nav-link-tab');
-    //console.log(tabs);
+    console.log(tabs);
     $(tabs).each(function (ind, tab) {
         let hasClass = $(tab).hasClass('active');
         if (hasClass) {
@@ -410,7 +426,7 @@ function getActiveTabName() {
 }
 
 $('.box').mousedown(function () {
-    //console.log("Picked Up Box");
+    console.log("Picked Up Box");
     liBeingDragged = $(this.parentElement);
 });
 
@@ -436,6 +452,7 @@ $(".sortableList").sortable({
     start: function (event, ui) {
         console.log("Started Sorting");
         dragInProgress = true;
+        //liBeingDragged = $(ui.item);
     },
 
     helper: function (event, ui) {
@@ -447,23 +464,11 @@ $(".sortableList").sortable({
 
     stop: function (event, ui) {
         if (shouldRelocate) {
+            console.log("Should Relocate")
             dragListItemTo(newTab, oldTab, ui.item);
             shouldRelocate = false;
         }
     },
-});
-
-$(".sortableListTabs").sortable({
-    update: function (event, ui) {
-        let parentUl = $('#tab-ul');
-        let allAs = $('a', parentUl);
-        let names = [];
-        $(allAs).each(function (index, item) {
-            names.push(item.innerHTML);
-        });
-        let formattedNames = names.join(';');
-        $('#todo-list-categories').attr('value', formattedNames);
-    }
 });
 
 let shouldRelocate = false;
@@ -486,8 +491,8 @@ function dragListItemTo(newLocation, oldLocation, element) {
     let query = '#' + newLocation + ' ul';
     let bodyUl = $(query);
 
-    //console.log(element);
-    //console.log(bodyUl);
+    console.log(element);
+    console.log(bodyUl);
 
     $(bodyUl).append(element);
     ///changing the status so the transfer is registered by the ASP
@@ -520,16 +525,4 @@ $('.nav-item-tab').mouseleave(function () {
     }
 });
 
-
-///Making boxes responsive
-$(document).ready(function () {
-    let forScale = $('#for-scale');
-    console.log(forScale);
-    $(window).resize(function () {
-        console.log("Here");
-        $('.box').each(function () {
-            sizeBox($(this));
-        });
-    });
-});
 

@@ -12,7 +12,7 @@
         public ListToDo()
         {
             this.Items = new HashSet<ListToDoItem>();
-            this.Categories = "active;backBurner;done;unassigned";
+            this.Categories = "highPriority;active;backBurner;doneNeedsFixes;done;unassigned";
         }
 
         public string  UserId { get; set; }

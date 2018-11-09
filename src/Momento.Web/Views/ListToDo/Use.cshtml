@@ -40,6 +40,14 @@
     <div id="itemId" val=""></div>
 </div>
 
+<div class="col-sm-10">
+    <ul class="non-list">
+        <li class="ui-state-default non-li">
+            <textarea id="for-scale" rows="1" cols="100" class="form-control-black" style="visibility:hidden">for scale</textarea>
+        </li>
+    </ul>
+</div>
+
 <form method="post" action="/ListToDo/Save">
     <div class="row">
         <div class="col-sm-2">
@@ -52,12 +60,12 @@
             @*<button id="btn-test" type="button" class="btn btn-secondary btn-block">Test</button>*@
         </div>
         <div class="col-sm-10">
-            @* THe tabs thenself *@
-            <ul class="nav nav-tabs" id="tab-ul" role="tablist">
+            @* The tabs themself *@
+            <ul class="nav nav-tabs sortableListTabs" id="tab-ul" role="tablist">
                 @for (int i = 0; i < tabs.Length; i++)
                 {
                     var tab = tabs[i];
-                    <li class="nav-item nav-item-tab">
+                    <li class="nav-item nav-item-tab ui-state-default">
                         <a id="heading-@(tab)" class="nav-link @(i == 0 ? "active" : null) nav-link-tab" data-toggle="tab" href="#@(tab)">@(tab)</a>
                     </li>
                 }
@@ -70,17 +78,18 @@
                 {
                     var tab = tabs[i];
                     <div id="@(tab)" class="container tab-pane @(i==0? "active":"fade")">
-                        <ul class="sortableList non-list" style="display:inline-block" id="content@(i)" parentId="@(i)" type="@(tab)">
+                        <ul class="sortableList non-list" id="content@(i)" parentId="@(i)" type="@(tab)">
+
                             @for (int j = 0; j < itemsByCategorie[tab].Count; j++)
                             {
                                 var item = itemsByCategorie[tab][j];
                                 <li class="ui-state-default non-li margin-top-1-percent">
                                     <div id="box@(counter)" ident="@(counter)" class="todo-item content-none box"><p id="text@(counter)">@(item.Content)</p></div>
                                     <div>
-                                        <textarea name="Items[@(counter)].Content" id="text-area@(counter)" ident="@(counter)" class="text-area" rows="1" cols="50" style="display:none">@(item.Content)</textarea>
+                                        <textarea name="Items[@(counter)].Content" id="text-area@(counter)" ident="@(counter)" class="text-area form-control-black" rows="1" cols="100" style="display:none">@(item.Content)</textarea>
                                     </div>
                                     <div>
-                                        <textarea name="Items[@(counter)].Comment" id="comment@(counter)" ident="@(counter)" class="comment" rows="3" cols="50" style="display:none">@(item.Comment)</textarea>
+                                        <textarea name="Items[@(counter)].Comment" id="comment@(counter)" ident="@(counter)" class="comment form-control-black" rows="4" cols="100" style="display:none;height:100%">@(item.Comment)</textarea>
                                     </div>
                                     <input id="status@(counter)" class="status-input" name="Items[@(counter)].Status" value="@(tab)" hidden="hidden" />
                                     @{var deleted = itemsByCategorie[tab][j].Deleted.ToString().ToLower();
@@ -105,8 +114,6 @@
     <input id="todo-list-id" name="Id" value="@(Model.Id)" hidden="hidden" />
     <input id="todo-list-name" name="Name" value="@(Model.Name)" hidden="hidden" />
 </form>
-
-<textarea id="for-scale" rows="1" cols="50" style="display:none">for scale</textarea>
 
 @section Scripts{
     @*used for sortable lists*@
