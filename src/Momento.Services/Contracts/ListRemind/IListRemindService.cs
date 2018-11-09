@@ -1,17 +1,17 @@
 ﻿namespace Momento.Services.Contracts.ListRemind
 {
-    using Momento.Services.Models.List;
+    using Momento.Services.Models.ListRemind;
     using System.Collections.Generic;
 
     public interface IListRemindService
     {
-        List<ListIndex> GetIndex(string userId);
+        List<ListRemindIndex> GetIndex(string userId);
 
-        void Create(string username, string name, List<ListItemCreate> listItems);
+        void Create(string username, string name, List<ListRemindItemCreate> listItems);
 
-        ListCreate GetEdit(int id);
+        ListRemindCreate GetEdit(int id);
 
-        void Edit(int listId, string name, List<ListItemCreate> listItems);
+        void Edit(int listId, string name, List<ListRemindItemCreate> listItems);
 
         void Delete(int id);
 

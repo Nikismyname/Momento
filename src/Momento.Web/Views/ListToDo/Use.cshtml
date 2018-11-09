@@ -48,7 +48,7 @@
     </ul>
 </div>
 
-<form method="post" action="/ListToDo/Save">
+<form method="post">
     <div class="row">
         <div class="col-sm-2">
             <button id="btn-create" type="button" class="btn btn-primary btn-block">Create Item</button>
@@ -96,6 +96,9 @@
                                         var order = itemsByCategorie[tab][j].Order;}
                                     <input id="deleted@(counter)" class="delete-input" name="Items[@(counter)].Deleted" value="@(deleted)" hidden="hidden" />
                                     <input id="order@(counter)" class="order-input" name="Items[@(counter)].Order" value="@(order)" hidden="hidden" />
+
+                                    <input id="id@(counter)" class="id-input" name="Items[@(counter)].Id" value="@(item.Id)" hidden="hidden" />
+                                    <input id="changed@(counter)" class="change-input" name="Items[@(counter)].Changed" value="false" hidden="hidden" />
                                 </li>
                                 counter++;
                             }

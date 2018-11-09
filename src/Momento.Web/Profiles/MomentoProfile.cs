@@ -39,12 +39,11 @@
             CreateMap<CodeNote, CodeNoteCreate>().ReverseMap();
 
 
-            CreateMap<ListToDoCreate, ListToDo>();
+            CreateMap<ListToDoCreate, ListToDo>().ReverseMap();
 
+            CreateMap<ListToDoItem, ListToDoItemUse>().ReverseMap();
 
-            CreateMap<ListToDoItem, ListToDoItemUse>();
-
-            CreateMap<ListToDo, ListToDoUse>();
+            CreateMap<ListToDo, ListToDoUse>().ReverseMap();
         }
     }
 }

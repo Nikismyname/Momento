@@ -47,10 +47,32 @@
         }
 
         ///Soft Delete
-        public void Delete(int id)
+        public void Delete(int id, string username)
         {
+            var listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == id);
+            if (listToDo == null)
+            {
+                throw new Exception("Invalid List To Do");
+            }
+
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if (user == null)
+            {
+                throw new Exception("Invalid Username!");
+            }
+
+            if (listToDo.UserId != user.Id)
+            {
+                throw new Exception("You can not change someone elses List!");
+            }
+
             var now = DateTime.UtcNow;
             var list = context.ListsTodo.SingleOrDefault(x => x.Id == id);
+
+            if(list == null)
+            {
+                throw new Exception("List to Delete does not exist!");
+            }
 
             foreach (var item in list.Items)
             {
@@ -64,49 +86,103 @@
             context.SaveChanges();
         }
 
-        /// <summary>
-        /// Through deleting and replacing for now;
-        /// </summary>
         public void Save(ListToDoUse model, string username)
         {
-            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            ///Verification 
+            var listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == model.Id);
+            if(listToDo == null)
+            {
+                throw new Exception("Invalid List To Do");
+            }
 
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if(user == null)
             {
-                throw new Exception("User with that username not found!");
+                throw new Exception("Invalid Username!");
             }
 
-            var oldList = context.ListsTodo
-                .SingleOrDefault(x => x.Id == model.Id);
-            if (oldList == null)
+            if(listToDo.UserId != user.Id)
             {
-                throw new Exception("List to modify not found!");
-            }
-            context.ListsTodo.Remove(oldList);
-
-            if(oldList.UserId != user.Id)
-            {
-                throw new Exception("You can not modify someone elses list!");
+                throw new Exception("You can not change someone elses List!");
             }
 
-            var newList = new ListToDo
+            var validItemIds = context.ListsTodo
+                .Where(x => x.Id == model.Id)
+                .Select(x => x.Items.Select(y => y.Id))
+                .SingleOrDefault()
+                .ToArray();
+
+            if (model.Items
+                .Where(x=>x.Id > 0)
+                .Any(x => !validItemIds.Contains(x.Id)))
             {
-                Categories = model.Categories,
-                Description = model.Description,
-                DirectoryId = model.DirectoryId,
-                Name = model.Name,
-                UserId = user.Id,
-                Items = model.Items.Select(x=>new ListToDoItem
+                throw new Exception("You can not change someone elses notes, or notes from another List!");
+            }
+
+            ///Change Existing Items
+            var changedExistingModels = model.Items
+                .Where(x => x.Changed == true && x.Id > 0)
+                .OrderBy(x=>x.Id)
+                .ToArray();
+
+            var changedModelsIds = changedExistingModels
+                .Select(x => x.Id).ToArray();
+
+            var dbListItemsChanged = context.ListToDoItems
+                .Where(x => changedModelsIds.Contains(x.Id))
+                .OrderBy(x=>x.Id)
+                .ToArray();
+
+            if(changedExistingModels.Length != dbListItemsChanged.Length)
+            {
+                throw new Exception("Invalid ListItem ids");
+            }
+
+            for (int i = 0; i < changedExistingModels.Length; i++)
+            {
+                if(changedExistingModels[i].Id != dbListItemsChanged[i].Id)
                 {
-                     Comment = x.Comment,
-                     Content = x.Content,
-                     Status = x.Status,
-                     Order = x.Order,
-                })
-                .ToArray(),
-            };
+                    throw new Exception("Invalid ListItem ids");
+                }
 
-            context.ListsTodo.Add(newList);
+                dbListItemsChanged[i].Content = changedExistingModels[i].Content;
+                dbListItemsChanged[i].Comment = changedExistingModels[i].Comment;
+                dbListItemsChanged[i].Status = changedExistingModels[i].Status;
+                dbListItemsChanged[i].Order = changedExistingModels[i].Order;
+            }
+
+            ///Adding new items
+            var itemsToAdd = model.Items
+                .Where(x => x.Id == 0)
+                .ToArray();
+
+            var dbNewItems = itemsToAdd.Select(x => new ListToDoItem
+            {
+                ListToDoId = listToDo.Id,
+                Comment = x.Comment,
+                Content = x.Content,
+                Status = x.Status,
+                Order = x.Order,
+            })
+                .ToArray();
+
+            context.ListToDoItems.AddRange(dbNewItems);
+
+            ///Removing Deleted Items
+            var allSentIds = model.Items
+                .Select(x=>x.Id).ToArray();
+            var deletedItems = validItemIds
+                .Where(x => !allSentIds.Contains(x));
+            var toDeleteDbItems = context.ListToDoItems
+                .Where(x => deletedItems.Contains(x.Id))
+                .ToArray();
+            var now = DateTime.UtcNow;
+            for (int i = 0; i < toDeleteDbItems.Length; i++)
+            {
+                toDeleteDbItems[i].IsDeleted = true;
+                toDeleteDbItems[i].DeletedOn = now;
+            }
+
             context.SaveChanges();
         }
     }

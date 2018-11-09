@@ -43,14 +43,7 @@
         }
 
         [HttpPost]
-        public IActionResult Delete(int id, int dirId)
-        {
-            toDoService.Delete(id);
-            return RedirectToAction("Index","Directory", new {id = dirId});
-        }
-
-        [HttpPost]
-        public IActionResult Save(ListToDoUse model)
+        public IActionResult Use(ListToDoUse model)
         {
             model.Items = model.Items.Where(x => x.Deleted == false).ToList();
             if (ModelState.IsValid)
@@ -59,7 +52,14 @@
                 return Redirect($"/Directory/Index/{model.DirectoryId}");
             }
 
-            return RedirectToAction(nameof(Use), new {id = model.Id});
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id, int dirId)
+        {
+            toDoService.Delete(id, this.User.Identity.Name);
+            return RedirectToAction("Index","Directory", new {id = dirId});
         }
     }
 }

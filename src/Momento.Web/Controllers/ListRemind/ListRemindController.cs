@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.ListRemind;
-    using Momento.Services.Models.List;
+    using Momento.Services.Models.ListRemind;
     using Momento.Web.Models.ListRemind;
 
     [Authorize]
@@ -26,12 +26,12 @@
         [HttpGet]
         public IActionResult Create()
         {
-            var model = new ListCreate();
+            var model = new ListRemindCreate();
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult Create(ListCreate model)
+        public IActionResult Create(ListRemindCreate model)
         {
             if (ModelState.IsValid)
             {
@@ -50,7 +50,7 @@
         }
 
         [HttpPost]
-        public IActionResult Edit(ListCreate model)
+        public IActionResult Edit(ListRemindCreate model)
         {
             if (ModelState.IsValid)
             {

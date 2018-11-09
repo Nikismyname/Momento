@@ -6,7 +6,7 @@
     using Momento.Data;
     using Momento.Data.Models.ListsRemind;
     using Momento.Services.Contracts.ListRemind;
-    using Momento.Services.Models.List;
+    using Momento.Services.Models.ListRemind;
 
     public class ListRemindService : IListRemindService
     {
@@ -17,10 +17,10 @@
             this.context = context;
         }
 
-        public List<ListIndex> GetIndex(string userName)
-            => context.Lists
+        public List<ListRemindIndex> GetIndex(string userName)
+            => context.ListsRemind
                .Where(x => x.User.UserName == userName)
-               .Select(x => new ListIndex
+               .Select(x => new ListRemindIndex
                {
                    Id = x.Id,
                    Name = x.Name,
@@ -28,26 +28,26 @@
                })
                .ToList();
 
-        public void Create(string userName, string name, List<ListItemCreate> listItems)
+        public void Create(string userName, string name, List<ListRemindItemCreate> listItems)
         {
             var userId = context.Users.SingleOrDefault(x => x.UserName == userName).Id;
 
             var list = CreateList(userId, name, listItems);
-            context.Lists.Add(list);
+            context.ListsRemind.Add(list);
             context.SaveChanges();
         }
 
-        public ListCreate GetEdit(int id)
+        public ListRemindCreate GetEdit(int id)
         {
-            var list = context.Lists
+            var list = context.ListsRemind
                 .Include(x => x.Items)
                 .SingleOrDefault(x => x.Id == id);
 
-            var listCr = new ListCreate
+            var listCr = new ListRemindCreate
             {
                 Id = list.Id,
                 Name = list.Name,
-                ListItems = list.Items.Select(x => new ListItemCreate
+                ListItems = list.Items.Select(x => new ListRemindItemCreate
                 {
                     Content = x.Content,
                 })
@@ -56,24 +56,24 @@
 
             return listCr;
         }
-        public void Edit(int listId, string name, List<ListItemCreate> listItems)
+        public void Edit(int listId, string name, List<ListRemindItemCreate> listItems)
         {
-            var dbList = context.Lists.SingleOrDefault(x => x.Id == listId);
+            var dbList = context.ListsRemind.SingleOrDefault(x => x.Id == listId);
             var userId = dbList.UserId;
-            context.Lists.Remove(dbList);
+            context.ListsRemind.Remove(dbList);
             var list = CreateList(userId, name, listItems);
-            context.Lists.Add(list);
+            context.ListsRemind.Add(list);
             context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var list = context.Lists.SingleOrDefault(x => x.Id == id);
-            context.Lists.Remove(list);
+            var list = context.ListsRemind.SingleOrDefault(x => x.Id == id);
+            context.ListsRemind.Remove(list);
             context.SaveChanges();
         }
 
-        private ListRemind CreateList(string userId, string name, List<ListItemCreate> listItems)
+        private ListRemind CreateList(string userId, string name, List<ListRemindItemCreate> listItems)
         {
             var list = new ListRemind
             {
@@ -91,6 +91,6 @@
         }
 
         public string GetName(int id)
-        => context.Lists.SingleOrDefault(x => x.Id == id).Name;
+        => context.ListsRemind.SingleOrDefault(x => x.Id == id).Name;
     }
 }

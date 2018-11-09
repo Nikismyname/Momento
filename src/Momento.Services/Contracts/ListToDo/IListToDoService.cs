@@ -5,8 +5,11 @@
     public interface IListToDoService
     {
         ListToDoUse GetUseModel(int id);
+
         void Create(ListToDoCreate model);
-        void Delete(int id);
+
+        void Delete(int id, string username);
+
         void Save(ListToDoUse model, string username);
     }
 }

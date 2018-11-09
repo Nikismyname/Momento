@@ -42,9 +42,9 @@
         public DbSet<VideoNote> VideoNotes { get; set; }
 
 
-        public DbSet<ListRemind> Lists { get; set; }
+        public DbSet<ListRemind> ListsRemind { get; set; }
 
-        public DbSet<ListRemindItem> ListItems { get; set; }
+        public DbSet<ListRemindItem> ListRemindItems { get; set; }
 
 
         public DbSet<Code> Code { get; set; }

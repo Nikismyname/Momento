@@ -22,7 +22,8 @@ function ToDoList(tabCounts, itemsCount) {
         let statusInput = $('<input id="status' + nextId + '" class="status-input" name="Items[' + nextId + '].Status" value="' + tabName + '" hidden="hidden" />');
         let deletedInput = $('<input id="deleted' + nextId + '" class="delete-input" name="Items[' + nextId + '].Deleted" value="false" hidden ="hidden"/>');
         let orderInput = $('<input id="order' + nextId + '" class="order-input" name="Items[' + nextId + '].Order" value="' + tabCounts[tabName] + '" hidden="hidden"/>');
-
+        let idInput = $('<input id="id' + nextId + '" class="id-input" name="Items[' + nextId + '].Id" value="0" hidden="hidden" />');
+        let changedInput = $('<input id="changed' + nextId + '" class="change-input" name="Items[' + nextId + '].Changed" value="false" hidden="hidden" />');
         $(contentDiv).append(contentTextArea);
         $(commentDiv).append(commentTextArea);
 
@@ -32,6 +33,8 @@ function ToDoList(tabCounts, itemsCount) {
         $(newLi).append(statusInput);
         $(newLi).append(deletedInput);
         $(newLi).append(orderInput);
+        $(newLi).append(idInput);
+        $(newLi).append(changedInput);
         $(newLi).addClass("margin-top-1-percent");
         $(appendTarget).append(newLi);
 
@@ -205,6 +208,8 @@ function ToDoList(tabCounts, itemsCount) {
         $(item).hide();
     }
 
+    let initialContent = null;
+    let initialComment = null; 
     ///item change states from textbox to dragable div
     function boxClick() {
         let parentUl = $(this.parentElement);
@@ -217,6 +222,9 @@ function ToDoList(tabCounts, itemsCount) {
         let text = $('p', this)[0].innerHTML;
         textArea.val(text);
         $(textArea).focus();
+
+        initialContent = textArea.val();
+        initialComment = comment.val();
     };
 
     ///Change state back to div with text
@@ -243,6 +251,23 @@ function ToDoList(tabCounts, itemsCount) {
         $(comment).hide();
         let text = $(content).val();
         $('p', box)[0].innerHTML = text;
+
+        let currentContentVal = content.val();
+        let currentCommentVal = comment.val();
+
+        //console.log(currentContentVal);
+        //console.log(currentCommentVal);
+        //console.log(initialContent);
+        //console.log(initialComment);
+
+        if (currentContentVal != initialContent || currentCommentVal != initialComment) {
+            let changed = $('.change-input', parentLi);
+            console.log(changed);
+            $(changed).attr('value', 'true');
+        }
+
+        initialContent = null;
+        initialComment = null; 
     };
 
     let commentMouseDownId = -1;
@@ -352,8 +377,6 @@ function ToDoList(tabCounts, itemsCount) {
 
     function moveListItemTo(relocationDiv, newLocation, oldTabName) {
         let bodyUl = $('#' + newLocation + ' ul');
-        //console.log(bodyUl);
-        //console.log(rightClickedElement);
 
         $(bodyUl).append(rightClickedElement);
         ///changing the status so the transfer is registered by the ASP
@@ -384,14 +407,11 @@ function ToDoList(tabCounts, itemsCount) {
 }
 
 function sizeBox(box) {
-    console.log(box);
     let scale = $('#for-scale');
     let width = $(scale).width();
     let height = $(scale).height();
-    console.log(width + ' ' + height);
     box.width(width);
     box.height(height);
-    console.log(box.height());
     $(box).css("padding", $(scale).css("padding"));
     $(box).css("margin", $(scale).css("margin"));
 }
@@ -399,7 +419,6 @@ function sizeBox(box) {
 function getActiveTabName() {
     let result = 'No active nav-link-tabs found!';
     let tabs = $('a.nav-link-tab');
-    //console.log(tabs);
     $(tabs).each(function (ind, tab) {
         let hasClass = $(tab).hasClass('active');
         if (hasClass) {
@@ -410,7 +429,6 @@ function getActiveTabName() {
 }
 
 $('.box').mousedown(function () {
-    //console.log("Picked Up Box");
     liBeingDragged = $(this.parentElement);
 });
 
@@ -434,7 +452,6 @@ $(".sortableList").sortable({
     },
 
     start: function (event, ui) {
-        console.log("Started Sorting");
         dragInProgress = true;
     },
 
@@ -486,9 +503,6 @@ function dragListItemTo(newLocation, oldLocation, element) {
     let query = '#' + newLocation + ' ul';
     let bodyUl = $(query);
 
-    //console.log(element);
-    //console.log(bodyUl);
-
     $(bodyUl).append(element);
     ///changing the status so the transfer is registered by the ASP
     $('.status-input', element).attr('value', newLocation);
@@ -524,12 +538,9 @@ $('.nav-item-tab').mouseleave(function () {
 ///Making boxes responsive
 $(document).ready(function () {
     let forScale = $('#for-scale');
-    console.log(forScale);
     $(window).resize(function () {
-        console.log("Here");
         $('.box').each(function () {
             sizeBox($(this));
         });
     });
 });
-
