@@ -6,7 +6,7 @@
     using Momento.Data;
     using Momento.Services.Contracts.Directory;
     using Momento.Services.Models.Video;
-    using Momento.Data.Models.Directories;
+    using Momento.Models.Directories;
     using System;
 
     public class DirectoryService : IDirectoryService

@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Models.CheatSheets
 {
-    using Momento.Data.Models.Enums;
+    using Momento.Models.Enums;
     using System.ComponentModel.DataAnnotations;
 
     public class PointEdit

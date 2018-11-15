@@ -1,8 +1,8 @@
 ﻿namespace Momento.Services.Implementations.SoftDelete
 {
     using Momento.Data;
-    using Momento.Data.Models.Contracts;
-    using Momento.Data.Models.Videos;
+    using Momento.Models.Contracts;
+    using Momento.Models.Videos;
     using Momento.Services.Contracts.SoftDelete;
     using System;
     using System.Collections.Generic;

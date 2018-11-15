@@ -3,7 +3,7 @@
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
-    using Momento.Data.Models.ListsToDo;
+    using Momento.Models.ListsToDo;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Models.ListToDoModels;
     using System;

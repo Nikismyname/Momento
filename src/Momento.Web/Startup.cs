@@ -21,14 +21,12 @@
     using Momento.Services.Implementations.Video;
     using Momento.Services.Contracts.Code;
     using Momento.Services.Implementations.Code;
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Contracts.View;
     using Momento.Services.Implementations.View;
     using Momento.Web.Middleware;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Implementations.ListToDo;
-    using Momento.Services.Contracts.SoftDelete;
-    using Momento.Services.Implementations.SoftDelete;
 
     public class Startup
     {
@@ -76,7 +74,6 @@
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<ISaveData, SaveData>();
             services.AddTransient<IListToDoService, ListToDoService>();
-            //services.AddTransient<ISoftDeleteService, SoftDeleteService>();
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 

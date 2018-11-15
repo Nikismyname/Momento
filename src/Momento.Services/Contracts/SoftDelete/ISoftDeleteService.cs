@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Contracts.SoftDelete
 {
-    using Momento.Data.Models.Contracts;
+    using Momento.Models.Contracts;
 
     public interface ISoftDeleteService
     {

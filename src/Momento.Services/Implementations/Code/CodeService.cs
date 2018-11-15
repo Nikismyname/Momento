@@ -1,15 +1,15 @@
 ﻿namespace Momento.Services.Implementations.Code
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using AutoMapper;
     using Momento.Data;
     using Momento.Services.Contracts.Code;
     using Momento.Services.Models.Code;
-    using Momento.Data.Models.Codes;
-    using AutoMapper;
-    using Momento.Data.Models.Hashtags;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Momento.Data.Models.Contracts;
-    using Momento.Data.Models.Hashtags.MappingTables;
+    using Momento.Models.Codes;
+    using Momento.Models.Hashtags;
+    using Momento.Models.Contracts;
+    using Momento.Models.Hashtags.MappingTables;
 
     public class CodeService : ICodeService
     {

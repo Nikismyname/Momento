@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Models.Video
 {
-    using Momento.Data.Models.Enums;
+    using Momento.Models.Enums;
 
     public class VideoNoteCreate
     {

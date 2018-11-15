@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Models.View
 {
-    using Momento.Data.Models.Enums;
+    using Momento.Models.Enums;
 
     public class LayoutData
     {

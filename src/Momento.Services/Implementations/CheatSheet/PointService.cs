@@ -2,8 +2,8 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
-    using Momento.Data.Models.CheatSheets;
-    using Momento.Data.Models.Enums;
+    using Momento.Models.CheatSheets;
+    using Momento.Models.Enums;
     using Momento.Services.Contracts.CheatSheet;
     using Momento.Services.Models.CheatSheets;
     using System.Linq;

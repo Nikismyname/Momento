@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.RazorPages;
     using Microsoft.Extensions.Logging;
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Directory;
 

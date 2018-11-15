@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
     using System;
 

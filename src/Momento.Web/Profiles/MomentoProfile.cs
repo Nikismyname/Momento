@@ -2,10 +2,10 @@
 {
     using System.Linq;
     using AutoMapper;
-    using Momento.Data.Models.Codes;
-    using Momento.Data.Models.ListsToDo;
-    using Momento.Data.Models.Videos;
-    using Momento.Data.Models.Directories;
+    using Momento.Models.Codes;
+    using Momento.Models.ListsToDo;
+    using Momento.Models.Videos;
+    using Momento.Models.Directories;
     using Momento.Services.Models.Code;
     using Momento.Services.Models.Video;
     using Momento.Services.Models.ListToDoModels;

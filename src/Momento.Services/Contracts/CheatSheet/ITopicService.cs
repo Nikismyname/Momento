@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Contracts.CheatSheet
 {
-    using Momento.Data.Models.CheatSheets;
+    using Momento.Models.CheatSheets;
     using Momento.Services.Models.CheatSheets;
 
     public interface ITopicService

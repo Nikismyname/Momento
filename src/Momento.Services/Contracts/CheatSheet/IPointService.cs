@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Contracts.CheatSheet
 {
-    using Momento.Data.Models.Enums;
+    using Momento.Models.Enums;
     using Momento.Services.Models.CheatSheets;
 
     public interface IPointService

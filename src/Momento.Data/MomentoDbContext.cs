@@ -2,15 +2,15 @@
 {
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data.Models.CheatSheets;
-    using Momento.Data.Models.Hashtags.MappingTables;
-    using Momento.Data.Models.Codes;
-    using Momento.Data.Models.Hashtags;
-    using Momento.Data.Models.ListsToDo;
-    using Momento.Data.Models.ListsRemind;
-    using Momento.Data.Models.Videos;
-    using Momento.Data.Models.Users;
-    using Momento.Data.Models.Directories;
+    using Momento.Models.CheatSheets;
+    using Momento.Models.Hashtags.MappingTables;
+    using Momento.Models.Codes;
+    using Momento.Models.Hashtags;
+    using Momento.Models.ListsToDo;
+    using Momento.Models.ListsRemind;
+    using Momento.Models.Videos;
+    using Momento.Models.Users;
+    using Momento.Models.Directories;
 
     public class MomentoDbContext : IdentityDbContext<User>
     {

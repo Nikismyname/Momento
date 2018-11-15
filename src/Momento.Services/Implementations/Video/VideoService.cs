@@ -6,8 +6,8 @@
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
-    using Momento.Data.Models.Enums;
-    using Momento.Data.Models.Videos;
+    using Momento.Models.Enums;
+    using Momento.Models.Videos;
     using Momento.Services.Contracts.Video;
     using Momento.Services.Models.Video;
 

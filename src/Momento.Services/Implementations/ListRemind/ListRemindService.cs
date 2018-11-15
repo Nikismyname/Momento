@@ -4,7 +4,7 @@
     using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
-    using Momento.Data.Models.ListsRemind;
+    using Momento.Models.ListsRemind;
     using Momento.Services.Contracts.ListRemind;
     using Momento.Services.Models.ListRemind;
 

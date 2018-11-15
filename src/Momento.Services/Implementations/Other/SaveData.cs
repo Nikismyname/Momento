@@ -6,8 +6,8 @@
     using Momento.Services.Contracts.Other;
     using System.Linq;
     using Newtonsoft.Json;
-    using Momento.Data.Models.Videos;
-    using Momento.Data.Models.Directories;
+    using Momento.Models.Videos;
+    using Momento.Models.Directories;
 
 
     public class SaveData : ISaveData

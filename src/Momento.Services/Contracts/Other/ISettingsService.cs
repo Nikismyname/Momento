@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Contracts.Other
 {
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Models.Settings;
 
     public interface ISettingsService

@@ -1,7 +1,7 @@
 ﻿namespace Momento.Services.Implementations.Other
 {
     using Momento.Data;
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
     using System.Linq;
 

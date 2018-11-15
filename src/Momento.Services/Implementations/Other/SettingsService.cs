@@ -1,10 +1,10 @@
 ﻿namespace Momento.Services.Implementations.Other
 {
     using Momento.Data;
-    using Momento.Data.Models.Users;
+    using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
     using System.Linq;
-    using Momento.Data.Attributes;
+    using Momento.Models.Attributes;
     using Momento.Services.Models.Settings;
 
     public class SettingsService : ISettingsService

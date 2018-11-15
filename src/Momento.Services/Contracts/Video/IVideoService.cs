@@ -1,6 +1,6 @@
 ﻿namespace Momento.Services.Contracts.Video
 {
-    using Momento.Data.Models.Videos;
+    using Momento.Models.Videos;
     using Momento.Services.Models.Video;
 
     public interface IVideoService

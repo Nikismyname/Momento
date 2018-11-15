@@ -2,7 +2,7 @@
 {
     using Microsoft.AspNetCore.Http;
     using Momento.Data;
-    using Momento.Data.Models.Enums;
+    using Momento.Models.Enums;
     using Momento.Services.Contracts.View;
     using Momento.Services.Models.View;
     using System;

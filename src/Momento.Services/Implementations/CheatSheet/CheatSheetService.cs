@@ -2,7 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
-    using Momento.Data.Models.CheatSheets;
+    using Momento.Models.CheatSheets;
     using Momento.Services.Contracts.CheatSheet;
     using Momento.Services.Models.CheatSheets;
     using System.Collections.Generic;
