@@ -22,6 +22,7 @@
         private readonly IEmailSender _emailSender;
         private readonly IDirectoryService directoryService;
         private readonly ISettingsService settingsService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<User> userManager,
@@ -29,7 +30,8 @@
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             IDirectoryService directoryService,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,6 +39,7 @@
             _emailSender = emailSender;
             this.directoryService = directoryService;
             this.settingsService = settingsService;
+            _roleManager = roleManager; 
         }
 
         [BindProperty]
@@ -92,6 +95,9 @@
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    
+                    ///Assign role
+                    await _userManager.AddToRoleAsync(user, "User");
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 

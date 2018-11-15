@@ -11,6 +11,7 @@
     using Momento.Models.Videos;
     using Momento.Models.Users;
     using Momento.Models.Directories;
+    using Microsoft.AspNetCore.Identity;
 
     public class MomentoDbContext : IdentityDbContext<User>
     {
@@ -66,6 +67,11 @@
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Name = "Admin", NormalizedName = "Admin".ToUpper() },
+                new IdentityRole { Name = "Moderator", NormalizedName = "Moderator".ToUpper() },
+                new IdentityRole { Name = "User", NormalizedName = "User".ToUpper() });
+
             builder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<UserSettings>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<Directory>().HasQueryFilter(x => !x.IsDeleted);

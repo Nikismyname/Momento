@@ -27,6 +27,8 @@
     using Momento.Web.Middleware;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Implementations.ListToDo;
+    using Microsoft.AspNetCore.Identity;
+    using Momento.Web.Utilities;
 
     public class Startup
     {
@@ -49,7 +51,19 @@
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<User>(options => 
+            //services.AddDefaultIdentity<User>(options => 
+            //{
+            //    options.Password.RequireDigit = false;
+            //    options.Password.RequiredLength = 3;
+            //    options.Password.RequiredUniqueChars = 0;
+            //    options.Password.RequireLowercase = false;
+            //    options.Password.RequireDigit = false;
+            //    options.Password.RequireNonAlphanumeric = false;
+            //    options.Password.RequireUppercase = false;
+            //})
+            //    .AddEntityFrameworkStores<MomentoDbContext>();
+
+            services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 3;
@@ -59,7 +73,9 @@
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
             })
-                .AddEntityFrameworkStores<MomentoDbContext>();
+                .AddEntityFrameworkStores<MomentoDbContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
 
             services.AddTransient<ICheatSheetService, CheatSheetService>();
             services.AddTransient<IUserService, UserService>();
