@@ -14,9 +14,9 @@
             this.context = context;
         }
 
-        public User ByEmail (string email)
+        public User ByUsername (string username)
         {
-            var user = context.Users.SingleOrDefault(x => x.Email == email);
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
             return user;
         }
     }

@@ -37,7 +37,7 @@
         {
             if (ModelState.IsValid)
             {
-                var userId = userService.ByEmail(User.Identity.Name).Id;
+                var userId = userService.ByUsername(User.Identity.Name).Id;
                 cheatSheetService.CreateCheetSheet(model.Title,model.Description, userId);
                 return RedirectToAction(nameof(Index));
             }

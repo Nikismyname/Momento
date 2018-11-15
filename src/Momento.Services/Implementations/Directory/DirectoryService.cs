@@ -37,13 +37,13 @@
             context.SaveChanges();
         }
 
-        public DirectoryIndex GetIndex(string userName)
+        public DirectoryIndex GetIndex(string username)
         {
             var dirs = context.Directories
                     .Include(x => x.Videos)
                         .ThenInclude(x => x.Notes)
                     .Include(x => x.ListsToDo)
-                .Where(x => x.User.UserName == userName)
+                .Where(x => x.User.UserName == username)
                 .ToArray();
 
             var dir = dirs.SingleOrDefault(x => x.ParentDirectoryId == null);
@@ -52,9 +52,9 @@
             return indexDir;
         }
 
-        public void CreateRoot(string userName)
+        public void CreateRoot(string username)
         {
-            var userId = context.Users.SingleOrDefault(x => x.UserName == userName).Id;
+            var userId = context.Users.SingleOrDefault(x => x.UserName == username).Id;
             var dir = new Directory
             {
                 Name = "Root",

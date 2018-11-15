@@ -4,6 +4,6 @@
 
     public interface IUserService
     {
-        User ByEmail(string email);
+        User ByUsername(string username);
     }
 }

@@ -18,25 +18,25 @@
             this.userService = userService;
         }
 
-        public UserSettings GetSettings(string email)
+        public UserSettings GetSettings(string username)
         {
             var settings = context.Users
-                .Select(x => new { email = x.Email, userSettings = x.UserSettings })
-                .SingleOrDefault(x => x.email == email)
+                .Select(x => new { username = x.UserName, userSettings = x.UserSettings })
+                .SingleOrDefault(x => x.username == username)
                 .userSettings;
 
             if (settings == null)
             {
-                settings = CreateSettings(email);
+                settings = CreateSettings(username);
             }
 
             return settings;
         }
 
-        public UserSettings CreateSettings(string email)
+        public UserSettings CreateSettings(string username)
         {
             var settings = new UserSettings();
-            var user = userService.ByEmail(email);
+            var user = userService.ByUsername(username);
             user.UserSettings = settings;
             context.SaveChanges();
             return settings;

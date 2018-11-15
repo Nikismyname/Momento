@@ -5,9 +5,9 @@
 
     public interface ISettingsService
     {
-        UserSettings GetSettings(string email);
+        UserSettings GetSettings(string username);
 
-        UserSettings CreateSettings(string email);
+        UserSettings CreateSettings(string username);
 
         void Edit(UserSettings newSetting);
 
