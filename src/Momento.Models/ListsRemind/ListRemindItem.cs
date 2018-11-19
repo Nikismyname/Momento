@@ -4,14 +4,15 @@
     using Momento.Models.Enums;
     using System;
 
-    public class ListRemindItem : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class ListRemindItem : SoftDeletableAndTrackable
     {
         public ListRemindItem()
         {
-            Importance = 1;
-            Status = ListItemStatus.Remember;
-            this.CreatedOn = DateTime.UtcNow;
+            this.Importance = 1;
+            this.Status = ListItemStatus.Remember;
         }
+
+        public int Id { get; set; }
 
         public string Content { get; set; }
 
@@ -21,10 +22,5 @@
 
         public int  ListId { get; set; }
         public virtual ListRemind List { get; set; }
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }

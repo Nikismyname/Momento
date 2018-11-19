@@ -2,18 +2,18 @@
 {
     using Momento.Models.Contracts;
     using Momento.Models.Enums;
-    using System;
     using System.Collections.Generic;
 
-    public class VideoNote : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class VideoNote : SoftDeletableAndTrackable
     {
         public VideoNote()
         {
             this.ChildNotes = new HashSet<VideoNote>();
             this.Formatting = Formatting.Select_Formatting;
             this.Type = VideoNoteType.Note;
-            this.CreatedOn = DateTime.UtcNow;
         }
+
+        public int Id { get; set; }
 
         public string  Name { get; set; }
 
@@ -36,10 +36,5 @@
         public virtual Video Video { get; set; }
 
         public virtual ICollection<VideoNote> ChildNotes { get; set; }
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }

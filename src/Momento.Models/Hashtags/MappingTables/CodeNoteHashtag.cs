@@ -4,7 +4,7 @@
     using Momento.Models.Contracts;
     using Momento.Models.Hashtags;
 
-    public class CodeNoteHashtag : HashtagMappingClass
+    public class CodeNoteHashtag : IHashtagMappingClass
     {
         public int  CodeNoteId { get; set; }
         public virtual CodeNote CodeNote { get; set; }

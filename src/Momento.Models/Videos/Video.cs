@@ -1,19 +1,18 @@
 ﻿namespace Momento.Models.Videos
 {
-    using System;
     using System.Collections.Generic;
     using Momento.Models.Contracts;
     using Momento.Models.Directories;
     using Momento.Models.Users;
 
-    public class Video : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class Video : SoftDeletableAndTrackable
     {
         public Video()
         {
             this.Notes = new HashSet<VideoNote>();
-            this.IsDeleted = false;
-            this.CreatedOn = DateTime.UtcNow;
         }
+
+        public int Id { get; set; }
 
         public string  Name { get; set; }
 
@@ -32,10 +31,5 @@
         public virtual Directory Directiry { get; set; }
 
         public virtual ICollection<VideoNote> Notes { get; set; }
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }

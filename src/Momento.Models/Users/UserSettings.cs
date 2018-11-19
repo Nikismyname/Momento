@@ -5,7 +5,7 @@
     using Momento.Models.Enums;
     using System;
 
-    public class UserSettings : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class UserSettings : SoftDeletableAndTrackable
     {
         public UserSettings()
         {
@@ -24,9 +24,9 @@
             this.VNGoDownOnNewTimeStampTop = true;
             this.VNPauseVideoOnSubNoteRegular = false;
             this.VNAutoSaveProgress = true;
-
-            this.CreatedOn = DateTime.UtcNow;
         }
+
+        public int Id { get; set; }
 
         public string UserId { get; set; }
         public virtual User User { get; set; }
@@ -63,10 +63,5 @@
         public bool VNPauseVideoOnSubNoteRegular { get; set; }
         [Setting]
         public bool VNAutoSaveProgress { get; set; }
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 {
     using Momento.Models.Hashtags;
 
-    public interface HashtagMappingClass
+    public interface IHashtagMappingClass
     {
         int HashtagId { get; set; }
         Hashtag Hashtag { get; set; }

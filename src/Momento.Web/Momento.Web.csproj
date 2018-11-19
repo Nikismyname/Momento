@@ -32,4 +32,10 @@
     <Folder Include="BootstrapSCSS\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Home\IndexLoggedIn.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 </Project>

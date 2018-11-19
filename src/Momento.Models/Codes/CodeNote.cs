@@ -6,14 +6,14 @@
     using System;
     using System.Collections.Generic;
 
-    public class CodeNote : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class CodeNote : SoftDeletableAndTrackable
     {
         public CodeNote()
         {
             this.CodeNoteHashtags = new HashSet<CodeNoteHashtag>();
-            this.IsDeleted = false;
-            this.CreatedOn = DateTime.UtcNow;
         }
+
+        public int Id { get; set; }
 
         public string Content { get; set; }
 
@@ -29,10 +29,5 @@
         public virtual ICollection<CodeNoteHashtag> CodeNoteHashtags { get; set; }
 
         public string Hashtags { get; set; }
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }

@@ -36,7 +36,7 @@
             context.SaveChanges();
         }
 
-        public T[] ParseCodeHashtags<T>(string hashString) where T: HashtagMappingClass, new()
+        public T[] ParseCodeHashtags<T>(string hashString) where T: IHashtagMappingClass, new()
         {
             var hashtags = hashString.Split('#',' ', System.StringSplitOptions.RemoveEmptyEntries);
             var result = new List<T>();

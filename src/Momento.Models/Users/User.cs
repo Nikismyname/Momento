@@ -11,7 +11,7 @@
     using Momento.Models.Directories;
     using Momento.Models.Contracts;
 
-    public class User : IdentityUser, IBaseModel<string>, IChangeAndSoftDeleteTrackable
+    public class User : IdentityUser, ISoftDeletableAndTrackable
     {
         public User()
         {
@@ -22,8 +22,15 @@
             this.CodeSnippets = new HashSet<Code>();
             this.CheatSheets = new HashSet<CheatSheet>();
             this.Videos = new HashSet<Video>();
+
             this.IsDeleted = false;
-            this.CreatedOn = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+            this.CreatedOn = now;
+            this.LastModifiedOn = now;
+            this.LastViewdOn = now;
+            this.DeletedOn = null;
+            this.TimesModified = 1;
+            this.TimesViewd = 1;
         }
 
         public string FirstName { get; set; }
@@ -48,5 +55,8 @@
         public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
+        public DateTime? LastViewdOn { get; set; }
+        public int TimesModified { get; set; }
+        public int TimesViewd { get; set; }
     }
 }

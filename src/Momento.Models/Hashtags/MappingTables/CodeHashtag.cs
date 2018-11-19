@@ -3,7 +3,7 @@
     using Momento.Models.Codes;
     using Momento.Models.Contracts;
 
-    public class CodeHashtag : HashtagMappingClass
+    public class CodeHashtag : IHashtagMappingClass
     {
         public int CodeId { get; set; }
         public virtual Code Code { get; set; }

@@ -6,13 +6,14 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class CheatSheet : BaseModel<int>, IChangeAndSoftDeleteTrackable
+    public class CheatSheet : SoftDeletableAndTrackable
     {
         public CheatSheet()
         {
             Topics = new HashSet<Topic>();
-            this.CreatedOn = DateTime.UtcNow;
         }
+
+        public int Id { get; set; }
 
         [StringLength(30, MinimumLength = 3),Required]
         public string Name { get; set; }
@@ -25,10 +26,5 @@
         public virtual User User { get; set; }
 
         public virtual ICollection<Topic> Topics {get;set;}
-
-        public bool IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
     }
 }
