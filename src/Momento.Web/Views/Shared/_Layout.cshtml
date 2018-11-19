@@ -23,7 +23,7 @@
         }
 
         <link rel="stylesheet" href="~/css/site.css" />
-        <link rel="stylesheet" href="~/css/main.css"/>
+        <link rel="stylesheet" href="~/css/main.css" />
     </environment>
 
     @*<environment exclude="Development">
@@ -42,13 +42,15 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarColor01">
                     <ul class="navbar-nav mr-auto">
-                        <li class="nav-item "><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item "><a class="nav-link" asp-area="" asp-controller="CheatSheet" asp-action="Index">CheatSheet</a></li>
-                        <li class="nav-item "><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
-                        <li class="nav-item "><a class="nav-link" asp-area="" asp-controller="List" asp-action="Index">Lists</a></li>
-                        <li class="nav-item "><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>
-
-                        <li class="nav-item "><a class="nav-link float-right" asp-area="" asp-controller="Settings" asp-action="Edit">Settings</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Settings" asp-action="Edit">Settings</a></li>
+                        }
                     </ul>
                     @await Html.PartialAsync("_LoginPartial")
                 </div>

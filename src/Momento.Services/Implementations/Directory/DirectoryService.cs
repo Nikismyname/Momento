@@ -23,7 +23,11 @@
         public void Create(int parentDirId, string name, string userName)
         {
             var parentDir = context.Directories.SingleOrDefault(x => x.Id == parentDirId);
-            var order = parentDir.Subdirectories.Select(x => x.Order).Max() + 1;
+            var order = 0;
+            if (parentDir.Subdirectories.Any())
+            {
+                order = parentDir.Subdirectories.Select(x => x.Order).Max() + 1;
+            }
 
             var dir = new Directory
             {
