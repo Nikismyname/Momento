@@ -2,8 +2,9 @@
 {
     using System;
 
-    public interface IChangeTrackable
+    public interface ITrackable
     {
+        DateTime? CreatedOn { get; set; }
         DateTime? LastModifiedOn { get; set; }
     }
 }

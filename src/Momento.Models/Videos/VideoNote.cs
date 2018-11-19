@@ -12,6 +12,7 @@
             this.ChildNotes = new HashSet<VideoNote>();
             this.Formatting = Formatting.Select_Formatting;
             this.Type = VideoNoteType.Note;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public string  Name { get; set; }
@@ -37,6 +38,7 @@
         public virtual ICollection<VideoNote> ChildNotes { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

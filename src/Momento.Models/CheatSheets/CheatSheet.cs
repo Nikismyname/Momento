@@ -11,6 +11,7 @@
         public CheatSheet()
         {
             Topics = new HashSet<Topic>();
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         [StringLength(30, MinimumLength = 3),Required]
@@ -26,6 +27,7 @@
         public virtual ICollection<Topic> Topics {get;set;}
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

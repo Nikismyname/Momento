@@ -12,6 +12,7 @@
         {
             this.CodeNoteHashtags = new HashSet<CodeNoteHashtag>();
             this.IsDeleted = false;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public string Content { get; set; }
@@ -30,6 +31,7 @@
         public string Hashtags { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

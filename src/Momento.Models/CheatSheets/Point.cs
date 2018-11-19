@@ -12,6 +12,7 @@
         {
             this.ChildPoints = new HashSet<Point>();
             this.IsDeleted = false;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         [MinLength(3), Required]
@@ -31,6 +32,7 @@
         public virtual ICollection<Point> ChildPoints { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

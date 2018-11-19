@@ -23,6 +23,7 @@
             this.CheatSheets = new HashSet<CheatSheet>();
             this.Videos = new HashSet<Video>();
             this.IsDeleted = false;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public string FirstName { get; set; }
@@ -44,6 +45,7 @@
         public virtual ICollection<ListToDo> ListsToDo { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

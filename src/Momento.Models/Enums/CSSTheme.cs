@@ -3,6 +3,7 @@
     public enum CSSTheme
     {
         Dark,
-        Light
+        Light,
+        Cyborg
     }
 }

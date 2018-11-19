@@ -12,6 +12,7 @@
             this.Notes = new HashSet<CodeNote>();
             this.CodeHashtags = new HashSet<CodeHashtag>();
             this.IsDeleted = false;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public int DirectoryId { get; set; }
@@ -27,6 +28,7 @@
         public virtual ICollection<CodeHashtag> CodeHashtags { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

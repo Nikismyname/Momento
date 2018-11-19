@@ -13,6 +13,7 @@
         {
             this.Items = new HashSet<ListToDoItem>();
             this.Categories = "highPriority;active;backBurner;doneNeedsFixes;done;unassigned";
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public string  UserId { get; set; }
@@ -30,6 +31,7 @@
         public virtual ICollection<ListToDoItem> Items { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }

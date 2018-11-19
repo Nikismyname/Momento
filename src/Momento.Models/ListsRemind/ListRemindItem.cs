@@ -10,6 +10,7 @@
         {
             Importance = 1;
             Status = ListItemStatus.Remember;
+            this.CreatedOn = DateTime.UtcNow;
         }
 
         public string Content { get; set; }
@@ -22,6 +23,7 @@
         public virtual ListRemind List { get; set; }
 
         public bool IsDeleted { get; set; }
+        public DateTime? CreatedOn { get; set; }
         public DateTime? DeletedOn { get; set; }
         public DateTime? LastModifiedOn { get; set; }
     }
