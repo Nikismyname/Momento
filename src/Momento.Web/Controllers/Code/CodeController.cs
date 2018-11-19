@@ -1,5 +1,6 @@
 ﻿namespace Momento.Web.Controllers.CodeSnipet
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Code;
     using Momento.Services.Models.Code;
@@ -14,6 +15,7 @@
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Create(int id)
         {
             var model = new CodeCreate
@@ -24,6 +26,7 @@
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Create(CodeCreate model)
         {
             if (ModelState.IsValid)

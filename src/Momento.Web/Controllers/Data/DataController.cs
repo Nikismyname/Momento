@@ -1,5 +1,6 @@
 ﻿namespace Momento.Web.Controllers.Data
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Other;
@@ -19,6 +20,7 @@
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Download(int id)
         {
             var byteArray = Encoding.UTF8.GetBytes(saveData.GetDirectoryData(id));
@@ -33,12 +35,14 @@
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Upload(int dirId)
         {
             return View(dirId);
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Upload(IFormFile file, int dirId)
         {
             long size = file.Length;

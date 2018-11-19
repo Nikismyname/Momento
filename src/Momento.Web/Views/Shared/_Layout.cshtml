@@ -43,7 +43,10 @@
                 <div class="collapse navbar-collapse" id="navbarColor01">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
+                        }
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>
                     </ul>
                     <ul class="navbar-nav ml-auto">

@@ -1,5 +1,6 @@
 ﻿namespace Momento.Web.Controllers.ListToDo
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Models.ListToDoModels;
@@ -15,6 +16,7 @@
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Create(int id)
         {
             var model = new ListToDoCreate();
@@ -24,6 +26,7 @@
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Create(ListToDoCreate model)
         {
             if (ModelState.IsValid)
@@ -36,6 +39,7 @@
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Use(int id)
         {
             var model = toDoService.GetUseModel(id);
@@ -43,6 +47,7 @@
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Use(ListToDoUse model)
         {
             model.Items = model.Items.Where(x => x.Deleted == false).ToList();
@@ -56,6 +61,7 @@
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Delete(int id, int dirId)
         {
             toDoService.Delete(id, this.User.Identity.Name);
