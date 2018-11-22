@@ -5,18 +5,18 @@
 
     public interface IVideoService
     {
-        int Create(int dirId);
+        int Create(int dirId, string username);
 
         Video ById(int id);
 
         void Delete(int id);
 
-        VideoView GetView(int contentId);
+        VideoView GetView(int videoId);
 
-        VideoCreate GetNotesForEdit(int contentId);
+        VideoCreate GetVideoForEdit(int contentId, string username);
 
         void Edit(VideoCreate model);
 
-        int[][] PartialSave(int videoId,string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes);
+        int[][] Save(int videoId,string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
     }
 }

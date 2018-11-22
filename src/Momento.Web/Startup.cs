@@ -28,7 +28,8 @@
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Implementations.ListToDo;
     using Microsoft.AspNetCore.Identity;
-    using Momento.Web.Utilities;
+    using Momento.Services.Contracts.Shared;
+    using Momento.Services.Implementations.Shared;
 
     public class Startup
     {
@@ -50,18 +51,6 @@
             services.AddDbContext<MomentoDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-
-            //services.AddDefaultIdentity<User>(options => 
-            //{
-            //    options.Password.RequireDigit = false;
-            //    options.Password.RequiredLength = 3;
-            //    options.Password.RequiredUniqueChars = 0;
-            //    options.Password.RequireLowercase = false;
-            //    options.Password.RequireDigit = false;
-            //    options.Password.RequireNonAlphanumeric = false;
-            //    options.Password.RequireUppercase = false;
-            //})
-            //    .AddEntityFrameworkStores<MomentoDbContext>();
 
             services.AddIdentity<User, IdentityRole>(options =>
             {
@@ -90,15 +79,17 @@
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<ISaveData, SaveData>();
             services.AddTransient<IListToDoService, ListToDoService>();
+            services.AddTransient<ITrackableService, TrackableService>();
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 
             services.AddAutoMapper();
 
-            services.AddMvc(o=> {
-                o.Filters.Add<AddDataToLayoutServiceActionFilter>();
-                o.Filters.Add<AddDataToLayoutServicePageFilter>();
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(options=> {
+                options.Filters.Add<AddDataToLayoutServiceActionFilter>();
+                options.Filters.Add<AddDataToLayoutServicePageFilter>();
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

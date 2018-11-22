@@ -21,7 +21,6 @@
         {
             var model = new ListToDoCreate();
             model.DirectoryId = id;
-            model.UserName = User.Identity.Name;
             return View(model);
         }
 
@@ -31,7 +30,7 @@
         {
             if (ModelState.IsValid)
             {
-                toDoService.Create(model);
+                toDoService.Create(model, User.Identity.Name);
                 return RedirectToAction("Index","Directory",new {id = model.DirectoryId});
             }
 
@@ -42,7 +41,7 @@
         [Authorize]
         public IActionResult Use(int id)
         {
-            var model = toDoService.GetUseModel(id);
+            var model = toDoService.GetUseModel(id, User.Identity.Name);
             return View(model);
         }
 

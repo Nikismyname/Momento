@@ -1,9 +1,9 @@
-﻿namespace Momento.Services.Implementations.SoftDelete
+﻿namespace Momento.Services.Implementations.Shared
 {
     using Momento.Data;
     using Momento.Models.Contracts;
     using Momento.Models.Videos;
-    using Momento.Services.Contracts.SoftDelete;
+    using Momento.Services.Contracts.Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;

@@ -1,4 +1,4 @@
-﻿namespace Momento.Services.Contracts.SoftDelete
+﻿namespace Momento.Services.Contracts.Shared
 {
     using Momento.Models.Contracts;
 

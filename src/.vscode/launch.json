@@ -10,7 +10,7 @@
             "name": "Launch Chrome against localhost",
             "url": "https://localhost:44307",
             "sourceMaps": true,
-            "webRoot": "C:/Users/ASUS G751JY/source/repos/Projects/Momento/Momento.Web/wwwroot"
+            "webRoot": "C:/Users/ASUS G751JY/source/repos/0004 Coursework ASP MVC Framework November  2018/Momento/src/Momento.Web/wwwroot"
         }
     ]
 }

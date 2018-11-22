@@ -5,5 +5,7 @@
     public interface IUserService
     {
         User ByUsername(string username);
+
+        string GetUserId(string username);
     }
 }

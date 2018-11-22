@@ -19,5 +19,8 @@
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             return user;
         }
+
+        public string GetUserId(string username)
+            => context.Users.Where(x => x.UserName == username).SingleOrDefault().Id;
     }
 }

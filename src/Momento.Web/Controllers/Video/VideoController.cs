@@ -16,7 +16,10 @@
         private readonly IUserService userService;
         private readonly ISettingsService settingsService;
 
-        public VideoController(IVideoService videoService, IUserService userService, ISettingsService settingsService)
+        public VideoController(
+            IVideoService videoService,
+            IUserService userService,
+            ISettingsService settingsService)
         {
             this.videoService = videoService;
             this.userService = userService;
@@ -38,7 +41,7 @@
         public IActionResult Create(int id)
         {
             var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-            var videoId = videoService.Create(id);
+            var videoId = videoService.Create(id, this.User.Identity.Name);
 
             var model = new VideoCreateWithSettings
             {
@@ -53,36 +56,25 @@
 
             return View("CreateEdit",model);
         }
-
-        //[HttpPost]
-        //public IActionResult Create(VideoCreateWithSettings modelIn)
-        //{
-        //    var model = modelIn.ContentCreate;
-        //    if (ModelState.IsValid)
-        //    {
-        //        model.Notes = RemoveDeleted(model.Notes);
-        //        ProcessPageNotes(model);
-        //        videoService.Create(model);
-        //        return RedirectToAction("Index","Directory", new {id = model.DirectoryId});
-        //    }
-
-        //    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-        //    modelIn.Mode = "create";
-        //    modelIn.Settings = settings;
-        //    return View("CreateEdit", modelIn);
-        //}
         #endregion
 
         #region Edit 
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var notesCreateModel = videoService.GetNotesForEdit(id);
-            notesCreateModel.Id = id;
+            var videoCreate = videoService.GetVideoForEdit(id, this.User.Identity.Name);
+            ///TODO: Id Notes are null the video does not belong to the 
+            ///user and should return error page.
+            if(videoCreate == null)
+            {
+                return Redirect("/");
+            }
+
+            videoCreate.Id = id;
             var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
             var model = new VideoCreateWithSettings
             {
-                ContentCreate = notesCreateModel,
+                ContentCreate = videoCreate,
                 Settings = settings,
                 Mode = "edit",
             };
@@ -90,23 +82,23 @@
             return View("CreateEdit",model);
         }
 
-        [HttpPost]
-        public IActionResult Edit(VideoCreateWithSettings modelIn)
-        {
-            var model = modelIn.ContentCreate;
-            if (ModelState.IsValid)
-            {
-                model.Notes = RemoveDeleted(model.Notes);
-                ProcessPageNotes(model);
-                videoService.Edit(model);
-                return RedirectToAction("Index", "Directory", new { id = model.DirectoryId});
-            }
+        //[HttpPost]
+        //public IActionResult Edit(VideoCreateWithSettings model)
+        //{
+        //    var contentCreate = model.ContentCreate;
+        //    if (ModelState.IsValid)
+        //    {
+        //        contentCreate.Notes = RemoveDeleted(contentCreate.Notes);
+        //        ProcessPageNotes(contentCreate);
+        //        videoService.Edit(contentCreate);
+        //        return RedirectToAction("Index", "Directory", new { id = contentCreate.DirectoryId });
+        //    }
 
-            var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-            modelIn.Mode = "edit";
-            modelIn.Settings = settings;
-            return View("CreateEdit", modelIn);
-        }
+        //    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
+        //    model.Mode = "edit";
+        //    model.Settings = settings;
+        //    return View("CreateEdit", model);
+        //}
         #endregion
 
         [HttpPost]
@@ -118,10 +110,10 @@
 
         [HttpPost]
         public IActionResult PartialSave(int videoId, int seekTo, string name, string description,
-                                         string url, string[][] changes, VideoNoteCreate[] newItems)
+                                         string url, string[][] changes, VideoNoteCreate[] newItems, bool finalSave)
         {
             var username = this.User.Identity.Name;
-            var result = this.videoService.PartialSave(videoId, username, seekTo, name, description, url, changes, newItems);            
+            var result = this.videoService.Save(videoId, username, seekTo, name, description, url, changes, newItems, finalSave);            
             return Json(result);
         }
 
@@ -142,3 +134,23 @@
         #endregion
     }
 }
+
+
+
+//[HttpPost]
+//public IActionResult Create(VideoCreateWithSettings modelIn)
+//{
+//    var model = modelIn.ContentCreate;
+//    if (ModelState.IsValid)
+//    {
+//        model.Notes = RemoveDeleted(model.Notes);
+//        ProcessPageNotes(model);
+//        videoService.Create(model);
+//        return RedirectToAction("Index","Directory", new {id = model.DirectoryId});
+//    }
+
+//    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
+//    modelIn.Mode = "create";
+//    modelIn.Settings = settings;
+//    return View("CreateEdit", modelIn);
+//}

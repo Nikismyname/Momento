@@ -8,6 +8,7 @@
     using Momento.Data;
     using Momento.Models.Enums;
     using Momento.Models.Videos;
+    using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Video;
     using Momento.Services.Models.Video;
 
@@ -15,11 +16,16 @@
     {
         private readonly MomentoDbContext context;
         private readonly IMapper mapper;
+        private readonly ITrackableService trackableService;
 
-        public VideoService(MomentoDbContext context, IMapper mapper)
+        public VideoService(
+            MomentoDbContext context,
+            IMapper mapper,
+            ITrackableService trackableService)
         {
             this.context = context;
             this.mapper = mapper;
+            this.trackableService = trackableService;
         }
 
         #region Get
@@ -28,27 +34,38 @@
 
         public VideoView GetView(int contentId)
         {
-            var content = context.Videos
+            var video = context.Videos
             .Include(x => x.Notes)
             .SingleOrDefault(x => x.Id == contentId);
 
-            var contentView = mapper.Map<VideoView>(content);
+            ///TRACKABLE
+            trackableService.RegisterViewing(video, DateTime.UtcNow, true);
+
+            var contentView = mapper.Map<VideoView>(video);
 
             return contentView;
         }
         #endregion
 
-        public int Create(int dirId)
+        public int Create(int dirId, string username)
         {
             var ordersInfo = context.Directories
                 .Select(x => new { id = x.Id, orders = x.Videos.Select(y => y.Order).ToArray() })
                 .SingleOrDefault(x => x.id == dirId);
             var order = ordersInfo.orders.Length == 0 ? 0 : ordersInfo.orders.Max() + 1;
 
+            var userId = context.Users.FirstOrDefault(x => x.UserName == username)?.Id;
+
+            if(userId == null)
+            {
+                throw new Exception("Invalid User!");
+            }
+
             var video = new Video
             {
                 DirectoryId = dirId,
                 Order = order,
+                UserId = userId,
             };
 
             context.Videos.Add(video);
@@ -57,13 +74,33 @@
         }
 
         #region Edit 
-        public VideoCreate GetNotesForEdit(int contentId)
+        /// Ierified that the video belongs to the user
+        /// Registered viewing here
+        public VideoCreate GetVideoForEdit(int videoId, string username)
         {
-            var content = context.Videos
+            var video = context.Videos
                 .Include(x => x.Notes)
-                .SingleOrDefault(x => x.Id == contentId);
+                .SingleOrDefault(x => x.Id == videoId);
 
-            var dbNotes = content.Notes.ToArray();
+            var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
+
+            if(userId == null)
+            {
+                throw new Exception("User does not exist!");
+            }
+
+            ///TODO: Videos should have users, remove when they do.
+            if (video.UserId != null)
+            {
+                if (video.UserId != userId)
+                {
+                    return null;
+                }
+            }
+
+            trackableService.RegisterViewing(video, DateTime.UtcNow, true);
+
+            var dbNotes = video.Notes.ToArray();
 
             var map = new Dictionary<int, int>();
             var finalNotes = new VideoNoteCreate[dbNotes.Length];
@@ -98,12 +135,12 @@
 
             var result = new VideoCreate
             {
-                Description = content.Description,
-                Url = content.Url,
-                Name = content.Name,
-                DirectoryId = content.DirectoryId,
-                Order = content.Order,
-                SeekTo = content.SeekTo,
+                Description = video.Description,
+                Url = video.Url,
+                Name = video.Name,
+                DirectoryId = video.DirectoryId,
+                Order = video.Order,
+                SeekTo = video.SeekTo,
                 Notes = finalNotes.ToList(),
             };
 
@@ -156,17 +193,31 @@
         #region PartialSave
         ///Code Map: if you send back a jagged array with first element:
         ///0 - everything is ok
-        ///1 - the video does not belong to the user
-        ///2 - a note to change does not belong the video
-        ///3 - newItems can not be parsed
-        ///4 - videoDoesNotExist
-        public int[][] PartialSave(int videoId, string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes)
+        ///1 - Error
+        public int[][] Save(int videoId, string userName, int? seekTo,
+            string name, string desctiption, string url, string[][] changes,
+            VideoNoteCreate[] newNotes, bool finalSave)
+        {
+            var validationResult = ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave);
+            if (validationResult == false)
+            {
+                return new int[][] { new int[] { 1 } };
+            }
+            ///Appy changes to the video fields
+            this.PartialSaveVideoFields(videoId, url, name, desctiption, seekTo);
+            ///Appy changes to the existing Notes
+            this.PartialSaveChangesToExistingNote(changes);
+            ///Create the new notes and return their IDs
+            var newNoteDbId = this.PartialSaveNewNotes(newNotes, videoId);
+            return newNoteDbId;
+        }
+        private bool ValidateSaveAndRegisterModification(int videoId, string[][] changes, string userName, bool finalSave)
         {
             ///chech if video exists 
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
             if (video == null)
             {
-                return new int[][] { new int[] { 4 } };
+                return false;
             }
 
             var user = context.Users.
@@ -185,26 +236,29 @@
 
             if (!userVideoIds.Contains(videoId))
             {
-                return new int[][] { new int[] { 1 } };
+                return false;
             }
             ///check if all the notes being changed belong the video they are coming for;
             var videoNotesIds = context
                 .Videos
-                .Include(x=>x.Notes)
+                .Include(x => x.Notes)
                 .SingleOrDefault(x => x.Id == videoId)
                 .Notes.Select(x => x.Id).ToArray();
             var sentVideoNoteIds = changes.Select(x => int.Parse(x[0])).ToArray();
 
             if (sentVideoNoteIds.Any(x => !videoNotesIds.Contains(x)))
             {
-                return new int[][] { new int[] { 2 } };
+                return false;
             }
 
-            ///appy changes to the video fields
-            this.PartialSaveVideoFields(videoId, url, name, desctiption, seekTo);
-            this.PartialSaveChanges(changes);
-            var result = this.PartialSaveNewItems(newNotes, videoId);
-            return result;
+            if (finalSave)
+            {
+                ///TODO: see if there is an error because the entity is modified 
+                ///in another service
+                trackableService.RegisterModification(user,DateTime.UtcNow, false);
+            }
+
+            return true;
         }
         private void PartialSaveVideoFields(int videoId, string url, string name, string description, int? seekTo)
         {
@@ -226,7 +280,7 @@
                 video.SeekTo = seekTo;
             }
         }
-        private bool PartialSaveChanges(string[][] changes)
+        private bool PartialSaveChangesToExistingNote(string[][] changes)
         {
             if (changes.Length == 0)
             {
@@ -235,6 +289,9 @@
 
             var videoIds = changes.Select(x => int.Parse(x[0]));
             var notesToChange = context.VideoNotes.Where(x => videoIds.Contains(x.Id)).ToArray();
+
+            ///Registering modification on the notes
+            trackableService.RegisterModificationMany(notesToChange, DateTime.UtcNow, false);
 
             foreach (var change in changes)
             {
@@ -265,13 +322,12 @@
                     case "SeekTo":
                         currentNote.SeekTo = int.Parse(newVal);
                         break;
-                    ///Type does not currently change much
+                        ///Type does not currently change much
                 }
             }
-            context.SaveChanges();
             return true;
         }
-        private int[][] PartialSaveNewItems(VideoNoteCreate[] newNotes, int videoId)
+        private int[][] PartialSaveNewNotes(VideoNoteCreate[] newNotes, int videoId)
         {
             ///removing items which are created and deleted in the same save window
             newNotes = newNotes.Where(x => x.Deleted == false).ToArray();
@@ -318,7 +374,7 @@
                     var inPageParentId = pageNote.InPageParentId;
                     var pageParent = newNotes.FirstOrDefault(x => x.InPageId == inPageParentId);
 
-                    //TODO: Remove This
+                    ///TODO: Remove This
                     if (pageParent == null)
                     {
                         throw new Exception("You done goofed!");
@@ -331,6 +387,7 @@
             }
 
             context.VideoNotes.AddRange(dbNotesToBe);
+            ///Final SaveChanges for the Save
             context.SaveChanges();
 
             ///inPageId and Order are the same thing,
@@ -341,13 +398,13 @@
 
             var resultList = new List<int[]>();
             ///sending the OK status code
-            resultList.Add(new int[] {0});
+            resultList.Add(new int[] { 0 });
             ///mapping the new Ids to the in-page ids and 
             ///sending them to the JS so the dbId can be send 
             ///back in case of changes
             for (int i = 0; i < dbNotesToBe.Count; i++)
             {
-                resultList.Add(new int[] { newNotes[i].InPageId, dbNotesToBe[i].Id});
+                resultList.Add(new int[] { newNotes[i].InPageId, dbNotesToBe[i].Id });
             }
 
             return resultList.ToArray();

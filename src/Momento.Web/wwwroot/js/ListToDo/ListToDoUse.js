@@ -508,6 +508,10 @@ function dragListItemTo(newLocation, oldLocation, element) {
     $('.status-input', element).attr('value', newLocation);
     tabCounts[oldLocation] -= 1;
     tabCounts[newLocation] += 1;
+
+    let changed = $('.change-input', element);
+    $(changed).attr('value', 'true');
+    console.log($(changed).attr('value'));
 }
 
 let tabLiMouseIsOver = null;

@@ -18,20 +18,20 @@ $(document).ready(function () {
 
     let oldState = scan(true);
 
-    $('#test').click(function () {
+    //$('#test').click(function () {
 
-        console.log(previousScanComplete);
-        if (previousScanComplete == false) {
-            ///TODO: add error message;
-            console.log('The previous scan is not complete yet!');
-            return;
-        }
+    //    console.log(previousScanComplete);
+    //    if (previousScanComplete == false) {
+    //        ///TODO: add error message;
+    //        console.log('The previous scan is not complete yet!');
+    //        return;
+    //    }
 
-        let newState = scan(false);
-        if (CheckForDifferences(oldState, newState, false)) {
-            oldState = newState;
-        }
-    });
+    //    let newState = scan(false);
+    //    if (CheckForDifferences(oldState, newState, false)) {
+    //        oldState = newState;
+    //    }
+    //});
 
     $('#submitBtn').click(function (e) {
 
@@ -224,10 +224,11 @@ function CheckForDifferences(oldStateFull, newStateFull, final) {
         videoId: $('#videoId').val(),
 
         changes: changes,
-        newItems: newItems
+        newItems: newItems,
+        finalSave: final
     };
 
-    if (changesToTheVideoFields || newNotes || changesToExistingNotes) {
+    if (changesToTheVideoFields || newNotes || changesToExistingNotes || final) {
 
         $.ajax({
             type: "POST",
