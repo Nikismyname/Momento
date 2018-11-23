@@ -109,7 +109,7 @@
         }
 
         [HttpPost]
-        public IActionResult PartialSave(int videoId, int seekTo, string name, string description,
+        public IActionResult PartialSave(int videoId, int? seekTo, string name, string description,
                                          string url, string[][] changes, VideoNoteCreate[] newItems, bool finalSave)
         {
             var username = this.User.Identity.Name;

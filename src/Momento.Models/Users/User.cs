@@ -39,6 +39,8 @@
 
         public virtual UserSettings UserSettings { get; set; }
 
+        //public virtual Directory Root { get; set; }
+
         public virtual ICollection<Directory> Directories { get; set; }
 
         public virtual ICollection<Video> Videos { get; set; }

@@ -18,20 +18,10 @@ $(document).ready(function () {
 
     let oldState = scan(true);
 
-    //$('#test').click(function () {
+    $('#test').click(function () {
 
-    //    console.log(previousScanComplete);
-    //    if (previousScanComplete == false) {
-    //        ///TODO: add error message;
-    //        console.log('The previous scan is not complete yet!');
-    //        return;
-    //    }
-
-    //    let newState = scan(false);
-    //    if (CheckForDifferences(oldState, newState, false)) {
-    //        oldState = newState;
-    //    }
-    //});
+        ///test stuff here
+    });
 
     $('#submitBtn').click(function (e) {
 
@@ -69,9 +59,13 @@ function scan(isFirstScan) {
     videoResults.description = $("#descriptionInput").val();
     let videoSeekTo;
     if (isFirstScan) {
-        videoSeekTo = $("#contentSeekTo").val();
+        videoSeekTo = $("#contentSeekTo").attr("value");
     } else {
         videoSeekTo = Math.floor(player.getCurrentTime());
+        ///Avoiding the problem when limbo video state returns 0 to seekTo
+        if (videoSeekTo == 0) {
+            videoSeekTo =  $("#contentSeekTo").attr("value");
+        }
     }
     videoResults.seekTo = videoSeekTo;
 

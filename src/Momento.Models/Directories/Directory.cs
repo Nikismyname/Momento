@@ -13,6 +13,7 @@
         public Directory()
         {
             this.Videos = new HashSet<Video>();
+            this.ListsToDo = new HashSet<ListToDo>();
             this.Subdirectories = new HashSet<Directory>();
         }
 

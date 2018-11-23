@@ -7,10 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Admin\**" />
     <Compile Remove="wwwroot\test\**" />
+    <Content Remove="Areas\Admin\**" />
     <Content Remove="wwwroot\test\**" />
+    <EmbeddedResource Remove="Areas\Admin\**" />
     <EmbeddedResource Remove="wwwroot\test\**" />
+    <None Remove="Areas\Admin\**" />
     <None Remove="wwwroot\test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +44,10 @@
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Identity\Services\" />
     <Folder Include="BootstrapSCSS\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\Admin\Views\Home\AdminView.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
