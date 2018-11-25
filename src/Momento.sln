@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Data", "Momento.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Services", "Momento.Services\Momento.Services.csproj", "{432A398A-C9C0-49D2-8FFC-B97B9FCF5ECB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momento.Models", "Momento.Models\Momento.Models.csproj", "{EF46EE78-79FD-41E8-A2AD-609781FB127C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Models", "Momento.Models\Momento.Models.csproj", "{EF46EE78-79FD-41E8-A2AD-609781FB127C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momento.Tests", "Momento.Tests\Momento.Tests.csproj", "{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{EF46EE78-79FD-41E8-A2AD-609781FB127C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF46EE78-79FD-41E8-A2AD-609781FB127C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF46EE78-79FD-41E8-A2AD-609781FB127C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

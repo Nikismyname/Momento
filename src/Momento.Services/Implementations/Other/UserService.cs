@@ -3,6 +3,7 @@
     using Momento.Data;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
+    using Momento.Services.Exceptions;
     using System.Linq;
 
     public class UserService : IUserService
@@ -17,10 +18,25 @@
         public User ByUsername (string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
+
+            if(user == null)
+            {
+                throw new UserNotFound(username); 
+            }
+
             return user;
         }
 
         public string GetUserId(string username)
-            => context.Users.Where(x => x.UserName == username).SingleOrDefault().Id;
+        {
+            var userId = context.Users.Where(x => x.UserName == username).SingleOrDefault()?.Id;
+
+            if (userId == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            return userId;
+        }
     }
 }

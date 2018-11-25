@@ -118,7 +118,7 @@
             $('#delButton' + nextId).on('click', function () {
                 let conf = confirm("Are you sure you want to delete note and all subnotes?");
                 if (conf == true) {
-                    deleteNote(level, currentId)
+                    deleteNote(currentId)
                 }
             });
 
@@ -149,7 +149,8 @@
             nextId++;
         };
 
-        function deleteNote(level, noteId) {
+        ///level is not used for enything meaningful
+        function deleteNote(noteId) {
             $('#mainNoteDiv' + noteId).removeClass("note")
             $('#deleted' + noteId).val("true");
             $('#textarea' + noteId).hide();
@@ -161,7 +162,7 @@
 
             for (var i = 0; i < map.length; i++) {
                 if (map[i] == noteId) {
-                    deleteNote(level, i)
+                    deleteNote(i)
                 }
             }
         }
@@ -175,7 +176,7 @@
         $('.delButton').click(function () {
             let conf = confirm("Are you sure you want to delete note and all subnotes?");
             if (conf == true) {
-                deleteNote(1, $(this).attr('noteId'));
+                deleteNote($(this).attr('noteId'));
             }
         });
 
@@ -213,13 +214,13 @@
             $('#NewNoteLocation').append(noteDiv);
 
             let currentId = nextId;
-            $('#delButton' + nextId).on('click', function () {
+            $(deleteBtn).on('click', function () {
                 let conf = confirm("Are you sure you want to delete note and all subnotes?");
                 if (conf == true) {
-                    deleteNote(1, currentId)
+                    deleteNote(currentId)
                 }
             });
-
+            
             if (settings.GoDownOnNewTimeStampTop == true && type == 1) {
                 $(noteDiv).focus();
                 $(noteDiv)[0].scrollIntoView(false);
@@ -326,8 +327,8 @@
     });
 }
 
+///This is the pause/play video functionality 
 function onStateChange(e) {
-
     if (e.data == 1) {
         $('#start-pause').html('Pause');
         $('#start-pause').unbind('click');
