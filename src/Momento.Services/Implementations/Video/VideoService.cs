@@ -10,6 +10,7 @@
     using Momento.Models.Videos;
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Video;
+    using Momento.Services.Exceptions;
     using Momento.Services.Models.Video;
 
     public class VideoService : IVideoService
@@ -194,15 +195,11 @@
         ///Code Map: if you send back a jagged array with first element:
         ///0 - everything is ok
         ///1 - Error
-        public int[][] Save(int videoId, string userName, int? seekTo,
+        public int[][] PartialSave(int videoId, string userName, int? seekTo,
             string name, string desctiption, string url, string[][] changes,
             VideoNoteCreate[] newNotes, bool finalSave)
         {
-            var validationResult = ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave);
-            if (validationResult == false)
-            {
-                return new int[][] { new int[] { 1 } };
-            }
+            this.ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave);
             ///Appy changes to the video fields
             this.PartialSaveVideoFields(videoId, url, name, desctiption, seekTo);
             ///Appy changes to the existing Notes
@@ -211,18 +208,25 @@
             var newNoteDbId = this.PartialSaveNewNotes(newNotes, videoId);
             return newNoteDbId;
         }
-        private bool ValidateSaveAndRegisterModification(int videoId, string[][] changes, string userName, bool finalSave)
+
+        ///Tested exept the integration with the trackable service
+        private void ValidateSaveAndRegisterModification(int videoId, string[][] changes, string username, bool finalSave)
         {
             ///chech if video exists 
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
             if (video == null)
             {
-                return false;
+                throw new ItemNotFound("The video you are working on does not exists in the database");
             }
 
             var user = context.Users.
                 Include(x => x.Directories)
-                .SingleOrDefault(x => x.UserName == userName);
+                .SingleOrDefault(x => x.UserName == username);
+
+            if(user == null)
+            {
+                throw new UserNotFound(username);
+            }
 
             ///check if the video belongs to the user 
             var userVideoIds = context.Users
@@ -231,12 +235,12 @@
                     username = x.UserName,
                     videoIds = x.Directories.SelectMany(y => y.Videos.Select(z => z.Id)).ToArray()
                 })
-                .SingleOrDefault(x => x.username == userName)
+                .SingleOrDefault(x => x.username == username)
                 .videoIds;
 
             if (!userVideoIds.Contains(videoId))
             {
-                return false;
+                throw new AccessDenied("The video you are trying to medify does not belong to you!");
             }
             ///check if all the notes being changed belong the video they are coming for;
             var videoNotesIds = context
@@ -248,7 +252,7 @@
 
             if (sentVideoNoteIds.Any(x => !videoNotesIds.Contains(x)))
             {
-                return false;
+                throw new AccessDenied("The video notes you are trying to modify does not belong the the current video");
             }
 
             if (finalSave)
@@ -257,9 +261,9 @@
                 ///in another service
                 trackableService.RegisterModification(user,DateTime.UtcNow, false);
             }
-
-            return true;
         }
+
+        ///Tested
         private void PartialSaveVideoFields(int videoId, string url, string name, string description, int? seekTo)
         {
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
@@ -280,6 +284,7 @@
                 video.SeekTo = seekTo;
             }
         }
+
         private bool PartialSaveChangesToExistingNote(string[][] changes)
         {
             if (changes.Length == 0)
@@ -287,7 +292,7 @@
                 return true;
             }
 
-            var videoIds = changes.Select(x => int.Parse(x[0]));
+            var videoIds = changes.Select(x => int.Parse(x[0])).ToArray();
             var notesToChange = context.VideoNotes.Where(x => videoIds.Contains(x.Id)).ToArray();
 
             ///Registering modification on the notes
@@ -312,38 +317,39 @@
                     case "Formatting":
                         currentNote.Formatting = (Formatting)int.Parse(newVal);
                         break;
+                        case "SeekTo":
+                        currentNote.SeekTo = int.Parse(newVal);
+                        break;
                     //case "Name":
                     //    ///not in use currently
                     //    currentNote.Name = newVal;
                     //    break;
-                    case "InPageId":
-                        currentNote.Order = int.Parse(newVal);
-                        break;
-                    case "SeekTo":
-                        currentNote.SeekTo = int.Parse(newVal);
-                        break;
-                        ///Type does not currently change much
+                    //case "InPageId":
+                    //    currentNote.Order = int.Parse(newVal);
+                    //    break;
                 }
             }
             return true;
         }
-        private int[][] PartialSaveNewNotes(VideoNoteCreate[] newNotes, int videoId)
+        private int[][] PartialSaveNewNotes(VideoNoteCreate[] newPageNotes, int videoId)
         {
             ///removing items which are created and deleted in the same save window
-            newNotes = newNotes.Where(x => x.Deleted == false).ToArray();
+            newPageNotes = newPageNotes.Where(x => x.Deleted == false).ToArray();
 
-            var existingParentNotesIds = newNotes
+            var existingParentNotesIds = newPageNotes
                 .Select(x => x.ParentDbId)
                 .Where(x => x > 0)
                 .ToArray();
 
-            var existingParentNotes = context.VideoNotes.Where(x => existingParentNotesIds.Contains(x.Id)).ToArray();
+            var existingParentNotes = context.VideoNotes.
+                Where(x => existingParentNotesIds.Contains(x.Id)).
+                ToList();
 
-            newNotes = newNotes.OrderBy(x => x.InPageId).ToArray();
+            newPageNotes = newPageNotes.OrderBy(x => x.InPageId).ToArray();
             var dbNotesToBe = new List<VideoNote>();
-            for (int i = 0; i < newNotes.Length; i++)
+            for (int i = 0; i < newPageNotes.Length; i++)
             {
-                var pn = newNotes[i];
+                var pn = newPageNotes[i];
                 var newNote = new VideoNote()
                 {
                     Content = pn.Content,
@@ -361,7 +367,7 @@
             for (int i = 0; i < dbNotesToBe.Count; i++)
             {
                 var dbNoteToBe = dbNotesToBe[i];
-                var pageNote = newNotes[i];
+                var pageNote = newPageNotes[i];
 
                 if (pageNote.ParentDbId > 0)
                 {
@@ -372,7 +378,7 @@
                 else if (pageNote.ParentDbId == 0)
                 {
                     var inPageParentId = pageNote.InPageParentId;
-                    var pageParent = newNotes.FirstOrDefault(x => x.InPageId == inPageParentId);
+                    var pageParent = newPageNotes.FirstOrDefault(x => x.InPageId == inPageParentId);
 
                     ///TODO: Remove This
                     if (pageParent == null)
@@ -380,13 +386,14 @@
                         throw new Exception("You done goofed!");
                     }
 
-                    var indexOfPageParent = Array.IndexOf(newNotes, pageParent);
+                    var indexOfPageParent = Array.IndexOf(newPageNotes, pageParent);
                     var dbParent = dbNotesToBe[indexOfPageParent];
                     dbParent.ChildNotes.Add(dbNoteToBe);
                 }
             }
 
             context.VideoNotes.AddRange(dbNotesToBe);
+
             ///Final SaveChanges for the Save
             context.SaveChanges();
 
@@ -394,7 +401,7 @@
             ///realigning them after putting them in 
             ///the db in case they got reaordered
             dbNotesToBe = dbNotesToBe.OrderBy(x => x.Order).ToList();
-            newNotes = newNotes.OrderBy(x => x.InPageId).ToArray();
+            newPageNotes = newPageNotes.OrderBy(x => x.InPageId).ToArray();
 
             var resultList = new List<int[]>();
             ///sending the OK status code
@@ -404,7 +411,7 @@
             ///back in case of changes
             for (int i = 0; i < dbNotesToBe.Count; i++)
             {
-                resultList.Add(new int[] { newNotes[i].InPageId, dbNotesToBe[i].Id });
+                resultList.Add(new int[] { newPageNotes[i].InPageId, dbNotesToBe[i].Id });
             }
 
             return resultList.ToArray();

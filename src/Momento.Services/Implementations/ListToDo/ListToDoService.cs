@@ -66,7 +66,7 @@
             var userId = userService.GetUserId(username);
             if(userId != model.UserId)
             {
-                throw new NoRightToAccessItem("ListToDo");
+                throw new AccessDenied("The list you are trying to access dos not belong to you!");
             }
 
             trackableService.RegisterViewing(model, DateTime.Now, true);
@@ -83,7 +83,7 @@
             if (listToDo == null)
             {
                 ///trowing that so people can not find valid ids through sending delete requests 
-                throw new NoRightToAccessItem("ListToDo");
+                throw new ItemNotFound("The list you are trying to delete does not exist!");
             }
 
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -94,7 +94,7 @@
 
             if (listToDo.UserId != user.Id)
             {
-                throw new NoRightToAccessItem("ListToDo");
+                throw new AccessDenied("The list you are trying to delete does not belong to you!");
             }
 
             var now = DateTime.UtcNow;
@@ -133,7 +133,7 @@
             listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == model.Id);
             if (listToDo == null)
             {
-                throw new NoRightToAccessItem("ListToDo");
+                throw new ItemNotFound("The list you are trying to modify does not exist!");
             }
 
             var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
@@ -144,7 +144,7 @@
 
             if (listToDo.UserId != userId)
             {
-                throw new NoRightToAccessItem("ListToDo");
+                throw new AccessDenied("The list you are trying to modify does not beling to you!");
             }
         }
 
@@ -201,7 +201,7 @@
             {
                 if (!validItemsIds.Contains(item.Id))
                 {
-                    throw new NoRightToAccessItem("ListToDo Item");
+                    throw new AccessDenied("The items you are trying to modify do not belong to the current list!");
                 }
             }
         }
