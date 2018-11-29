@@ -30,16 +30,23 @@
         }
 
         #region Get
+        ///Tested
         public Video ById(int id)
         => context.Videos.SingleOrDefault(x => x.Id == id);
 
+        ///This is where you can press buttons to move around the video.
+        ///Tested basics
         public VideoView GetView(int contentId)
         {
             var video = context.Videos
             .Include(x => x.Notes)
             .SingleOrDefault(x => x.Id == contentId);
 
-            ///TRACKABLE
+            if(video == null)
+            {
+                throw new ItemNotFound("Video you are trying to view does not exist in the database!");
+            }
+
             trackableService.RegisterViewing(video, DateTime.UtcNow, true);
 
             var contentView = mapper.Map<VideoView>(video);
@@ -50,23 +57,33 @@
 
         public int Create(int dirId, string username)
         {
+            var directory = context.Directories.SingleOrDefault(x => x.Id == dirId);
+            if (directory == null)
+            {
+                throw new ItemNotFound("The Directory you selected for creating the new video notes in, does not exist!");
+            }
+
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if(user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            if(user.Id != directory.UserId)
+            {
+                throw new AccessDenied("The directory you are trying to create a video on does note belong to you!");
+            }
+
             var ordersInfo = context.Directories
                 .Select(x => new { id = x.Id, orders = x.Videos.Select(y => y.Order).ToArray() })
                 .SingleOrDefault(x => x.id == dirId);
             var order = ordersInfo.orders.Length == 0 ? 0 : ordersInfo.orders.Max() + 1;
 
-            var userId = context.Users.FirstOrDefault(x => x.UserName == username)?.Id;
-
-            if(userId == null)
-            {
-                throw new Exception("Invalid User!");
-            }
-
             var video = new Video
             {
                 DirectoryId = dirId,
                 Order = order,
-                UserId = userId,
+                UserId = user.Id,
             };
 
             context.Videos.Add(video);
@@ -259,7 +276,7 @@
             {
                 ///TODO: see if there is an error because the entity is modified 
                 ///in another service
-                trackableService.RegisterModification(user,DateTime.UtcNow, false);
+                trackableService.RegisterModification(video,DateTime.UtcNow, false);
             }
         }
 
@@ -285,6 +302,7 @@
             }
         }
 
+        ///Tested
         private bool PartialSaveChangesToExistingNote(string[][] changes)
         {
             if (changes.Length == 0)
@@ -331,6 +349,8 @@
             }
             return true;
         }
+
+        ///Tested
         private int[][] PartialSaveNewNotes(VideoNoteCreate[] newPageNotes, int videoId)
         {
             ///removing items which are created and deleted in the same save window
@@ -392,6 +412,8 @@
                 }
             }
 
+            this.CheckTheNestringLevel(dbNotesToBe, existingParentNotes);
+
             context.VideoNotes.AddRange(dbNotesToBe);
 
             ///Final SaveChanges for the Save
@@ -416,6 +438,44 @@
 
             return resultList.ToArray();
         }
+
+        ///TODO: find more efficent way to check for level
+        private void CheckTheNestringLevel(List<VideoNote> dbNotesToBe, List<VideoNote> existingParentNotes)
+        {
+            var dict = new Dictionary<VideoNote, int>();
+            var allNotes = dbNotesToBe.Concat(existingParentNotes).ToArray();
+            foreach (var note in allNotes)
+            {
+                if(FindDeepestNesting(note, dict) > 4)
+                {
+                    throw new BadRequestError("The notes you are trying to save are nested deeper the four levels!");
+                }
+            }
+        }
+
+        private int FindDeepestNesting(VideoNote note,Dictionary<VideoNote, int> dict)
+        {
+            if (dict.ContainsKey(note))
+            {
+                return dict[note];
+            }
+
+            var deepestNesting = 0;
+            foreach (var child in note.ChildNotes)
+            {
+                var tempDeepest = FindDeepestNesting(child, dict);
+                if(tempDeepest > deepestNesting)
+                {
+                    deepestNesting = tempDeepest;
+                }
+            }
+
+            var depth = deepestNesting + 1;
+            dict[note] = depth;
+
+            return depth;
+        }
+
         #endregion
 
         #region Helpers

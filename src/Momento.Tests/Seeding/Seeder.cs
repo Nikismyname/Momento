@@ -26,10 +26,8 @@
         public static int DefaultVideoSeekTo = 10;
         public static string DefaultVideoDesctiption = "TestDescription";
 
-        public static string DefaultNoteContent = "TestNoteContent";
         public static Formatting DefaultNoteFormatting = Formatting.Select_Formatting;
         public static int DefaultNoteSeekTo = 10;
-
 
         public static void SeedPeshoAndGosho(MomentoDbContext context)
         {
@@ -61,7 +59,7 @@
         public static Video SeedVideosToUser(MomentoDbContext context, string userId)
         {
             var user = context.Users.SingleOrDefault(x => x.Id == userId);
-            var directoryId = user.Directories.FirstOrDefault(x=>x.Name.Contains("Root")).Id;
+            var directoryId = user.Directories.FirstOrDefault(x => x.Name.Contains("Root")).Id;
 
             var video = new Video
             {
@@ -75,6 +73,12 @@
 
             return video;
         }
+
+        public const string preExistingNote1Content = "TestContent1";
+        public const string preExistingNote2Content = "TestContent2";
+
+        public const int preExistingNote1Id = 1;
+        public const int preExistingNote2Id = 2;
 
         public static Video SeedVideosToUserWithNotes(MomentoDbContext context, string userId)
         {
@@ -93,15 +97,15 @@
                 {
                     new VideoNote
                     {
-                         //Id = 1,
-                         Content = DefaultNoteContent,
+                         Id = preExistingNote1Id,
+                         Content = preExistingNote1Content,
                          Formatting = DefaultNoteFormatting,
                          SeekTo = DefaultNoteSeekTo,
                     },
                     new VideoNote
                     {
-                        //Id = 2,
-                        Content = DefaultNoteContent,
+                        Id = preExistingNote2Id,
+                        Content = preExistingNote2Content,
                         Formatting = DefaultNoteFormatting,
                         SeekTo = DefaultNoteSeekTo,
                     },
@@ -113,17 +117,26 @@
             return video;
         }
 
+        public const string Note1Content = "NestedLevel1";
+        public const string Note2Content = "NestedLevel2";
+        public const string Note3Content = "NestedLevel3";
+        public const string Note4Content = "NestedLevel4";
+        public const int Note1InPageId = 0;
+        public const int Note2InPageId = 1;
+        public const int Note3InPageId = 2;
+        public const int Note4InPageId = 3;
+
         /// TODO: Check if you should update the The ParentDbId of notes 
-        public static VideoNoteCreate[] GenerateNoteCreateSimpleNested()
+        public static VideoNoteCreate[] GenerateNoteCreateSimpleNested(int? rootNoteDbParentId, int number = 3)
         {
-            var notes = new VideoNoteCreate[]
+            var notes = new List<VideoNoteCreate>
             {
                 new VideoNoteCreate
                 {
-                    Content = "RootNote",
-                    InPageId  = 0,
+                    Content = Note1Content,
+                    InPageId  = Note1InPageId,
                     InPageParentId = null,
-                    ParentDbId = -1,
+                    ParentDbId = rootNoteDbParentId == null? -1 : rootNoteDbParentId,
                     Formatting = Formatting.None,
                     Type = VideoNoteType.Note,
                     Level = 1,
@@ -132,9 +145,9 @@
 
                 new VideoNoteCreate
                 {
-                    Content = "NestedLevel2",
-                    InPageId  = 1,
-                    InPageParentId = 0,
+                    Content = Note2Content,
+                    InPageId  = Note2InPageId,
+                    InPageParentId = Note1InPageId,
                     ParentDbId = 0,
                     Formatting = Formatting.None,
                     Type = VideoNoteType.Note,
@@ -144,9 +157,9 @@
 
                 new VideoNoteCreate
                 {
-                    Content = "NestedLevel3",
-                    InPageId  = 2,
-                    InPageParentId = 1,
+                    Content = Note3Content,
+                    InPageId  = Note3InPageId,
+                    InPageParentId = Note2InPageId,
                     ParentDbId = 0,
                     Formatting = Formatting.None,
                     Type = VideoNoteType.Note,
@@ -155,8 +168,22 @@
                 }
             };
 
-            return notes;
+            if (number == 4)
+            {
+                notes.Add(new VideoNoteCreate
+                {
+                    Content = Note4Content,
+                    InPageId = Note4InPageId,
+                    InPageParentId = Note3InPageId,
+                    ParentDbId = 0,
+                    Formatting = Formatting.None,
+                    Type = VideoNoteType.Note,
+                    Level = 3,
+                    SeekTo = 8,
+                });
+            }
+
+            return notes.ToArray();
         }
     }
 }
-

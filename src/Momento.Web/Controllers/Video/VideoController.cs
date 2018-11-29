@@ -29,6 +29,7 @@
 
         #region View
         [HttpGet]
+        ///This is where you can press buttons to move around the video.
         public IActionResult View(int id)
         {
             var model = videoService.GetView(id);

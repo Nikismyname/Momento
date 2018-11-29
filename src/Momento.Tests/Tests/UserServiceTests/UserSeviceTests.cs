@@ -11,7 +11,7 @@
 
     ///Do not use Equals, use be or equal
 
-    public class UserSeviceTests : BaseTestsSqlLiteInMemory
+    public class UserSeviceTests : BaseTestsSqliteInMemory
     {
         private IUserService userService;
 

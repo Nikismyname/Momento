@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public abstract class BaseTestsSqlLiteInMemory
+    public abstract class BaseTestsSqliteInMemory
     {
         protected MomentoDbContext context;
 

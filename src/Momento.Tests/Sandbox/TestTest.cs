@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using System.Collections.Generic;
 
-    public class TestTest : BaseTestsSqlLiteInMemory
+    public class TestTest : BaseTestsSqliteInMemory
     {
         [Test]
         public void Test()

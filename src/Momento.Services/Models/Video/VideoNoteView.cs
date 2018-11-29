@@ -1,7 +1,7 @@
 ﻿namespace Momento.Services.Models.Video
 {
+    using Momento.Models.Enums;
     using System.Collections.Generic;
-    using System.Xml;
 
     public class VideoNoteView
     {

@@ -6,7 +6,7 @@
     using Momento.Tests.Seeding;
     using NUnit.Framework;
 
-    public class TestServiceTests : BaseTestsSqlLiteInMemory
+    public class TestServiceTests : BaseTestsSqliteInMemory
     {
         private ITestService testService;
 
