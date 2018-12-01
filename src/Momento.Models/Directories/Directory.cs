@@ -21,6 +21,9 @@
 
         public string  Name { get; set; }
 
+        /// <summary>
+        /// 0 based!
+        /// </summary>
         public int  Order { get; set; }
 
         [Required]

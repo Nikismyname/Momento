@@ -5,6 +5,7 @@
     using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Video;
     using Momento.Services.Models.Video;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -64,14 +65,8 @@
         public IActionResult Edit(int id)
         {
             var videoCreate = videoService.GetVideoForEdit(id, this.User.Identity.Name);
-            ///TODO: Id Notes are null the video does not belong to the 
-            ///user and should return error page.
-            if(videoCreate == null)
-            {
-                return Redirect("/");
-            }
 
-            videoCreate.Id = id;
+            //videoCreate.Id = id;
             var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
             var model = new VideoCreateWithSettings
             {
@@ -80,7 +75,7 @@
                 Mode = "edit",
             };
 
-            return View("CreateEdit",model);
+            return View("CreateEdit", model);
         }
 
         //[HttpPost]
@@ -105,7 +100,7 @@
         [HttpPost]
         public IActionResult Delete(int contentId, int directoryId)
         {
-            videoService.Delete(contentId);
+            videoService.Delete(contentId, User.Identity.Name, DateTime.UtcNow);
             return RedirectToAction("Index", "Directory",new { id = directoryId});
         }
 

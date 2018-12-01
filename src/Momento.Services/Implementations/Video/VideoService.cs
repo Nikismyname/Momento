@@ -1,5 +1,6 @@
 ﻿namespace Momento.Services.Implementations.Video
 {
+    #region Initialization
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -28,12 +29,9 @@
             this.mapper = mapper;
             this.trackableService = trackableService;
         }
+#endregion
 
         #region Get
-        ///Tested
-        public Video ById(int id)
-        => context.Videos.SingleOrDefault(x => x.Id == id);
-
         ///This is where you can press buttons to move around the video.
         ///Tested basics
         public VideoView GetView(int contentId)
@@ -53,8 +51,107 @@
 
             return contentView;
         }
+
+        /// Verified that the video belongs to the user
+        /// Registered viewing here
+        /// <summary>
+        /// How the noteCreate items are made:
+        /// 1) Create a VideoNoteCreate array the same length as the array with dbNotes
+        /// 2) Go through the dbNotes and copy all the non-relational data to the pageNotes 
+        ///     -assign inPageIds to i 
+        ///     -calculate level
+        ///     -In a Dictionary (map) map the dbNote.Id to i
+        /// 3) Go through the Notes in pairs where one is the DbNote and the other is the page version 
+        ///     -assing InPageParentId for the pageMpte to be what is mapped to the dbNote parent note Id
+        ///         if there is a parent note.
+        /// </summary>
+        /// Tested
+        public VideoCreate GetVideoForEdit(int videoId, string username)
+        {
+            var video = context.Videos
+                .Include(x => x.Notes)
+                .SingleOrDefault(x => x.Id == videoId);
+
+            if (video == null)
+            {
+                throw new ItemNotFound("The video you are trying to edit does not exist!");
+            }
+
+            var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
+
+            if (userId == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            ///TODO: Videos should have users, remove when they do.
+            if (video.UserId != null)
+            {
+                if (video.UserId != userId)
+                {
+                    throw new AccessDenied("You can note edit video that does not belong to you!");
+                }
+            }
+
+            trackableService.RegisterViewing(video, DateTime.UtcNow, true);
+
+            ///Reordering the notes so that when there are deletions the numbers are sequential
+            var dbNotes = video.Notes.OrderBy(x => x.Order).ToArray();
+            for (int i = 0; i < dbNotes.Length; i++)
+            {
+                dbNotes[i].Order = i;
+            }
+            context.SaveChanges();
+
+            var map = new Dictionary<int, int>();
+            var pageNotes = new VideoNoteCreate[dbNotes.Length];
+
+            for (int i = 0; i < dbNotes.Length; i++)
+            {
+                var dbNote = dbNotes[i];
+                pageNotes[i] = new VideoNoteCreate
+                {
+                    Id = dbNote.Id,
+                    Content = dbNote.Content,
+                    Formatting = dbNote.Formatting,
+                    Type = dbNote.Type,
+                    InPageId = dbNote.Order,
+                    SeekTo = dbNote.SeekTo,
+                    Level = Level(dbNote),
+                };
+
+                map.Add(dbNote.Id, i);
+            }
+
+            for (int i = 0; i < dbNotes.Length; i++)
+            {
+                var dbNote = dbNotes[i];
+                var pageNote = pageNotes[i];
+
+                if (dbNote.NoteId != null)
+                {
+                    pageNote.InPageParentId = map[(int)dbNote.NoteId];
+                }
+            }
+
+            var result = new VideoCreate
+            {
+                Id = video.Id,
+                Description = video.Description,
+                Url = video.Url,
+                Name = video.Name,
+                DirectoryId = video.DirectoryId,
+                Order = video.Order,
+                SeekTo = video.SeekTo,
+                Notes = pageNotes.ToList(),
+            };
+
+            return result;
+        }
         #endregion
 
+        #region Create
+        ///Tested 
         public int Create(int dirId, string username)
         {
             var directory = context.Directories.SingleOrDefault(x => x.Id == dirId);
@@ -90,112 +187,30 @@
             context.SaveChanges();
             return video.Id;
         }
-
-        #region Edit 
-        /// Ierified that the video belongs to the user
-        /// Registered viewing here
-        public VideoCreate GetVideoForEdit(int videoId, string username)
-        {
-            var video = context.Videos
-                .Include(x => x.Notes)
-                .SingleOrDefault(x => x.Id == videoId);
-
-            var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
-
-            if(userId == null)
-            {
-                throw new Exception("User does not exist!");
-            }
-
-            ///TODO: Videos should have users, remove when they do.
-            if (video.UserId != null)
-            {
-                if (video.UserId != userId)
-                {
-                    return null;
-                }
-            }
-
-            trackableService.RegisterViewing(video, DateTime.UtcNow, true);
-
-            var dbNotes = video.Notes.ToArray();
-
-            var map = new Dictionary<int, int>();
-            var finalNotes = new VideoNoteCreate[dbNotes.Length];
-
-            for (int i = 0; i < dbNotes.Length; i++)
-            {
-                var n = dbNotes[i];
-                finalNotes[i] = new VideoNoteCreate
-                {
-                    Id = n.Id,
-                    Content = n.Content,
-                    Formatting = n.Formatting,
-                    Type = n.Type,
-                    InPageId = i,
-                    SeekTo = n.SeekTo,
-                    Level = Level(n),
-                };
-
-                map.Add(n.Id, i);
-            }
-
-            for (int i = 0; i < dbNotes.Length; i++)
-            {
-                var n = dbNotes[i];
-                var r = finalNotes[i];
-
-                if (n.NoteId != null)
-                {
-                    r.InPageParentId = map[(int)n.NoteId];
-                }
-            }
-
-            var result = new VideoCreate
-            {
-                Description = video.Description,
-                Url = video.Url,
-                Name = video.Name,
-                DirectoryId = video.DirectoryId,
-                Order = video.Order,
-                SeekTo = video.SeekTo,
-                Notes = finalNotes.ToList(),
-            };
-
-            return result;
-        }
-
-        public void Edit(VideoCreate model)
-        {
-            var contentToDelete = context.Videos.SingleOrDefault(x => x.Id == model.Id);
-            var dirId = contentToDelete.DirectoryId;
-            context.Videos.Remove(contentToDelete);
-            context.SaveChanges();
-
-            var finalNotes = this.MakeNotesFromPageNotes(model.Notes);
-
-            var video = new Video
-            {
-                Description = model.Description,
-                Name = model.Name,
-                Url = model.Url,
-                Order = model.Order,
-                Notes = finalNotes,
-                DirectoryId = dirId,
-                SeekTo = model.SeekTo,
-            };
-
-            context.Videos.Add(video);
-            context.SaveChanges();
-        }
         #endregion
 
+        #region Delete
         ///Soft Delete
-        public void Delete(int id)
+        ///Tested
+        public void Delete(int id , string username, DateTime now)
         {
-            var now = DateTime.UtcNow;
-
             var video = context.Videos.SingleOrDefault(x => x.Id == id);
+            if (video == null)
+            {
+                throw new ItemNotFound("The video you are trying to delete does not exist!");
+            }
+
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if(user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            if(video.UserId != user.Id)
+            {
+                throw new AccessDenied("The video you are trying to delete does not belong to you!");
+            }
+
             foreach (var note in video.Notes)
             {
                 note.DeletedOn = now;
@@ -207,11 +222,13 @@
 
             context.SaveChanges();
         }
+        #endregion
 
         #region PartialSave
         ///Code Map: if you send back a jagged array with first element:
         ///0 - everything is ok
         ///1 - Error
+        ///Tested
         public int[][] PartialSave(int videoId, string userName, int? seekTo,
             string name, string desctiption, string url, string[][] changes,
             VideoNoteCreate[] newNotes, bool finalSave)
@@ -528,30 +545,53 @@
         #endregion
 
         #region OldCode
-        public void Create(VideoCreate model)
-        {
-            var finalNotes = this.MakeNotesFromPageNotes(model.Notes);
-            //TODO: not necessary 
-            var ordersInfo = context.Directories
-                .Select(x => new { id = x.Id, orders = x.Videos.Select(y => y.Order).ToArray() })
-                .SingleOrDefault(x => x.id == model.DirectoryId);
+        //public void Create(VideoCreate model)
+        //{
+        //    var finalNotes = this.MakeNotesFromPageNotes(model.Notes);
+        //    //TODO: not necessary 
+        //    var ordersInfo = context.Directories
+        //        .Select(x => new { id = x.Id, orders = x.Videos.Select(y => y.Order).ToArray() })
+        //        .SingleOrDefault(x => x.id == model.DirectoryId);
 
-            var order = ordersInfo.orders.Length == 0 ? 0 : ordersInfo.orders.Max() + 1;
+        //    var order = ordersInfo.orders.Length == 0 ? 0 : ordersInfo.orders.Max() + 1;
 
-            var video = new Video
-            {
-                Description = model.Description,
-                Name = model.Name,
-                Url = model.Url,
-                Notes = finalNotes,
-                DirectoryId = model.DirectoryId,
-                Order = order,
-                SeekTo = model.SeekTo,
-            };
+        //    var video = new Video
+        //    {
+        //        Description = model.Description,
+        //        Name = model.Name,
+        //        Url = model.Url,
+        //        Notes = finalNotes,
+        //        DirectoryId = model.DirectoryId,
+        //        Order = order,
+        //        SeekTo = model.SeekTo,
+        //    };
 
-            context.Videos.Add(video);
-            context.SaveChanges();
-        }
+        //    context.Videos.Add(video);
+        //    context.SaveChanges();
+        //}
+        //public void Edit(VideoCreate model)
+        //{
+        //    var contentToDelete = context.Videos.SingleOrDefault(x => x.Id == model.Id);
+        //    var dirId = contentToDelete.DirectoryId;
+        //    context.Videos.Remove(contentToDelete);
+        //    context.SaveChanges();
+
+        //    var finalNotes = this.MakeNotesFromPageNotes(model.Notes);
+
+        //    var video = new Video
+        //    {
+        //        Description = model.Description,
+        //        Name = model.Name,
+        //        Url = model.Url,
+        //        Order = model.Order,
+        //        Notes = finalNotes,
+        //        DirectoryId = dirId,
+        //        SeekTo = model.SeekTo,
+        //    };
+
+        //    context.Videos.Add(video);
+        //    context.SaveChanges();
+        //}
         #endregion;
     }
 }

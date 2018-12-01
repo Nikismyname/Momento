@@ -1,5 +1,6 @@
 ﻿namespace Momento.Services.Implementations.ListToDo
 {
+    #region Initialization 
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
@@ -14,7 +15,6 @@
 
     public class ListToDoService : IListToDoService
     {
-        #region INITIALISATION 
         private readonly MomentoDbContext context;
         private readonly IMapper mapper;
         private readonly ITrackableService trackableService;
@@ -35,22 +35,28 @@
 
         //Authenticated
         //Registers user for the list
-        public void Create(ListToDoCreate modelIn, string username)
+        public void Create(ListToDoCreate pageListToDo, string username)
         {
-            var newListToDo = mapper.Map<ListToDo>(modelIn);
-
-            var userId = context.Users
-                .Select(x => new { id = x.Id, username = x.UserName })
-                .SingleOrDefault(x => x.username == username)
-                .id;
-
-            if (userId == null)
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if (user == null)
             {
                 throw new UserNotFound(username);
             }
 
+            var direcotory = context.Directories.SingleOrDefault(x => x.Id == pageListToDo.DirectoryId);
+            if(direcotory == null)
+            {
+                throw new ItemNotFound("The directory for this List does not exists");
+            }
+
+            if(direcotory.UserId != user.Id)
+            {
+                throw new AccessDenied("The directory you are trying to create you List does not belong to you!");
+            }
+
+            var newListToDo = mapper.Map<ListToDo>(pageListToDo);
             newListToDo.Id = default(int);
-            newListToDo.UserId = userId;
+            newListToDo.UserId = user.Id;
             context.ListsTodo.Add(newListToDo);
             context.SaveChanges();
         }

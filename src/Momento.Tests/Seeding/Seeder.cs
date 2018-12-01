@@ -29,6 +29,9 @@
         public static Formatting DefaultNoteFormatting = Formatting.Select_Formatting;
         public static int DefaultNoteSeekTo = 10;
 
+        /// <summary>
+        /// Also seeds their root directories!
+        /// </summary>
         public static void SeedPeshoAndGosho(MomentoDbContext context)
         {
             var users = new User[]
@@ -76,14 +79,34 @@
 
         public const string preExistingNote1Content = "TestContent1";
         public const string preExistingNote2Content = "TestContent2";
+        public const string preExistingNote3Content = "TestContent3";
 
         public const int preExistingNote1Id = 1;
         public const int preExistingNote2Id = 2;
+        public const int preExistingNote3Id = 3;
 
-        public static Video SeedVideosToUserWithNotes(MomentoDbContext context, string userId)
+        public static Video SeedVideosToUserWithNotes(MomentoDbContext context, string userId, bool nestedNote = false)
         {
             var user = context.Users.SingleOrDefault(x => x.Id == userId);
             var rootDirectoryId = user.Directories.FirstOrDefault(x => x.Name.Contains("Root")).Id;
+
+            var note1 = new VideoNote
+            {
+                Order = 0,
+                Id = preExistingNote1Id,
+                Content = preExistingNote1Content,
+                Formatting = DefaultNoteFormatting,
+                SeekTo = DefaultNoteSeekTo,
+            };
+
+            var note2 = new VideoNote
+            {
+                Order = 2,
+                Id = preExistingNote2Id,
+                Content = preExistingNote2Content,
+                Formatting = DefaultNoteFormatting,
+                SeekTo = DefaultNoteSeekTo,
+            };
 
             var video = new Video
             {
@@ -95,22 +118,25 @@
                 DirectoryId = rootDirectoryId,
                 Notes = new HashSet<VideoNote>
                 {
-                    new VideoNote
-                    {
-                         Id = preExistingNote1Id,
-                         Content = preExistingNote1Content,
-                         Formatting = DefaultNoteFormatting,
-                         SeekTo = DefaultNoteSeekTo,
-                    },
-                    new VideoNote
-                    {
-                        Id = preExistingNote2Id,
-                        Content = preExistingNote2Content,
-                        Formatting = DefaultNoteFormatting,
-                        SeekTo = DefaultNoteSeekTo,
-                    },
+                    note1,
+                    note2,
                 }
             };
+
+            if (nestedNote)
+            {
+                var note3 = new VideoNote
+                {
+                    Order = 1,
+                    Id = preExistingNote3Id,
+                    Content = preExistingNote3Content,
+                    Formatting = DefaultNoteFormatting,
+                    SeekTo = DefaultNoteSeekTo,
+                    Video = video,
+                };
+
+                note1.ChildNotes = new HashSet<VideoNote> { note3 };
+            }
 
             user.Videos.Add(video);
             context.SaveChanges();
