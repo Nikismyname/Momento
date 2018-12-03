@@ -18,17 +18,7 @@ function notesFunction(enumerators, notesCount, existingNotes) {
             let contentDiv = $('<div class="flex"></div>');
             let content = $('<textarea class="form-control-black size-auto" id="textarea' + nextId + '" rows="2" cols="50" name="ContentCreate.Notes[' + nextId + '].Content"></textarea>');
             let goBackBtn = $('<button id="goBack' + nextId + '" class="goBack btn btn-secondary" type="button">Back</button>');
-
-            let optionsDropdow = $('<div class="dropdown"></div>')
-            let opttionsButton = $('<button type="button" class="btn btn-primary dropdown-toggle">Test</button>');
-            let optionsDropdownMenu = $('<div class="dropdown-menu"></div>');
-            let dropdownItem1 = $('<a class="dropdown-item" href="">All Events</a>');
-            $(optionsDropdownMenu).append(dropdownItem1);
-            $(optionsDropdow).append(opttionsButton);
-            $(optionsDropdow).append(optionsDropdownMenu);
-
             $(contentDiv).append(content);
-            $(contentDiv).append(optionsDropdow);
             $(contentDiv).append(goBackBtn);
             let select = $('<select class="form-control-black size-auto" id="select' + nextId + '" name="ContentCreate.Notes[' + nextId + '].Formatting"></select>');
             let deleteBtn = $('<button class="btn btn-warning" id="delButton' + nextId + '" type="button" >Delete</button>');

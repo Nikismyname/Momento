@@ -1,19 +1,29 @@
 {
-  "name": "momento.web",
-  "version": "1.0.0",
-  "description": "My awesome rememberence package of a project",
-  "main": "index.js",
-  "author": "Nikolay Popov",
-  "license": "ISC",
-  "devDependencies": {
-    "grunt": "^1.0.3",
-    "grunt-cli": "^1.3.1",
-    "grunt-contrib-sass": "^1.0.0",
-    "grunt-sass": "^3.0.1"
-  },
-  "dependencies": {
-    "bootstrap": "^4.1.3",
-    "gulp": "^3.9.1",
-    "node-sass": "^4.9.3"
-  }
+    "name": "momento.web",
+    "version": "1.0.0",
+    "description": "My awesome rememberence package of a project",
+    "main": "index.js",
+    "author": "Nikolay Popov",
+    "license": "ISC",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "webpack"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.1.6",
+        "@babel/preset-env": "^7.1.6",
+        "@babel/preset-react": "^7.0.0",
+        "babel-loader": "^8.0.4",
+        "grunt": "^1.0.3",
+        "grunt-cli": "^1.3.1",
+        "grunt-contrib-sass": "^1.0.0",
+        "grunt-sass": "^3.0.1",
+        "webpack": "^4.26.1",
+        "webpack-cli": "^3.1.2"
+    },
+    "dependencies": {
+        "bootstrap": "^4.1.3",
+        "gulp": "^3.9.1",
+        "node-sass": "^4.9.3"
+    }
 }

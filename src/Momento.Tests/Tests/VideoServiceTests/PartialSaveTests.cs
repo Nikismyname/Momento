@@ -1,5 +1,6 @@
 ﻿namespace Momento.Tests.VideoServiceTests
 {
+    #region Initialization
     using AutoMapper;
     using FluentAssertions;
     using Momento.Models.Enums;
@@ -34,6 +35,7 @@
                     mapper,
                     trackableService);
         }
+        #endregion
 
         #region ValidateSaveAndRegisterModification
         [Test]
@@ -313,6 +315,25 @@
 
             newVideoLastModifiedOn.Value.Should().NotBe(videoLastModifiedOn.Value);
             newVideoMidificationCount.Should().Be(videoMidificationCount + 1);
+        }
+
+        [Test]
+        public void PartialSaveDoesNotRegisterModificationOfVideoIfItIsNotFinalSave()
+        {
+            Seeder.SeedPeshoAndGosho(this.context);
+            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+
+            var videoLastModifiedOn = video.LastModifiedOn;
+            var videoMidificationCount = video.TimesModified;
+
+            Action action = this.GetPartialSaveAction(video.Id, Seeder.GoshoUsername, false);
+            action.Invoke();
+
+            var newVideoLastModifiedOn = video.LastModifiedOn;
+            var newVideoMidificationCount = video.TimesModified;
+
+            newVideoLastModifiedOn.Value.Should().Be(videoLastModifiedOn.Value);
+            newVideoMidificationCount.Should().Be(videoMidificationCount);
         }
 
         [Test]

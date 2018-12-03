@@ -3,7 +3,7 @@
     ViewData["Title"] = "CreateEdit";
 }
 
-@await Html.PartialAsync("_VideAndTopControll")
+@await Html.PartialAsync("_VideoAndTopControll")
 
 @*<form method="post">
     <div asp-validation-summary="All"></div>*@
@@ -59,8 +59,11 @@
 <br />
 @*</form>*@
 
-@section scripts
+@section Scripts
     {
+
+    <script type="text/javascript" src="~/js/AutoReize/jquery.autoresize.js"></script>
+
     <script type="text/javascript" src="~/js/Video/extractVideoToken.js"></script>
     @if (Model.Mode == "edit")
     {
@@ -108,5 +111,13 @@
         });
     </script>
     <script type="text/javascript" src="~/js/Video/videoSave.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('textarea').autoResize({
+                'minRows': 2,
+                'maxRows' : 10
+            });
+        });
+    </script>
 }
 

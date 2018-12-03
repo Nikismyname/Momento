@@ -30,6 +30,8 @@
     using Microsoft.AspNetCore.Identity;
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Implementations.Shared;
+    using React.AspNet;
+    using System;
 
     public class Startup
     {
@@ -40,7 +42,7 @@
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -83,13 +85,18 @@
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 
-            services.AddAutoMapper();
+            services.AddAutoMapper(); ///TODO: Make the automapper fancy like in the lecture
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddReact();
 
             services.AddMvc(options=> {
                 options.Filters.Add<AddDataToLayoutServiceActionFilter>();
                 options.Filters.Add<AddDataToLayoutServicePageFilter>();
             })
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            return services.BuildServiceProvider();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -104,6 +111,11 @@
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            app.UseReact(config =>
+            {
+
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

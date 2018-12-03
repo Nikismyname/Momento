@@ -1,2 +1,26 @@
-﻿@using Momento.Web.Models.Test
-@model TestModel
+﻿<blockquote contenteditable="true">
+    <p>Edit this content to add your own quote</p>
+</blockquote>
+@*what is this about*@
+<cite contenteditable="true">Write your own name here</cite>
+
+<div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+        Dropdown Example
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a href="#">HTML</a></li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">JavaScript</a></li>
+    </ul>
+</div>
+
+<div id="react"></div>
+
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>
+    <script src="~/js/ReactApps/Navigation.js"></script>
+}

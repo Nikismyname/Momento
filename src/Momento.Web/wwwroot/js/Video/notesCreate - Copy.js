@@ -48,48 +48,22 @@
             let contentDiv = $('<div class="flex"></div>');
             let content = $('<textarea class="form-control-black size-auto" id="textarea' + nextId + '" rows="2" cols="50" name="ContentCreate.Notes[' + nextId + '].Content"></textarea>');
             let goBackBtn = $('<button id="goBack' + nextId + '" class="goBack btn btn-secondary" type="button">Back</button>');
-
-            ///Dropdown options subSection
-            let optionsDropdow2 = $('<div class="dropdown"></div>')
-            let opttionsButton2 = $('<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Test</button>');
-            let optionsDropdownMenu2 = $('<div class="dropdown-menu"></div>');
-            let dropdownItem21 = $('<a class="dropdown-item" href="#">TestItem</a>');
-            $(optionsDropdownMenu2).append(dropdownItem21);
-            $(optionsDropdow2).append(opttionsButton2);
-            $(optionsDropdow2).append(optionsDropdownMenu2);
-
-            let optionsDropdow = $('<div class="dropdown"></div>') 
-            let opttionsButton = $('<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Test</button>');
-            let optionsDropdownMenu = $('<div class="dropdown-menu"></div>');
-            let dropdownItem1 = $('<a class="dropdown-item" href="#">TestItem</a>');
-            let dropdownItem2 = $(optionsDropdow2);
-
-            $(optionsDropdownMenu).append(dropdownItem1);
-            $(optionsDropdownMenu).append(dropdownItem2);
-            $(optionsDropdow).append(opttionsButton);
-            $(optionsDropdow).append(optionsDropdownMenu);
-
             $(contentDiv).append(content);
-            $(contentDiv).append(optionsDropdow);
             $(contentDiv).append(goBackBtn);
-
-            let currentId2 = nextId;
-            $(dropdownItem1).click(function (e) { e.preventDefault(); alert(currentId2);});
-
             let select = $('<select class="form-control-black size-auto" id="select' + nextId + '" name="ContentCreate.Notes[' + nextId + '].Formatting"></select>');
             let deleteBtn = $('<button class="btn btn-warning" id="delButton' + nextId + '" type="button" >Delete</button>');
             let noteControlsDiv = $('<div class="flex"></div>');
             $(noteControlsDiv).append(select);
             $(noteControlsDiv).append(deleteBtn);
-
-            ///hidden section ///with ids
+            ///hidden section
+                ///with ids
             let idInput = $('<input id="id'+nextId+'" type="number" name="ContentCreate.Notes['+nextId+'].Id" value="0" hidden="hidden">');
             let deleted = $('<input id="deleted' + nextId + '" type="text" name="ContentCreate.Notes[' + nextId + '].Deleted" value="false" hidden="hidden"/>');
             let seekTo = $('<input id="seekTo'+nextId+'" type="number" name="ContentCreate.Notes[' + nextId + '].SeekTo" value="' + Math.floor(player.getCurrentTime() ? player.getCurrentTime() : 0) + '" hidden="hidden"/>');
             let inPageParentId = $('<input id="inPageParentId'+nextId+'" type="number" name="ContentCreate.Notes[' + nextId + '].InPageParentId" value="' + parentId + '" hidden="hidden"/>');
             let noteTypeInput = $('<input id="type'+nextId+'" type="number" name="ContentCreate.Notes[' + nextId + '].Type" value="0" hidden="hidden" />');
             let levelInput = $('<input id="level'+nextId+'" type="number" name="ContentCreate.Notes[' + nextId + '].Level" value="' + level + '" hidden="hidden"/>');
-            ///no ids
+                ///no ids
             let inPageId = $('<input type="number" name="ContentCreate.Notes[' + nextId + '].InPageId" value="' + nextId + '" hidden="hidden"/>');
             
             let subNoteDiv = $('<div class="note-offset" id = "div' + nextId + '"></div>');

@@ -33,6 +33,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.4" PrivateAssets="All" />
 	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" Culture="neutral" />
 	<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+	<PackageReference Include="React.AspNet" Version="3.4.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +45,7 @@
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Identity\Services\" />
     <Folder Include="BootstrapSCSS\" />
+    <Folder Include="wwwroot\js\ReactApps\" />
   </ItemGroup>
 
   <ItemGroup>
