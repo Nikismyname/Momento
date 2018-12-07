@@ -1,6 +1,6 @@
 ﻿namespace Momento.Web.Models.Video
 {
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
     using System.Collections.Generic;
 
     public class VideoCreatePartial

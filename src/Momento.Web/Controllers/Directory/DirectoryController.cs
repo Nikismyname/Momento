@@ -3,6 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Directory;
+    using Momento.Services.Models.DirectoryModels;
 
     [Authorize]
     public class DirectoryController : Controller
@@ -16,7 +17,6 @@
             this.reorderService = reorderService;
         }
 
-        [HttpGet]
         public IActionResult Index(int? id)
         {
             var model = directoryService.GetIndex(User.Identity.Name);
@@ -28,6 +28,21 @@
             return View(model);
         }
 
+        public IActionResult IndexReact()
+        {
+            return View();
+        }
+
+        public ActionResult<DirectoryIndex> IndexApi(int? id)
+        {
+            var model = directoryService.GetIndex(User.Identity.Name);
+            if (id == null)
+            {
+                id = model.Id;
+            }
+            return model;
+        }
+
         [HttpPost]
         public IActionResult Create(int id, string name, int returnDirId)
         {
@@ -35,7 +50,6 @@
             return RedirectToAction(nameof(Index), new { id = returnDirId });
         }
 
-        [HttpGet]
         public IActionResult Delete(int id, int returnDirId)
         {
             directoryService.Delete(id);

@@ -8,7 +8,7 @@
     using Momento.Services.Exceptions;
     using Momento.Services.Implementations.Shared;
     using Momento.Services.Implementations.Video;
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
     using Momento.Web.Profiles;

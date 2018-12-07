@@ -1,14 +1,17 @@
 ﻿namespace Momento.Services.Contracts.Directory
 {
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.DirectoryModels;
+    using MomentoServices.Models.DirectoryModels;
 
     public interface IDirectoryService
     {
-        DirectoryIndex GetIndex(string userName);
+        DirectoryIndex GetIndex(string username);
 
-        void Create(int id, string name, string userName);
+        DirectoryImdexSingle GetIndexSingle(int? directoryId, string username);
 
-        void CreateRoot(string userName);
+        void Create(int id, string name, string username);
+
+        void CreateRoot(string username);
 
         void Delete(int id);
     }

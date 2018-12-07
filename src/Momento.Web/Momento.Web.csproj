@@ -18,11 +18,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Counter3.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js" />
+    <None Remove="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js.map" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="TrashCan\ListToDoUse - SmallItems.js" />
+    <Content Include="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js.map">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -34,10 +49,13 @@
 	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" Culture="neutral" />
 	<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 	<PackageReference Include="React.AspNet" Version="3.4.1" />
+	<PackageReference Include="React.Router" Version="3.4.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Momento.Services.Mapping\Momento.Services.Mapping.csproj" />
     <ProjectReference Include="..\Momento.Services\Momento.Services.csproj" />
+    <ProjectReference Include="..\MomentoServices.Models\MomentoServices.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,14 +63,18 @@
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Identity\Services\" />
     <Folder Include="BootstrapSCSS\" />
-    <Folder Include="wwwroot\js\ReactApps\" />
+    <Folder Include="wwwroot\js\ReactApps\Navigation\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Areas\Admin\Views\Home\AdminView.cshtml" />
+    <None Include="wwwroot\Counter3.js" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Directory\IndexReact.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Home\IndexLoggedIn.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

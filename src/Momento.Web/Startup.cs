@@ -32,6 +32,8 @@
     using Momento.Services.Implementations.Shared;
     using React.AspNet;
     using System;
+    using Momento.Services.Mapping;
+    using Momento.Services.Models.VideoModels;
 
     public class Startup
     {
@@ -44,6 +46,9 @@
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            ///Momento.Services.Models assembly
+            AutoMapperConfig.RegisterMappings(typeof(VideoCreate).Assembly); 
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
@@ -88,13 +93,14 @@
             services.AddAutoMapper(); ///TODO: Make the automapper fancy like in the lecture
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddReact();
 
             services.AddMvc(options=> {
                 options.Filters.Add<AddDataToLayoutServiceActionFilter>();
                 options.Filters.Add<AddDataToLayoutServicePageFilter>();
             })
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddReact();
 
             return services.BuildServiceProvider();
         }
@@ -112,12 +118,15 @@
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
             app.UseReact(config =>
             {
-
+                config
+                    .SetReuseJavaScriptEngines(true)
+                    .SetLoadBabel(false)
+                    .SetLoadReact(false)
+                    .AddScriptWithoutTransform("~/js/ReactApps/Navigation/components.bundle.js");
             });
-
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

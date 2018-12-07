@@ -12,7 +12,7 @@
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Video;
     using Momento.Services.Exceptions;
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
 
     public class VideoService : IVideoService
     {

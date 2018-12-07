@@ -5,9 +5,12 @@
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
     using Momento.Services.Contracts.Directory;
-    using Momento.Services.Models.Video;
     using Momento.Models.Directories;
     using System;
+    using Momento.Services.Models.DirectoryModels;
+    using Momento.Services.Exceptions;
+    using Momento.Services.Mapping;
+    using MomentoServices.Models.DirectoryModels;
 
     public class DirectoryService : IDirectoryService
     {
@@ -43,6 +46,7 @@
 
         public DirectoryIndex GetIndex(string username)
         {
+            ///TODO: do the smarter IQueriable mapping might save some time 
             var dirs = context.Directories
                     .Include(x => x.Videos)
                         .ThenInclude(x => x.Notes)
@@ -54,6 +58,47 @@
 
             var indexDir = mapper.Map<DirectoryIndex>(dir);
             return indexDir;
+        }
+
+        public DirectoryImdexSingle GetIndexSingle(int? directoryId, string username)
+        {
+            var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
+
+            if (userId == null)
+            {
+                //throw new UserNotFound(username);
+                return null;
+            }
+
+            DirectoryImdexSingle dir = null;
+
+            IQueryable<DirectoryImdexSingle> baseQuery = context.Directories.Where(x=>x.UserId == userId).To<DirectoryImdexSingle>();
+
+            ///if that find root
+            if (directoryId == null || directoryId == 0)
+            {
+                dir = baseQuery
+                    .SingleOrDefault(x => x.ParentDirectoryId == null);
+
+                if (dir == null)
+                {
+                    //throw new InternalServerError("Could not find root dir for user " + username);
+                    return null;
+                }
+            }
+            else
+            {
+                dir = baseQuery 
+                    .SingleOrDefault(x => x.Id == directoryId);
+
+                if (dir == null)
+                {
+                    // new BadRequestError("The directory you are trying to access eather does not exist or is not yours!");
+                    return null;
+                }
+            }
+
+            return dir;
         }
 
         public void CreateRoot(string username)
@@ -122,6 +167,7 @@
         }
 
         #region Hard Delete
+
         private void HardDelete(int id)
         {
             CascadeDelete(id);

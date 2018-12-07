@@ -82,7 +82,6 @@
                 <div class="content" id="@(vid.Id)" order="@(counter1++)">
                     <b>@vid.Name</b>
                     <h6>@vid.Description</h6>
-                    <h6 title="@CreateTooltip(vid.Notes.Where(x => x.IsRoot == true).ToList())" data-toggle="tooltip" data-html="true">Notes:@vid.NotesCount</h6>
                     <div class="flex">
                         <a asp-area="" asp-controller="Video" asp-action="View" asp-route-id="@vid.Id">View</a>
                         <a class="content-link" asp-area="" asp-controller="Video" asp-action="Edit" asp-route-id="@vid.Id">Edit</a>

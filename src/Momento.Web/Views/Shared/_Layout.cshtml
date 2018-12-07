@@ -50,6 +50,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="IndexReact" asp-route-id="">DirectoryReact</a></li>
                         }
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>
                         @if (User.IsInRole("Admin"))

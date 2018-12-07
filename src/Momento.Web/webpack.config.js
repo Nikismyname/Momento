@@ -1,10 +1,16 @@
 ﻿"use strict";
 
 module.exports = {
-    entry: "./ReactSource/Navidation/App.jsx",
-    output: {
-        filename: "../wwwroot/js/ReactApps/Navigation.js"
+    entry: {
+        components: "./ReactSource/Navigation/ExposeComponents.js",
     },
+
+    output: {
+        filename: "../wwwroot/js/ReactApps/Navigation/[name].bundle.js"
+    },
+
+    devtool: 'source-map',
+
     module: {
         rules: [
             {
@@ -14,5 +20,6 @@ module.exports = {
             }
         ]
     },
-    mode: 'development'
+    mode: 'development',
+    watch: true,
 };

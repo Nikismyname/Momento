@@ -4,7 +4,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Video;
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -77,24 +77,6 @@
 
             return View("CreateEdit", model);
         }
-
-        //[HttpPost]
-        //public IActionResult Edit(VideoCreateWithSettings model)
-        //{
-        //    var contentCreate = model.ContentCreate;
-        //    if (ModelState.IsValid)
-        //    {
-        //        contentCreate.Notes = RemoveDeleted(contentCreate.Notes);
-        //        ProcessPageNotes(contentCreate);
-        //        videoService.Edit(contentCreate);
-        //        return RedirectToAction("Index", "Directory", new { id = contentCreate.DirectoryId });
-        //    }
-
-        //    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-        //    model.Mode = "edit";
-        //    model.Settings = settings;
-        //    return View("CreateEdit", model);
-        //}
         #endregion
 
         [HttpPost]
@@ -130,23 +112,3 @@
         #endregion
     }
 }
-
-
-
-//[HttpPost]
-//public IActionResult Create(VideoCreateWithSettings modelIn)
-//{
-//    var model = modelIn.ContentCreate;
-//    if (ModelState.IsValid)
-//    {
-//        model.Notes = RemoveDeleted(model.Notes);
-//        ProcessPageNotes(model);
-//        videoService.Create(model);
-//        return RedirectToAction("Index","Directory", new {id = model.DirectoryId});
-//    }
-
-//    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-//    modelIn.Mode = "create";
-//    modelIn.Settings = settings;
-//    return View("CreateEdit", modelIn);
-//}

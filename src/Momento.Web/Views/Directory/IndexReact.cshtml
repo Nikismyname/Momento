@@ -1,0 +1,68 @@
+﻿@using React.AspNet
+@*@using React.RenderFunctions*@
+@using React.Router
+@inject Momento.Services.Contracts.Directory.IDirectoryService ds
+
+@{
+    var data = ds.GetIndexSingle(0, this.User.Identity.Name);
+}
+<div id="react"></div>
+@Html.React("Counter3", new
+{
+    initialDir = data,
+})
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>
+    @*<script src="~/js/ReactApps/Navigation/Counter3.js"></script>*@
+    <script src="~/js/ReactApps/Navigation/components.bundle.js"></script>
+    @Html.ReactInitJavaScript()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*OLD ATTEMPTS*@
+@*asp-prerender-data='new {number = 4}'*@
+@*asp-prerender-export="SR"*@
+
+@*<div asp-prerender-module="wwwroot/js/ReactApps/Navigation/server.bundle.js"
+         asp-prerender-export="ServerRendering ">
+        Loading...
+    </div>*@
+
+@*@Html.React("NavigationPage", new
+    {
+        currentDir = JsonConvert.SerializeObject(this.ds.GetIndexSingle(0, this.User.Identity.Name)),
+    });*@
+@*<script src="~/js/ReactApps/Navigation/client.bundle.js"></script>
+    @Html.ReactInitJavaScript()*@
+
+@*<div asp-prerender-module="ReactSource/Navigation/ServerBoot.js"
+         asp-prerender-data='new {number = 4}'>
+        Loading...
+    </div>*@
+@*<script src="~/js/ReactApps/Navigation/client.bundle.js" asp-append-version="true"></script>*@
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>*@

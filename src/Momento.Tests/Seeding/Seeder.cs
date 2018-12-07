@@ -5,7 +5,7 @@
     using Momento.Models.Enums;
     using Momento.Models.Users;
     using Momento.Models.Videos;
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
     using System.Collections.Generic;
     using System.Linq;
 

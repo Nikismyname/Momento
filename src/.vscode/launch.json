@@ -10,7 +10,13 @@
             "name": "Launch Chrome against localhost",
             "url": "https://localhost:44307",
             "sourceMaps": true,
-            "webRoot": "C:/Users/ASUS G751JY/source/repos/0004 Coursework ASP MVC Framework November  2018/Momento/src/Momento.Web/wwwroot"
+            "webRoot": "${workspaceFolder}/Momento.Web/wwwroot",
+            "sourceMapPathOverrides": {
+                "webpack:///*": "${workspaceFolder}/Momento.Web/wwwroot/ReactApps/*",
+                "webpack:///./*": "${workspaceFolder}/Momento.Web*",
+                "webpack:///ReactSource/*": "${workspaceFolder}/Momento.Web/ReactSource/*",
+                "webpack:///./~/*": "${workspaceFolder}/Momento.Web/node_modules/*"
+            },
         }
     ]
 }

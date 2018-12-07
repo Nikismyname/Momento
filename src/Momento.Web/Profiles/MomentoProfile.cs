@@ -7,8 +7,9 @@
     using Momento.Models.Videos;
     using Momento.Models.Directories;
     using Momento.Services.Models.Code;
-    using Momento.Services.Models.Video;
+    using Momento.Services.Models.VideoModels;
     using Momento.Services.Models.ListToDoModels;
+    using Momento.Services.Models.DirectoryModels;
 
     public class MomentoProfile: Profile
     {

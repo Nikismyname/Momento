@@ -6,7 +6,6 @@
     using System.Collections.Generic;
     using Momento.Models.Videos;
     using Momento.Models.Contracts;
-    using System;
 
     public class Directory : SoftDeletableAndTrackable
     {
