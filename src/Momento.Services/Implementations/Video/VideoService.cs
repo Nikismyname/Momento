@@ -222,6 +222,20 @@
 
             context.SaveChanges();
         }
+
+        public bool DeleteApi(int id, string username)
+        {
+            var now = DateTime.UtcNow;
+            try
+            {
+                this.Delete(id, username, now);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region PartialSave

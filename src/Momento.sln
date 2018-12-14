@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Tests", "Momento.Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{7140C680-05FE-4963-83FC-9545D1FEB617}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momento.Services.Mapping", "Momento.Services.Mapping\Momento.Services.Mapping.csproj", "{DC3587D4-A919-40F1-9A2F-A43AF157B7D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Services.Mapping", "Momento.Services.Mapping\Momento.Services.Mapping.csproj", "{DC3587D4-A919-40F1-9A2F-A43AF157B7D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MomentoServices.Models", "MomentoServices.Models\MomentoServices.Models.csproj", "{5E573666-A2B3-4339-B91A-1098925E306D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Services.Models", "MomentoServices.Models\Momento.Services.Models.csproj", "{5E573666-A2B3-4339-B91A-1098925E306D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

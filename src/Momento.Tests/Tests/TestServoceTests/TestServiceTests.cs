@@ -19,8 +19,8 @@
         [Test]
         public void Test()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUser(context,Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUser(context,VideoS.GoshoId);
             this.testService.Test(video.Id);
         }
     }

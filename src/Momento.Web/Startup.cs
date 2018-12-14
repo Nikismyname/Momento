@@ -34,6 +34,8 @@
     using System;
     using Momento.Services.Mapping;
     using Momento.Services.Models.VideoModels;
+    using Momento.Services.Implementations.Comparisons;
+    using Momento.Services.Contracts.Comparisons;
 
     public class Startup
     {
@@ -47,7 +49,7 @@
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             ///Momento.Services.Models assembly
-            AutoMapperConfig.RegisterMappings(typeof(VideoCreate).Assembly); 
+            AutoMapperConfig.RegisterMappings(typeof(VideoCreate).Assembly);
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -87,6 +89,7 @@
             services.AddTransient<ISaveData, SaveData>();
             services.AddTransient<IListToDoService, ListToDoService>();
             services.AddTransient<ITrackableService, TrackableService>();
+            services.AddTransient<IComparisonService, ComparisonService>();
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 
@@ -94,7 +97,8 @@
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddMvc(options=> {
+            services.AddMvc(options =>
+            {
                 options.Filters.Add<AddDataToLayoutServiceActionFilter>();
                 options.Filters.Add<AddDataToLayoutServicePageFilter>();
             })
@@ -141,6 +145,10 @@
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                //routes.MapSpaFallbackRoute(
+                //    name: "spa-fallback",
+                //    defaults: new { controller = "Directory", action = "IndexReact" });
             });
         }
     }

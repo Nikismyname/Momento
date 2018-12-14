@@ -42,24 +42,24 @@
         public void ShouldThrowIfVIdeoIsNotFound()
         {
             const int NonExistantVideoId = 12;
-            Action action = GetPartialSaveAction(NonExistantVideoId, Seeder.GoshoUsername);
+            Action action = GetPartialSaveAction(NonExistantVideoId, VideoS.GoshoUsername);
             action.Should().Throw<ItemNotFound>().WithMessage("The video you are working on does not exists in the database");
         }
 
         [Test]
         public void ShouldThrowIfVIdeoDoesNotBelogToUser()
         {
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUser(context, Seeder.GoshoId);
-            Action action = GetPartialSaveAction(video.Id, Seeder.PeshoUsername);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUser(context, VideoS.GoshoId);
+            Action action = GetPartialSaveAction(video.Id, VideoS.PeshoUsername);
             action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to medify does not belong to you!");
         }
 
         [Test]
         public void ShouldThrowIfIdsToChangeDoNotBelongToVideo()
         {
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "some prop", "some val" },
@@ -68,7 +68,7 @@
                 new string[]{"3", "some prop", "some val"}
             };
 
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Should().Throw<AccessDenied>().WithMessage("The video notes you are trying to modify does not belong the the current video");
         }
         #endregion
@@ -77,15 +77,15 @@
         [Test]
         public void ShouldNotChangeVideoFieldsIfTheyAreAllNull()
         {
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername);
             action.Invoke();
 
-            video.SeekTo.Should().Be(Seeder.DefaultVideoSeekTo);
-            video.Name.Should().Be(Seeder.DefaultVideoName);
-            video.Description.Should().Be(Seeder.DefaultVideoDesctiption);
-            video.Url.Should().Be(Seeder.DefaultVideoUrl);
+            video.SeekTo.Should().Be(VideoS.DefaultVideoSeekTo);
+            video.Name.Should().Be(VideoS.DefaultVideoName);
+            video.Description.Should().Be(VideoS.DefaultVideoDesctiption);
+            video.Url.Should().Be(VideoS.DefaultVideoUrl);
         }
 
         [Test]
@@ -96,9 +96,9 @@
             const string NewDescription = "NewDescription";
             const string NewUrl = "NewUrl";
 
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, NewSeekTo, NewName, NewDescription, NewUrl);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, NewSeekTo, NewName, NewDescription, NewUrl);
             action.Invoke();
 
             video.SeekTo.Should().Be(NewSeekTo);
@@ -115,14 +115,14 @@
             const string Note1NewContent = "newContentForNote1";
             const string Note2NewContent = "newContentForNote2";
 
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Content", Note1NewContent },
                 new string[]{"2", "Content", Note2NewContent }
             };
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Invoke();
 
             var note1 = video.Notes.SingleOrDefault(x => x.Id == 1);
@@ -135,14 +135,14 @@
         [Test]
         public void AppliesDeletedChangeToExistingNotesShouldSoftDeleteThem()
         {
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Deleted", "Not Used"},
                 new string[]{"2", "Deleted", "Not Used"}
             };
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Invoke();
 
             var note1 = video.Notes.SingleOrDefault(x => x.Id == 1);
@@ -158,14 +158,14 @@
             const Formatting Note1NewFormatting = Formatting.SQL;
             const Formatting Note2NewFormatting = Formatting.None;
 
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Formatting", ((int)Note1NewFormatting).ToString() },
                 new string[]{"2", "Formatting", ((int)Note2NewFormatting).ToString() }
             };
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Invoke();
 
             var note1 = video.Notes.SingleOrDefault(x => x.Id == 1);
@@ -181,14 +181,14 @@
             const int Note1NewSeekTo = 15;
             const int Note2NewSeekTo = 16;
 
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "SeekTo", Note1NewSeekTo.ToString() },
                 new string[]{"2", "SeekTo", Note2NewSeekTo.ToString() }
             };
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Invoke();
 
             var note1 = video.Notes.SingleOrDefault(x => x.Id == 1);
@@ -203,10 +203,10 @@
         [Test]
         public void ShoudCreate3nestedDivsStartingAtRootCorrectly()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            var newNotes = Seeder.GenerateNoteCreateSimpleNested(null);
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, newNotes);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var newNotes = VideoS.GenerateNoteCreateSimpleNested(null);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, newNotes);
             action.Invoke();
 
             var level1Note = video.Notes.SingleOrDefault(x => x.Content == "NestedLevel1");
@@ -227,13 +227,13 @@
         [Test]
         public void ShoudCreate3nestedDivsStartingAtExistingNote()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            var newNotes = Seeder.GenerateNoteCreateSimpleNested(Seeder.preExistingNote1Id);
-            Action action = this.GetPartialSaveAction(video.Id, Seeder.GoshoUsername, newNotes);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id);
+            Action action = this.GetPartialSaveAction(video.Id, VideoS.GoshoUsername, newNotes);
             action.Invoke();
 
-            var preExistingRootNote = context.VideoNotes.SingleOrDefault(x => x.Id == Seeder.preExistingNote1Id);
+            var preExistingRootNote = context.VideoNotes.SingleOrDefault(x => x.Id == VideoS.preExistingNote1Id);
             preExistingRootNote.ChildNotes.Count.Should().Be(1);
 
             var level1Note = preExistingRootNote.ChildNotes.SingleOrDefault();
@@ -254,35 +254,35 @@
         [Test]
         public void IfTheNestingLevelIsGreaterThan4Throw()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            var newNotes = Seeder.GenerateNoteCreateSimpleNested(Seeder.preExistingNote1Id, 4);
-            Action action = this.GetPartialSaveAction(video.Id, Seeder.GoshoUsername, newNotes);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id, 4);
+            Action action = this.GetPartialSaveAction(video.Id, VideoS.GoshoUsername, newNotes);
             action.Should().Throw<BadRequestError>().WithMessage("The notes you are trying to save are nested deeper the four levels!");
         }
 
         [Test]
         public void CreateNewItemsReturnsTheRightIdsToUpdateThePageEntries()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
-            var newNotes = Seeder.GenerateNoteCreateSimpleNested(Seeder.preExistingNote1Id);
-            Func<int[][]> function = this.GetPartialSaveFunction(video.Id, Seeder.GoshoUsername, newNotes);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id);
+            Func<int[][]> function = this.GetPartialSaveFunction(video.Id, VideoS.GoshoUsername, newNotes);
             var result = function.Invoke();
             ///This means everything is ok
             result[0][0].Should().Be(0);
 
             var separatedResult = result.Skip(1).ToList();
 
-            var newNote1DbId = context.VideoNotes.Where(x => x.Content == Seeder.Note1Content).SingleOrDefault().Id;
-            var newNote2DbId = context.VideoNotes.Where(x => x.Content == Seeder.Note2Content).SingleOrDefault().Id;
-            var newNote3DbId = context.VideoNotes.Where(x => x.Content == Seeder.Note3Content).SingleOrDefault().Id;
+            var newNote1DbId = context.VideoNotes.Where(x => x.Content == VideoS.Note1Content).SingleOrDefault().Id;
+            var newNote2DbId = context.VideoNotes.Where(x => x.Content == VideoS.Note2Content).SingleOrDefault().Id;
+            var newNote3DbId = context.VideoNotes.Where(x => x.Content == VideoS.Note3Content).SingleOrDefault().Id;
 
             var expectedOutcome = new List<int[]>
             {
-                new int[]{ Seeder.Note1InPageId, newNote1DbId },
-                new int[]{ Seeder.Note2InPageId, newNote2DbId },
-                new int[]{ Seeder.Note3InPageId, newNote3DbId },
+                new int[]{ VideoS.Note1InPageId, newNote1DbId },
+                new int[]{ VideoS.Note2InPageId, newNote2DbId },
+                new int[]{ VideoS.Note3InPageId, newNote3DbId },
             };
 
             for (int i = 0; i < expectedOutcome.Count; i++)
@@ -301,13 +301,13 @@
         [Test]
         public void PartialSaveRegisterModificationOfVideoIfItIsFinalSave()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
 
             var videoLastModifiedOn = video.LastModifiedOn;
             var videoMidificationCount = video.TimesModified;
 
-            Action action = this.GetPartialSaveAction(video.Id, Seeder.GoshoUsername, true);
+            Action action = this.GetPartialSaveAction(video.Id, VideoS.GoshoUsername, true);
             action.Invoke();
 
             var newVideoLastModifiedOn = video.LastModifiedOn;
@@ -320,13 +320,13 @@
         [Test]
         public void PartialSaveDoesNotRegisterModificationOfVideoIfItIsNotFinalSave()
         {
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
 
             var videoLastModifiedOn = video.LastModifiedOn;
             var videoMidificationCount = video.TimesModified;
 
-            Action action = this.GetPartialSaveAction(video.Id, Seeder.GoshoUsername, false);
+            Action action = this.GetPartialSaveAction(video.Id, VideoS.GoshoUsername, false);
             action.Invoke();
 
             var newVideoLastModifiedOn = video.LastModifiedOn;
@@ -341,11 +341,11 @@
         {
             const Formatting Note1NewFormatting = Formatting.SQL;
             const Formatting Note2NewFormatting = Formatting.None;
-            Seeder.SeedPeshoAndGosho(context);
-            var video = Seeder.SeedVideosToUserWithNotes(context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
 
-            var note1 = video.Notes.SingleOrDefault(x => x.Id == Seeder.preExistingNote1Id);
-            var note2 = video.Notes.SingleOrDefault(x => x.Id == Seeder.preExistingNote2Id);
+            var note1 = video.Notes.SingleOrDefault(x => x.Id == VideoS.preExistingNote1Id);
+            var note2 = video.Notes.SingleOrDefault(x => x.Id == VideoS.preExistingNote2Id);
             var intialModifedOnNote1 = note1.LastModifiedOn;
             var intialModifedOnNote2 = note2.LastModifiedOn;
             var initialTimesModifiedNote1 = note1.TimesModified;
@@ -353,10 +353,10 @@
 
             var changes = new string[][]
             {
-                new string[]{Seeder.preExistingNote1Id.ToString(), "Formatting", ((int)Note1NewFormatting).ToString() },
-                new string[]{Seeder.preExistingNote2Id.ToString(), "Formatting", ((int)Note2NewFormatting).ToString() }
+                new string[]{VideoS.preExistingNote1Id.ToString(), "Formatting", ((int)Note1NewFormatting).ToString() },
+                new string[]{VideoS.preExistingNote2Id.ToString(), "Formatting", ((int)Note2NewFormatting).ToString() }
             };
-            Action action = GetPartialSaveAction(video.Id, Seeder.GoshoUsername, changes);
+            Action action = GetPartialSaveAction(video.Id, VideoS.GoshoUsername, changes);
             action.Invoke();
 
             intialModifedOnNote1.Value.Should().BeBefore(note1.LastModifiedOn.Value);

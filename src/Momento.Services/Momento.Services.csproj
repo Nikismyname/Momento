@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Momento.Data\Momento.Data.csproj" />
     <ProjectReference Include="..\Momento.Services.Mapping\Momento.Services.Mapping.csproj" />
-    <ProjectReference Include="..\MomentoServices.Models\MomentoServices.Models.csproj" />
+    <ProjectReference Include="..\MomentoServices.Models\Momento.Services.Models.csproj" />
   </ItemGroup>
 
 </Project>

@@ -40,7 +40,7 @@
 
         #region Create 
         [HttpGet]
-        public IActionResult Create(int id)
+        public IActionResult Create(int id)///Id is parent dir Id
         {
             var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
             var videoId = videoService.Create(id, this.User.Identity.Name);

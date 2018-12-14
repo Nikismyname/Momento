@@ -13,8 +13,8 @@
         public void Test()
         {
             ///GOSHO
-            Seeder.SeedPeshoAndGosho(this.context);
-            var video = Seeder.SeedVideosToUser(this.context, Seeder.GoshoId);
+            VideoS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUser(this.context, VideoS.GoshoId);
 
             var note1 = new VideoNote
             {

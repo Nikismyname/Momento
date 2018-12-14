@@ -9,11 +9,11 @@
 
         void Delete(int id, string username, DateTime now);
 
+        bool DeleteApi(int id, string username);
+
         VideoView GetView(int videoId);
 
         VideoCreate GetVideoForEdit(int videoId, string username);
-
-        //void Edit(VideoCreate model);
 
         int[][] PartialSave(int videoId,string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
     }

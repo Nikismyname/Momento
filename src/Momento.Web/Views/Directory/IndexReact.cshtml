@@ -1,16 +1,35 @@
-﻿@using React.AspNet
+﻿@model ReactPrerenderInfo;
+
+@using React.AspNet
 @*@using React.RenderFunctions*@
 @using React.Router
 @inject Momento.Services.Contracts.Directory.IDirectoryService ds
+@inject Momento.Services.Contracts.Comparisons.IComparisonService cs;
 
 @{
-    var data = ds.GetIndexSingle(0, this.User.Identity.Name);
+    var dirData = (DirectoryIndexSingle)null;
+    var compData = (ComparisonEdit)null;
+    string component = "";
+
+    if(Model.WantedComponent == ReactComponent.index)
+    {
+        dirData = ds.GetIndexSingle(Model.WantedIndex, this.User.Identity.Name);
+        component = "index";
+    }
+    else if (Model.WantedComponent == ReactComponent.compare)
+    {
+        compData = cs.GetComparisonForEditApi(Model.WantedIndex,this.User.Identity.Name);
+        component = "compare";
+    }
 }
 <div id="react"></div>
-@Html.React("Counter3", new
+@Html.React("RootElement", new
 {
-    initialDir = data,
+    initialDir = dirData,
+    initialComp = compData,
+    comp = component,
 })
+
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>

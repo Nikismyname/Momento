@@ -33,6 +33,7 @@
 
 :root {
     --padding: 3%;
+    --padding-react: 13%;
 }
 
 .content {
@@ -45,6 +46,15 @@
     padding-bottom: var(--padding);
 }
 
+.video {
+    border-radius: 25px;
+    border: 5px solid blue;
+    padding-left: var(--padding-react);
+    padding-right: var(--padding-react);
+    padding-top: var(--padding-react);
+    padding-bottom: var(--padding-react);
+}
+
 .directory {
     width: 30%;
     border-radius: 25px;
@@ -53,6 +63,15 @@
     padding-right: var(--padding);
     padding-top: var(--padding);
     padding-bottom: var(--padding);
+}
+
+.directory-react {
+    border-radius: 25px;
+    border: 5px solid grey;
+    padding-left: var(--padding-react);
+    padding-right: var(--padding-react);
+    padding-top: var(--padding-react);
+    padding-bottom: var(--padding-react);
 }
 
 .todo-list {
@@ -73,6 +92,15 @@
     padding-right: var(--padding);
     padding-top: var(--padding);
     padding-bottom: var(--padding);
+}
+
+.parent-directory-react {
+    border-radius: 25px;
+    border: 5px solid black;
+    padding-left: var(--padding-react);
+    padding-right: var(--padding-react);
+    padding-top: var(--padding-react);
+    padding-bottom: var(--padding-react);
 }
 
 .non-li {

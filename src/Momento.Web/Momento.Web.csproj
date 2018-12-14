@@ -55,7 +55,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Momento.Services.Mapping\Momento.Services.Mapping.csproj" />
     <ProjectReference Include="..\Momento.Services\Momento.Services.csproj" />
-    <ProjectReference Include="..\MomentoServices.Models\MomentoServices.Models.csproj" />
+    <ProjectReference Include="..\MomentoServices.Models\Momento.Services.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,6 +72,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Code\BootStrapAC.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Directory\IndexReact.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

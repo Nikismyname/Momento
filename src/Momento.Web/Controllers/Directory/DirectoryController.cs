@@ -4,6 +4,10 @@
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Directory;
     using Momento.Services.Models.DirectoryModels;
+    using Momento.Web.Models.React;
+    using Momento.Web.Models.React.Enums;
+    using System;
+    using System.Linq;
 
     [Authorize]
     public class DirectoryController : Controller
@@ -20,7 +24,7 @@
         public IActionResult Index(int? id)
         {
             var model = directoryService.GetIndex(User.Identity.Name);
-            if(id == null)
+            if (id == null)
             {
                 id = model.Id;
             }
@@ -30,7 +34,30 @@
 
         public IActionResult IndexReact()
         {
-            return View();
+            var path = this.Request.Path;
+            var reactPrerenderInfo = new ReactPrerenderInfo();
+
+            var urlTokens = path.ToString().Split("/");
+            var lastPart = urlTokens.Last();
+
+            if (int.TryParse(lastPart, out int index))
+            {
+                reactPrerenderInfo.WantedIndex = index;
+                var component = urlTokens[urlTokens.Length - 2];
+                if (Enum.TryParse(component, out ReactComponent comp))
+                {
+                    reactPrerenderInfo.WantedComponent = comp;
+                }
+            }
+            else
+            {
+                if (Enum.TryParse(lastPart, out ReactComponent comp))
+                {
+                    reactPrerenderInfo.WantedComponent = comp;
+                }
+            }
+
+            return View(reactPrerenderInfo);
         }
 
         public ActionResult<DirectoryIndex> IndexApi(int? id)
@@ -52,14 +79,14 @@
 
         public IActionResult Delete(int id, int returnDirId)
         {
-            directoryService.Delete(id);
-            return RedirectToAction(nameof(Index), new {id = returnDirId});
+            directoryService.Delete(id, this.User.Identity.Name);
+            return RedirectToAction(nameof(Index), new { id = returnDirId });
         }
 
         [HttpPost]
         public void Reorder(string type, int parentDir, int[] values)
         {
-            reorderService.SaveItemsForOneDir(parentDir,type, values );
+            reorderService.SaveItemsForOneDir(parentDir, type, values);
         }
     }
 }

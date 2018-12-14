@@ -8,9 +8,8 @@
     using Momento.Models.Directories;
     using System;
     using Momento.Services.Models.DirectoryModels;
-    using Momento.Services.Exceptions;
     using Momento.Services.Mapping;
-    using MomentoServices.Models.DirectoryModels;
+    using Momento.Services.Exceptions;
 
     public class DirectoryService : IDirectoryService
     {
@@ -23,9 +22,33 @@
             this.mapper = mapper;
         }
 
-        public void Create(int parentDirId, string name, string userName)
+        //Verified
+        public int Create(int parentDirId, string dirName, string username)
         {
             var parentDir = context.Directories.SingleOrDefault(x => x.Id == parentDirId);
+
+            if (parentDir == null)
+            {
+                throw new ItemNotFound("The parent directory of the directory you are trying to create does not exist!");
+            }
+
+            var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
+
+            if (user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            if (parentDir.UserId != user.Id)
+            {
+                throw new AccessDenied("The parent directory does not belong to you!");
+            }
+
+            if (string.IsNullOrWhiteSpace(dirName) || dirName.Length == 0 || dirName.ToLower() == "root")
+            {
+                throw new BadRequestError("The directory name is not valid!");
+            }
+
             var order = 0;
             if (parentDir.Subdirectories.Any())
             {
@@ -34,7 +57,7 @@
 
             var dir = new Directory
             {
-                Name = name,
+                Name = dirName,
                 UserId = parentDir.UserId,
                 ParentDirectory = parentDir,
                 Order = order,
@@ -42,8 +65,24 @@
 
             context.Directories.Add(dir);
             context.SaveChanges();
+
+            return dir.Id;
         }
 
+        public int CreateApi(int parentDirId, string dirName, string username)
+        {
+            try
+            {
+                var id = Create(parentDirId, dirName, username);
+                return id;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        ///TODO: rewrite with new mapping
         public DirectoryIndex GetIndex(string username)
         {
             ///TODO: do the smarter IQueriable mapping might save some time 
@@ -60,7 +99,7 @@
             return indexDir;
         }
 
-        public DirectoryImdexSingle GetIndexSingle(int? directoryId, string username)
+        public DirectoryIndexSingle GetIndexSingle(int? directoryId, string username)
         {
             var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
 
@@ -70,11 +109,11 @@
                 return null;
             }
 
-            DirectoryImdexSingle dir = null;
+            DirectoryIndexSingle dir = null;
 
-            IQueryable<DirectoryImdexSingle> baseQuery = context.Directories.Where(x=>x.UserId == userId).To<DirectoryImdexSingle>();
+            IQueryable<DirectoryIndexSingle> baseQuery = context.Directories.Where(x => x.UserId == userId).To<DirectoryIndexSingle>();
 
-            ///if that find root
+            ///if that, find root
             if (directoryId == null || directoryId == 0)
             {
                 dir = baseQuery
@@ -88,7 +127,7 @@
             }
             else
             {
-                dir = baseQuery 
+                dir = baseQuery
                     .SingleOrDefault(x => x.Id == directoryId);
 
                 if (dir == null)
@@ -100,6 +139,20 @@
 
             return dir;
         }
+
+        public DirectoryIndexSingle GetIndexSingleApi(int? directoryId, string username)
+        {
+            try
+            {
+                var result = GetIndexSingle(directoryId, username);
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
         public void CreateRoot(string username)
         {
@@ -118,12 +171,43 @@
         /// Soft delete
         /// Deletes: Videos, ListToDo
         /// </summary>
-        public void Delete(int id)
+        /// Validated
+        public void Delete(int id, string username)
         {
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if (user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
             var dirToDelete = context.Directories.SingleOrDefault(x => x.Id == id);
+
+            if (dirToDelete == null)
+            {
+                throw new ItemNotFound("The directory you are trying to delete does not exist!");
+            }
+
+            if (dirToDelete.UserId != user.Id)
+            {
+                throw new AccessDenied("The directory you are trying to delete does not belong to you!");
+            }
+
             var now = DateTime.UtcNow;
             this.SoftDeleteDirectory(dirToDelete, now);
             context.SaveChanges();
+        }
+
+        public bool DeleteApi(int id, string username)
+        {
+            try
+            {
+                Delete(id, username);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void SoftDeleteDirectory(Directory dir, DateTime now)

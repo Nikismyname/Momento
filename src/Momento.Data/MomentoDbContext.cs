@@ -12,6 +12,7 @@
     using Momento.Models.Users;
     using Momento.Models.Directories;
     using Microsoft.AspNetCore.Identity;
+    using Momento.Models.Comparisons;
 
     public class MomentoDbContext : IdentityDbContext<User>
     {
@@ -56,6 +57,11 @@
         public DbSet<ListToDo> ListsTodo { get; set; }
 
         public DbSet<ListToDoItem> ListToDoItems { get; set; }
+        
+
+        public DbSet<Comparison> Comparisons { get; set; }
+
+        public DbSet<ComparisonItem> ComparisonItems { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -86,6 +92,8 @@
             builder.Entity<CodeNote>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListToDo>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListToDoItem>().HasQueryFilter(x => !x.IsDeleted);
+            builder.Entity<Comparison>().HasQueryFilter(x => !x.IsDeleted);
+            builder.Entity<ComparisonItem>().HasQueryFilter(x => !x.IsDeleted);
 
             builder.Entity<Point>(p =>
             {
@@ -164,6 +172,15 @@
                 u.HasMany(x => x.ListsToDo)
                 .WithOne(x => x.User)
                 .HasForeignKey(x => x.UserId);
+            });
+
+            ///EF complaining about multiple cascade paths 
+            builder.Entity<Comparison>(c=> 
+            {
+                c.HasOne(x => x.User)
+                .WithMany(x => x.Comparisons)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
             });
 
             base.OnModelCreating(builder);

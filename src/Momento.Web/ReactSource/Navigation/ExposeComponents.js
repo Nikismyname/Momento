@@ -5,10 +5,10 @@ import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import Helmet from 'react-helmet';
 
-import Counter3 from './Components/NavigationPage';
+import RootElement from './Components/AppRouting';
 
 global.React = React;
 global.ReactDOM = ReactDOM;
 global.ReactDOMServer = ReactDOMServer;
 global.Helmet = Helmet;
-global.Counter3 = Counter3;
+global.RootElement = RootElement;

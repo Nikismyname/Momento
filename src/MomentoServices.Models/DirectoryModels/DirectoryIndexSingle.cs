@@ -1,12 +1,13 @@
-﻿namespace MomentoServices.Models.DirectoryModels
+﻿namespace Momento.Services.Models.DirectoryModels
 {
     using Momento.Models.Directories;
+    using Momento.Services.Models.ComparisonModels;
     using Momento.Services.Models.Contracts;
     using Momento.Services.Models.ListToDoModels;
     using Momento.Services.Models.VideoModels;
     using System.Collections.Generic;
 
-    public class DirectoryImdexSingle : IMapFrom<Directory>
+    public class DirectoryIndexSingle : IMapFrom<Directory>
     {
         public int Id { get; set; }
 
@@ -17,6 +18,8 @@
         public ICollection<VideoIndex> Videos { get; set; }
 
         public ICollection<ListToDoIndex> ListsToDo { get; set; }
+
+        public ICollection<ComparisonIndex> Comparisons { get; set; }
 
         public ICollection<DirectoryNavigation> Subdirectories { get; set; }
     }

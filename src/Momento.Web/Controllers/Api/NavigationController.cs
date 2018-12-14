@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Momento.Services.Contracts.Directory;
-
-namespace Momento.Web.Controllers.Api
+﻿namespace Momento.Web.Controllers.Api
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Momento.Services.Contracts.Directory;
+    using Momento.Services.Models.DirectoryModels;
+
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -16,38 +17,34 @@ namespace Momento.Web.Controllers.Api
             this.directoryService = directoryService;
         }
 
-        // GET: api/Navigation
-        [HttpGet]
-        public JsonResult Get()
-        {
-            var model = directoryService.GetIndex(this.User.Identity.Name);
-            return new JsonResult(model);
-        }
-
-        // GET: api/Navigation/5
-        [HttpGet("{id}", Name = "Get")]
-        public JsonResult Get(int id)
+        [HttpGet("GetDirSingle/{id:int}")]
+        public ActionResult<DirectoryIndexSingle> GetDirSingle(int id)
         {
             var dir = directoryService.GetIndexSingle(id,this.User.Identity.Name);
-            return new JsonResult(dir);
+            return dir;
+        }
+
+        public class DirCreateData
+        {
+            public string directoryName { get; set; }
+            public int parentDirId { get; set; }
         }
 
         // POST: api/Navigation
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Route("[action]")]
+        public JsonResult CreateDirectory([FromBody]DirCreateData data)
         {
+            var result = directoryService.CreateApi(data.parentDirId, data.directoryName , User.Identity.Name);
+            return new JsonResult(result);
         }
 
-        // PUT: api/Navigation/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost]
+        [Route("[action]")]
+        public JsonResult Delete([FromBody] int id)
         {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var result = this.directoryService.DeleteApi(id, User.Identity.Name);
+            return new JsonResult(result);
         }
     }
 }

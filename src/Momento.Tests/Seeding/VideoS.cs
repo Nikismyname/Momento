@@ -9,7 +9,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class Seeder
+    public class VideoS
     {
         public static string PeshoId = "PeshoPeshovId";
         public static string PeshoUsername = "PeshoPeshov";

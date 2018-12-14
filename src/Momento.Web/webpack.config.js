@@ -9,8 +9,6 @@ module.exports = {
         filename: "../wwwroot/js/ReactApps/Navigation/[name].bundle.js"
     },
 
-    devtool: 'source-map',
-
     module: {
         rules: [
             {
@@ -20,6 +18,8 @@ module.exports = {
             }
         ]
     },
+
+    devtool: 'source-map',
     mode: 'development',
     watch: true,
 };

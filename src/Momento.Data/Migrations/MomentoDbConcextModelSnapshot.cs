@@ -43,9 +43,9 @@ namespace Momento.Data.Migrations
                     b.ToTable("AspNetRoles");
 
                     b.HasData(
-                        new { Id = "a6b53a5a-5f05-4f25-848f-bc4419449e55", ConcurrencyStamp = "70ef60e6-8fcc-4f70-a1a3-5922482f8650", Name = "Admin", NormalizedName = "ADMIN" },
-                        new { Id = "10666100-56ed-4bc9-9ac0-1b6c6a30648e", ConcurrencyStamp = "8ac60a02-7dd0-4637-a314-516b2209c63b", Name = "Moderator", NormalizedName = "MODERATOR" },
-                        new { Id = "ca9cc3ee-7b84-4911-8aea-34a6454d1db7", ConcurrencyStamp = "826a6ed4-bccb-432f-afd7-7c36db104a3a", Name = "User", NormalizedName = "USER" }
+                        new { Id = "6d6cbb04-a886-41aa-a626-ae0d213e2f48", ConcurrencyStamp = "3c8539d8-0ae9-48e1-94df-aa50009ecf74", Name = "Admin", NormalizedName = "ADMIN" },
+                        new { Id = "93eaadb3-1b37-4c22-9183-b7799607739f", ConcurrencyStamp = "7108f569-289d-46c0-9456-10a50468c622", Name = "Moderator", NormalizedName = "MODERATOR" },
+                        new { Id = "ccff8a6c-2f54-42e9-8103-96e3f5137ce9", ConcurrencyStamp = "1aed025d-e478-4398-9c7f-a99e27d8be94", Name = "User", NormalizedName = "USER" }
                     );
                 });
 
@@ -321,6 +321,87 @@ namespace Momento.Data.Migrations
                     b.HasIndex("CodeSnippetId");
 
                     b.ToTable("CodeNotes");
+                });
+
+            modelBuilder.Entity("Momento.Models.Comparisons.Comparison", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedOn");
+
+                    b.Property<DateTime?>("DeletedOn");
+
+                    b.Property<string>("Description");
+
+                    b.Property<int>("DirectoryId");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime?>("LastModifiedOn");
+
+                    b.Property<DateTime?>("LastViewdOn");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("Order");
+
+                    b.Property<string>("SourceLanguage");
+
+                    b.Property<string>("TargetLanguage");
+
+                    b.Property<int>("TimesModified");
+
+                    b.Property<int>("TimesViewd");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DirectoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comparisons");
+                });
+
+            modelBuilder.Entity("Momento.Models.Comparisons.ComparisonItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Comment");
+
+                    b.Property<int>("ComparisonId");
+
+                    b.Property<DateTime?>("CreatedOn");
+
+                    b.Property<DateTime?>("DeletedOn");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime?>("LastModifiedOn");
+
+                    b.Property<DateTime?>("LastViewdOn");
+
+                    b.Property<int>("Order");
+
+                    b.Property<string>("Source");
+
+                    b.Property<string>("Target");
+
+                    b.Property<int>("TimesModified");
+
+                    b.Property<int>("TimesViewd");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComparisonId");
+
+                    b.ToTable("ComparisonItems");
                 });
 
             modelBuilder.Entity("Momento.Models.Directories.Directory", b =>
@@ -851,6 +932,27 @@ namespace Momento.Data.Migrations
                     b.HasOne("Momento.Models.Codes.Code", "CodeSnippet")
                         .WithMany("Notes")
                         .HasForeignKey("CodeSnippetId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Momento.Models.Comparisons.Comparison", b =>
+                {
+                    b.HasOne("Momento.Models.Directories.Directory", "Directory")
+                        .WithMany("Comparisons")
+                        .HasForeignKey("DirectoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Momento.Models.Users.User", "User")
+                        .WithMany("Comparisons")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Momento.Models.Comparisons.ComparisonItem", b =>
+                {
+                    b.HasOne("Momento.Models.Comparisons.Comparison", "Comparison")
+                        .WithMany("Items")
+                        .HasForeignKey("ComparisonId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

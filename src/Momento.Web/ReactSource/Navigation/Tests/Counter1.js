@@ -1,4 +1,6 @@
-﻿export default class Counter extends React.Component {
+﻿import React, { Component } from 'react';
+
+export default class Counter1 extends Component {
     constructor(props) {
         super(props);
         this.state = { counter: 0 };
@@ -14,7 +16,7 @@
             <div>
                 <label>{this.state.counter}</label>
                 <button onClick={this.increaseCounter}>Increase Counter</button>
-                <span>change4</span>
+                <button className="btn" onClick={()=> this.props.func(2)}></button>
             </div>
         );
     }

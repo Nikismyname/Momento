@@ -1,4 +1,4 @@
-﻿namespace MomentoServices.Models.DirectoryModels
+﻿namespace Momento.Services.Models.DirectoryModels
 {
     using Momento.Models.Directories;
     using Momento.Services.Models.Contracts;

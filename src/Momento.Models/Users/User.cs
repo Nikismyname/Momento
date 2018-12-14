@@ -22,6 +22,7 @@
             this.CodeSnippets = new HashSet<Code>();
             this.CheatSheets = new HashSet<CheatSheet>();
             this.Videos = new HashSet<Video>();
+            this.Comparisons = new HashSet<Comparisons.Comparison>();
 
             this.IsDeleted = false;
             var now = DateTime.UtcNow;
@@ -52,6 +53,8 @@
         public virtual ICollection<ListRemind> ListsRemind { get; set; }
 
         public virtual ICollection<ListToDo> ListsToDo { get; set; }
+
+        public virtual ICollection<Comparisons.Comparison> Comparisons { get; set; }
 
         public bool IsDeleted { get; set; }
         public DateTime? CreatedOn { get; set; }
