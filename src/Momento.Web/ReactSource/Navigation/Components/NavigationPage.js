@@ -1,9 +1,12 @@
 ﻿import { Component, Fragment } from 'react';
-import VideoNav from './VideoNav';
-import ComparisonNav from './ComparisonNav';
-import rootDir from './Helpers/RootDir';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { linkSSRSafe } from './Helpers/HelperFuncs';
+import 'linqjs';
+
+import rootDir from './Helpers/RootDir';
+import VideoNav from './PageSubComponents/VideoNav';
+import ComparisonNav from './PageSubComponents/ComparisonNav';
+import ListTodoNav from './PageSubComponents/ListTodoNav';
 
 export default class NavigationPage extends Component {
 
@@ -17,6 +20,7 @@ export default class NavigationPage extends Component {
                     subdirectories: [],
                     videos: [],
                     comparisons: [],
+                    listsToDo: [],
                 },
                 itemsLoaded: false,
             };
@@ -43,6 +47,7 @@ export default class NavigationPage extends Component {
         this.onClickNewCompareson = this.onClickNewCompareson.bind(this);
         this.setStateFunc = this.setStateFunc.bind(this);
         this.onClickContexMenuItem = this.onClickContexMenuItem.bind(this);
+        this.renderListsToDo = this.renderListsToDo.bind(this);
     }
 
     setStateFunc(obj) {
@@ -105,6 +110,7 @@ export default class NavigationPage extends Component {
                 <div><a href="#" onClick={e => this.createFolderOnClick(e)}>Create Folder</a></div>
                 <div><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes</a></div>
                 <div>{linkSSRSafe(`${rootDir}/compare/-1/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
+                <div><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
             </div>
         )
     }
@@ -114,7 +120,6 @@ export default class NavigationPage extends Component {
             <ContextMenuTrigger id="subDirectory" attributes={{ id: subFolder.id }}>
                 <div className="directory-react" key={"subfolder" + subFolder.id} onClick={() => this.navigateToDirectory(subFolder.id)}>
                     <label>{subFolder.name}</label>
-                    {/*<a href="#" className="ml-1" onClick={(e) => this.onClickDeleteDir(e, subFolder.id)}>Delete</a>*/}
                 </div>
             </ContextMenuTrigger>
         );
@@ -144,6 +149,10 @@ export default class NavigationPage extends Component {
                     {data.map(comp => <ComparisonNav comp={comp} setStateFunc={this.setStateFunc} parentState={this.state} />)}
                 </Fragment>)
         }
+    }
+
+    renderListsToDo(data) {
+        return data.map(list => <ListTodoNav list={list} setStateFunc={this.setStateFunc} parentState={this.state}/>)
     }
 
     createFolderOnClick(e) {
@@ -234,7 +243,7 @@ export default class NavigationPage extends Component {
 
     onClickContexMenuItem(e, data, target) {
         const id = parseInt(target.getAttribute('id'), 10);
-        this.onClickDeleteDir(null,id);
+        this.onClickDeleteDir(null, id);
     }
 
     render() {
@@ -253,9 +262,9 @@ export default class NavigationPage extends Component {
                     {this.renderComparisons(this.state.currentDir.comparisons)}
                 </div>
                 <div className="col-sm-3">
-                    <p>To be determined</p>
-                    <h4>change0</h4>
+                    {this.renderListsToDo(this.state.currentDir.listsToDo)}
                 </div>
+
                 <ContextMenu id="subDirectory">
                     <div style={{ color: "white", backgroundColor: "black" }}>
                         <MenuItem data={{ action: 'delete' }} onClick={this.onClickContexMenuItem}>

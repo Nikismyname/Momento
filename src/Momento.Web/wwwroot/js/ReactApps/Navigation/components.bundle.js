@@ -319,6 +319,21 @@ function (_Component) {
   }
 
   _createClass(Compare, [{
+    key: "test",
+    value: function test() {
+      var arr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      arr = arr.orderBy(function (x) {
+        return x;
+      }).thenBy(function (x) {
+        return -x;
+      }).select(function (x) {
+        return x + 2;
+      });
+      return arr.select(function (x) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, x);
+      });
+    }
+  }, {
     key: "componentWillMount",
     value: function componentWillMount() {
       var _this2 = this;
@@ -553,7 +568,7 @@ function (_Component) {
       }, "New Comparison"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "btn btn-success",
         onClick: this.onClickSave
-      }, "Save"));
+      }, "Save"), this.test());
     }
   }]);
 
@@ -561,117 +576,6 @@ function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 
-
-/***/ }),
-
-/***/ "./ReactSource/Navigation/Components/ComparisonNav.js":
-/*!************************************************************!*\
-  !*** ./ReactSource/Navigation/Components/ComparisonNav.js ***!
-  \************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helpers/HelperFuncs */ "./ReactSource/Navigation/Components/Helpers/HelperFuncs.js");
-/* harmony import */ var _Helpers_RootDir__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Helpers/RootDir */ "./ReactSource/Navigation/Components/Helpers/RootDir.js");
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-
-
-
-
-var ComparisonNav =
-/*#__PURE__*/
-function (_Component) {
-  _inherits(ComparisonNav, _Component);
-
-  function ComparisonNav(props) {
-    _classCallCheck(this, ComparisonNav);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(ComparisonNav).call(this, props));
-  }
-
-  _createClass(ComparisonNav, [{
-    key: "onClickDeleteComp",
-    value: function onClickDeleteComp(e, id) {
-      var _this = this;
-
-      e.preventDefault();
-
-      if (confirm("Are you sure you want to delete this Comparison") == false) {
-        return;
-      }
-
-      fetch("/api/Comparison/Delete", {
-        method: "POST",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(id)
-      }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data == true) {
-          var newCurrentDir = _this.props.parentState.currentDir;
-          newCurrentDir.comparisons = newCurrentDir.comparisons.filter(function (x) {
-            return x.id != id;
-          });
-          var newHistory = _this.props.parentState.history;
-          newHistory = newHistory.map(function (obj) {
-            return obj.id == newCurrentDir.id ? newCurrentDir : obj;
-          });
-
-          _this.props.setStateFunc({
-            currentDir: newCurrentDir,
-            history: newHistory
-          });
-        } else {
-          alert("Delete did not work!");
-        }
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
-
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "video",
-        key: "comparison" + this.props.comp.id
-      }, Object(_Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_1__["linkSSRSafe"])(_Helpers_RootDir__WEBPACK_IMPORTED_MODULE_2__["default"] + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
-        href: "#",
-        className: "ml-1",
-        onClick: function onClick(e) {
-          return _this2.onClickDeleteComp(e, _this2.props.comp.id);
-        }
-      }, "Delete"));
-    }
-  }]);
-
-  return ComparisonNav;
-}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
-
-/* harmony default export */ __webpack_exports__["default"] = (ComparisonNav);
 
 /***/ }),
 
@@ -736,11 +640,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return NavigationPage; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _VideoNav__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./VideoNav */ "./ReactSource/Navigation/Components/VideoNav.js");
-/* harmony import */ var _ComparisonNav__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ComparisonNav */ "./ReactSource/Navigation/Components/ComparisonNav.js");
-/* harmony import */ var _Helpers_RootDir__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helpers/RootDir */ "./ReactSource/Navigation/Components/Helpers/RootDir.js");
-/* harmony import */ var react_contextmenu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-contextmenu */ "./node_modules/react-contextmenu/es6/index.js");
-/* harmony import */ var _Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Helpers/HelperFuncs */ "./ReactSource/Navigation/Components/Helpers/HelperFuncs.js");
+/* harmony import */ var react_contextmenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-contextmenu */ "./node_modules/react-contextmenu/es6/index.js");
+/* harmony import */ var _Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Helpers/HelperFuncs */ "./ReactSource/Navigation/Components/Helpers/HelperFuncs.js");
+/* harmony import */ var linqjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! linqjs */ "./node_modules/linqjs/dist/linq.js");
+/* harmony import */ var linqjs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(linqjs__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _Helpers_RootDir__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Helpers/RootDir */ "./ReactSource/Navigation/Components/Helpers/RootDir.js");
+/* harmony import */ var _PageSubComponents_VideoNav__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageSubComponents/VideoNav */ "./ReactSource/Navigation/Components/PageSubComponents/VideoNav.js");
+/* harmony import */ var _PageSubComponents_ComparisonNav__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PageSubComponents/ComparisonNav */ "./ReactSource/Navigation/Components/PageSubComponents/ComparisonNav.js");
+/* harmony import */ var _PageSubComponents_ListTodoNav__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PageSubComponents/ListTodoNav */ "./ReactSource/Navigation/Components/PageSubComponents/ListTodoNav.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
@@ -770,6 +677,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 
 
+
+
 var NavigationPage =
 /*#__PURE__*/
 function (_Component) {
@@ -788,7 +697,8 @@ function (_Component) {
         currentDir: {
           subdirectories: [],
           videos: [],
-          comparisons: []
+          comparisons: [],
+          listsToDo: []
         },
         itemsLoaded: false
       };
@@ -815,6 +725,7 @@ function (_Component) {
     _this.onClickNewCompareson = _this.onClickNewCompareson.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.setStateFunc = _this.setStateFunc.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickContexMenuItem = _this.onClickContexMenuItem.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.renderListsToDo = _this.renderListsToDo.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
@@ -917,7 +828,12 @@ function (_Component) {
         onClick: function onClick(e) {
           return _this3.onClickStopPropagation(e);
         }
-      }, "Create Video Notes")), React.createElement("div", null, Object(_Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_5__["linkSSRSafe"])("".concat(_Helpers_RootDir__WEBPACK_IMPORTED_MODULE_3__["default"], "/compare/-1/").concat(this.state.currentDir.id), "Create Comparison", null)));
+      }, "Create Video Notes")), React.createElement("div", null, Object(_Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_2__["linkSSRSafe"])("".concat(_Helpers_RootDir__WEBPACK_IMPORTED_MODULE_4__["default"], "/compare/-1/").concat(this.state.currentDir.id), "Create Comparison", null)), React.createElement("div", null, React.createElement("a", {
+        href: "/ListToDo/Create/" + this.state.currentDir.id,
+        onClick: function onClick(e) {
+          return _this3.onClickStopPropagation(e);
+        }
+      }, "Create List ToDo")));
     }
   }, {
     key: "renderSubDirectories",
@@ -925,7 +841,7 @@ function (_Component) {
       var _this4 = this;
 
       return data.map(function (subFolder) {
-        return React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_4__["ContextMenuTrigger"], {
+        return React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_1__["ContextMenuTrigger"], {
           id: "subDirectory",
           attributes: {
             id: subFolder.id
@@ -952,7 +868,7 @@ function (_Component) {
             color: "red"
           }
         }, "Videos"), data.map(function (x) {
-          return React.createElement(_VideoNav__WEBPACK_IMPORTED_MODULE_1__["default"], {
+          return React.createElement(_PageSubComponents_VideoNav__WEBPACK_IMPORTED_MODULE_5__["default"], {
             key: "video" + x.id,
             setStateFunc: _this5.setStateFunc,
             parentState: _this5.state,
@@ -974,7 +890,7 @@ function (_Component) {
             color: "green"
           }
         }, "Comparisons")), data.map(function (comp) {
-          return React.createElement(_ComparisonNav__WEBPACK_IMPORTED_MODULE_2__["default"], {
+          return React.createElement(_PageSubComponents_ComparisonNav__WEBPACK_IMPORTED_MODULE_6__["default"], {
             comp: comp,
             setStateFunc: _this6.setStateFunc,
             parentState: _this6.state
@@ -983,9 +899,22 @@ function (_Component) {
       }
     }
   }, {
+    key: "renderListsToDo",
+    value: function renderListsToDo(data) {
+      var _this7 = this;
+
+      return data.map(function (list) {
+        return React.createElement(_PageSubComponents_ListTodoNav__WEBPACK_IMPORTED_MODULE_7__["default"], {
+          list: list,
+          setStateFunc: _this7.setStateFunc,
+          parentState: _this7.state
+        });
+      });
+    }
+  }, {
     key: "createFolderOnClick",
     value: function createFolderOnClick(e) {
-      var _this7 = this;
+      var _this8 = this;
 
       e.preventDefault();
       e.stopPropagation();
@@ -1010,28 +939,28 @@ function (_Component) {
       }).then(function (response) {
         return response.json();
       }).then(function (data) {
-        var newSubDirArray = _this7.state.currentDir.subdirectories.slice();
+        var newSubDirArray = _this8.state.currentDir.subdirectories.slice();
 
         newSubDirArray.push({
           id: data,
           name: directoryName
         });
 
-        var newCurrentDir = _objectSpread({}, _this7.state.currentDir, {
+        var newCurrentDir = _objectSpread({}, _this8.state.currentDir, {
           subdirectories: newSubDirArray // create a new object by spreading in the this.state.car and overriding features with our new array 
 
         });
 
-        _this7.setState({
+        _this8.setState({
           currentDir: newCurrentDir
         }); // set this.state.car to our new object
 
 
-        var updatedHistory = _this7.state.history.map(function (obj) {
-          return obj.id == _this7.state.currentDir.id ? _this7.state.currentDir : obj;
+        var updatedHistory = _this8.state.history.map(function (obj) {
+          return obj.id == _this8.state.currentDir.id ? _this8.state.currentDir : obj;
         });
 
-        _this7.setState({
+        _this8.setState({
           history: updatedHistory
         });
       });
@@ -1039,7 +968,7 @@ function (_Component) {
   }, {
     key: "onClickDeleteDir",
     value: function onClickDeleteDir(e, ind) {
-      var _this8 = this;
+      var _this9 = this;
 
       if (e != null) {
         e.preventDefault();
@@ -1063,23 +992,23 @@ function (_Component) {
         return response.json();
       }).then(function (data) {
         if (data == true) {
-          var newSubDirArray = _this8.state.currentDir.subdirectories.filter(function (x) {
+          var newSubDirArray = _this9.state.currentDir.subdirectories.filter(function (x) {
             return x.id !== ind;
           });
 
-          var newCurrentDir = _objectSpread({}, _this8.state.currentDir, {
+          var newCurrentDir = _objectSpread({}, _this9.state.currentDir, {
             subdirectories: newSubDirArray
           });
 
-          _this8.setState({
+          _this9.setState({
             currentDir: newCurrentDir
           });
 
-          var updatedHistory = _this8.state.history.map(function (obj) {
-            return obj.id == _this8.state.currentDir.id ? _this8.state.currentDir : obj;
+          var updatedHistory = _this9.state.history.map(function (obj) {
+            return obj.id == _this9.state.currentDir.id ? _this9.state.currentDir : obj;
           });
 
-          _this8.setState({
+          _this9.setState({
             history: updatedHistory
           });
         } else {
@@ -1111,14 +1040,14 @@ function (_Component) {
         className: "col-sm-3"
       }, this.renderComparisons(this.state.currentDir.comparisons)), React.createElement("div", {
         className: "col-sm-3"
-      }, React.createElement("p", null, "To be determined"), React.createElement("h4", null, "change0")), React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_4__["ContextMenu"], {
+      }, this.renderListsToDo(this.state.currentDir.listsToDo)), React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_1__["ContextMenu"], {
         id: "subDirectory"
       }, React.createElement("div", {
         style: {
           color: "white",
           backgroundColor: "black"
         }
-      }, React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_4__["MenuItem"], {
+      }, React.createElement(react_contextmenu__WEBPACK_IMPORTED_MODULE_1__["MenuItem"], {
         data: {
           action: 'delete'
         },
@@ -1135,10 +1064,233 @@ function (_Component) {
 
 /***/ }),
 
-/***/ "./ReactSource/Navigation/Components/VideoNav.js":
-/*!*******************************************************!*\
-  !*** ./ReactSource/Navigation/Components/VideoNav.js ***!
-  \*******************************************************/
+/***/ "./ReactSource/Navigation/Components/PageSubComponents/ComparisonNav.js":
+/*!******************************************************************************!*\
+  !*** ./ReactSource/Navigation/Components/PageSubComponents/ComparisonNav.js ***!
+  \******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Helpers/HelperFuncs */ "./ReactSource/Navigation/Components/Helpers/HelperFuncs.js");
+/* harmony import */ var _Helpers_RootDir__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Helpers/RootDir */ "./ReactSource/Navigation/Components/Helpers/RootDir.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+
+var ComparisonNav =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(ComparisonNav, _Component);
+
+  function ComparisonNav(props) {
+    _classCallCheck(this, ComparisonNav);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(ComparisonNav).call(this, props));
+  }
+
+  _createClass(ComparisonNav, [{
+    key: "onClickDeleteComp",
+    value: function onClickDeleteComp(e, id) {
+      var _this = this;
+
+      e.preventDefault();
+
+      if (confirm("Are you sure you want to delete this Comparison") == false) {
+        return;
+      }
+
+      fetch("/api/Comparison/Delete", {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(id)
+      }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        if (data == true) {
+          var newCurrentDir = _this.props.parentState.currentDir;
+          newCurrentDir.comparisons = newCurrentDir.comparisons.filter(function (x) {
+            return x.id != id;
+          });
+          var newHistory = _this.props.parentState.history;
+          newHistory = newHistory.map(function (obj) {
+            return obj.id == newCurrentDir.id ? newCurrentDir : obj;
+          });
+
+          _this.props.setStateFunc({
+            currentDir: newCurrentDir,
+            history: newHistory
+          });
+        } else {
+          alert("Delete did not work!");
+        }
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this2 = this;
+
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "video",
+        key: "comparison" + this.props.comp.id
+      }, Object(_Helpers_HelperFuncs__WEBPACK_IMPORTED_MODULE_1__["linkSSRSafe"])(_Helpers_RootDir__WEBPACK_IMPORTED_MODULE_2__["default"] + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        href: "#",
+        className: "ml-1",
+        onClick: function onClick(e) {
+          return _this2.onClickDeleteComp(e, _this2.props.comp.id);
+        }
+      }, "Delete"));
+    }
+  }]);
+
+  return ComparisonNav;
+}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (ComparisonNav);
+
+/***/ }),
+
+/***/ "./ReactSource/Navigation/Components/PageSubComponents/ListTodoNav.js":
+/*!****************************************************************************!*\
+  !*** ./ReactSource/Navigation/Components/PageSubComponents/ListTodoNav.js ***!
+  \****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+ //import { linkSSRSafe } from '../Helpers/HelperFuncs';
+//import rootDir from '../Helpers/RootDir';
+
+var ListTodoNav =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(ListTodoNav, _Component);
+
+  function ListTodoNav(props) {
+    _classCallCheck(this, ListTodoNav);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(ListTodoNav).call(this, props));
+  }
+
+  _createClass(ListTodoNav, [{
+    key: "onClickDeletelist",
+    value: function onClickDeletelist(e, id) {
+      var _this = this;
+
+      e.preventDefault();
+
+      if (confirm("Are you sure you want to delete this listarison") == false) {
+        return;
+      }
+
+      fetch("/api/ListToDo", {
+        method: "DELETE",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(id)
+      }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        if (data == true) {
+          var newCurrentDir = _this.props.parentState.currentDir;
+          newCurrentDir.listsToDo = newCurrentDir.listsToDo.filter(function (x) {
+            return x.id != id;
+          });
+          var newHistory = _this.props.parentState.history;
+          newHistory = newHistory.map(function (obj) {
+            return obj.id == newCurrentDir.id ? newCurrentDir : obj;
+          });
+
+          _this.props.setStateFunc({
+            currentDir: newCurrentDir,
+            history: newHistory
+          });
+        } else {
+          alert("Delete List did not work!");
+        }
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this2 = this;
+
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "video",
+        key: "listToDo" + this.props.list.id
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, this.props.list.name), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "d-flex"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        href: "/ListToDo/Use/" + this.props.list.id
+      }, "Use"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        href: "#",
+        className: "ml-1",
+        onClick: function onClick(e) {
+          return _this2.onClickDeletelist(e, _this2.props.list.id);
+        }
+      }, "Delete")));
+    }
+  }]);
+
+  return ListTodoNav;
+}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (ListTodoNav);
+
+/***/ }),
+
+/***/ "./ReactSource/Navigation/Components/PageSubComponents/VideoNav.js":
+/*!*************************************************************************!*\
+  !*** ./ReactSource/Navigation/Components/PageSubComponents/VideoNav.js ***!
+  \*************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -11985,6 +12137,533 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 
+
+/***/ }),
+
+/***/ "./node_modules/linqjs/dist/linq.js":
+/*!******************************************!*\
+  !*** ./node_modules/linqjs/dist/linq.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var linq = {
+	EqualityComparer: function (a, b) {
+		return a === b || a.valueOf() === b.valueOf();
+	},
+	SortComparer: function (a, b) {
+		if (a === b) return 0;
+		if (a === null) return -1;
+		if (b === null) return 1;
+		if (typeof a == 'string') return a.toString().localeCompare(b.toString());
+		return a.valueOf() - b.valueOf();
+	},
+	Predicate: function () {
+		return true;
+	},
+	Selector: function (t) {
+		return t;
+	}
+};
+(function () {
+	'use strict';
+
+	var global = global;
+	var window = window || global;
+
+	Array.prototype.select = Array.prototype.map || function (selector, context) {
+		context = context || window;
+		var arr = [];
+		var l = this.length;
+		for (var i = 0; i < l; i++)
+			arr.push(Selector.call(context, this[i], i, this));
+		return arr;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.selectMany = function (selector, resSelector) {
+		resSelector = resSelector || function (i, res) {
+			return res;
+		};
+		return this.aggregate(function (a, b) {
+			return a.concat(selector(b).select(function (res) {
+				return resSelector(b, res);
+			}));
+		}, []);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.take = function (c) {
+		return this.slice(0, c);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.skip = Array.prototype.slice;
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.first = function (predicate, def) {
+		var l = this.length;
+		if (!predicate) return l ? this[0] : def == null ? null : def;
+		for (var i = 0; i < l; i++) {
+			if (predicate(this[i], i, this))
+				return this[i];
+		}
+
+		return def == null ? null : def;
+	};
+
+}());
+
+(function () {
+	'use strict';
+
+	Array.prototype.last = function (predicate, def) {
+		var l = this.length;
+		if (!predicate) return l ? this[l - 1] : def == null ? null : def;
+		while (l-- > 0) {
+			if (predicate(this[l], l, this))
+				return this[l];
+		}
+
+		return def == null ? null : def;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.union = function (arr) {
+		return this.concat(arr).distinct();
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.intersect = function (arr, comparer) {
+		comparer = comparer || linq.EqualityComparer;
+		return this.distinct(comparer).where(function (t) {
+			return arr.contains(t, comparer);
+		});
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.except = function (arr, comparer) {
+		if (!(arr instanceof Array)) arr = [arr];
+		comparer = comparer || linq.EqualityComparer;
+		var l = this.length;
+		var res = [];
+		for (var i = 0; i < l; i++) {
+			var k = arr.length;
+			var t = false;
+			while (k-- > 0) {
+				if (comparer(this[i], arr[k]) === true) {
+					t = true;
+					break;
+				}
+			}
+			if (!t) res.push(this[i]);
+		}
+		return res;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.distinct = function (comparer) {
+		var arr = [];
+		var l = this.length;
+		for (var i = 0; i < l; i++) {
+			if (!arr.contains(this[i], comparer))
+				arr.push(this[i]);
+		}
+		return arr;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.zip = function (arr, selector) {
+		return this
+			.take(Math.min(this.length, arr.length))
+			.select(function (t, i) {
+				return selector(t, arr[i]);
+			});
+	};
+
+}());
+
+(function () {
+	'use strict';
+
+	Array.prototype.indexOf = Array.prototype.indexOf || function (o, index) {
+		var l = this.length;
+		for (var i = Math.max(Math.min(index, l), 0) || 0; i < l; i++)
+			if (this[i] === o) return i;
+		return -1;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.lastIndexOf = Array.prototype.lastIndexOf || function (o, index) {
+		var l = Math.max(Math.min(index || this.length, this.length), 0);
+		while (l-- > 0)
+			if (this[l] === o) return l;
+		return -1;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.remove = function (item) {
+		var i = this.indexOf(item);
+		if (i != -1)
+			this.splice(i, 1);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.removeAll = function (predicate) {
+		var item;
+		var i = 0;
+		while ((item = this.first(predicate)) != null) {
+			i++;
+			this.remove(item);
+		}
+
+		return i;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.orderBy = function (selector, comparer) {
+		comparer = comparer || linq.SortComparer;
+		var arr = this.slice(0);
+		var fn = function (a, b) {
+			return comparer(selector(a), selector(b));
+		};
+
+		arr.thenBy = function (selector, comparer) {
+			comparer = comparer || linq.SortComparer;
+			return arr.orderBy(linq.Selector, function (a, b) {
+				var res = fn(a, b);
+				return res === 0 ? comparer(selector(a), selector(b)) : res;
+			});
+		};
+
+		arr.thenByDescending = function (selector, comparer) {
+			comparer = comparer || linq.SortComparer;
+			return arr.orderBy(linq.Selector, function (a, b) {
+				var res = fn(a, b);
+				return res === 0 ? -comparer(selector(a), selector(b)) : res;
+			});
+		};
+
+		return arr.sort(fn);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.orderByDescending = function (selector, comparer) {
+		comparer = comparer || linq.SortComparer;
+		return this.orderBy(linq.Selector, function (a, b) {
+			return -comparer(a, b);
+		});
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.innerJoin = function (arr, outer, inner, result, comparer) {
+		comparer = comparer || linq.EqualityComparer;
+		var res = [];
+
+		this.forEach(function (t) {
+			arr.where(function (u) {
+					return comparer(outer(t), inner(u));
+				})
+				.forEach(function (u) {
+					res.push(result(t, u));
+				});
+		});
+
+		return res;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.groupJoin = function (arr, outer, inner, result, comparer) {
+		comparer = comparer || linq.EqualityComparer;
+		return this
+			.select(function (t) {
+				var key = outer(t);
+				return {
+					outer: t,
+					inner: arr.where(function (u) {
+						return comparer(key, inner(u));
+					}),
+					key: key
+				};
+			})
+			.select(function (t) {
+				t.inner.key = t.key;
+				return result(t.outer, t.inner);
+			});
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.groupBy = function (selector, comparer) {
+		var grp = [];
+		var l = this.length;
+		comparer = comparer || linq.EqualityComparer;
+		selector = selector || linq.Selector;
+
+		for (var i = 0; i < l; i++) {
+			var k = selector(this[i]);
+			var g = grp.first(function (u) {
+				return comparer(u.key, k);
+			});
+
+			if (!g) {
+				g = [];
+				g.key = k;
+				grp.push(g);
+			}
+
+			g.push(this[i]);
+		}
+		return grp;
+	};
+
+}());
+
+(function () {
+	'use strict';
+
+	Array.prototype.toDictionary = function (keySelector, valueSelector) {
+		var o = {};
+		var l = this.length;
+		while (l-- > 0) {
+			var key = keySelector(this[l]);
+			if (key == null || key === '') continue;
+			o[key] = valueSelector(this[l]);
+		}
+		return o;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.aggregate = Array.prototype.reduce || function (func, seed) {
+		var arr = this.slice(0);
+		var l = this.length;
+		if (seed == null) seed = arr.shift();
+
+		for (var i = 0; i < l; i++)
+			seed = func(seed, arr[i], i, this);
+
+		return seed;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.min = function (s) {
+		s = s || linq.Selector;
+		var l = this.length;
+		var min = s(this[0]);
+		while (l-- > 0)
+			if (s(this[l]) < min) min = s(this[l]);
+		return min;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.max = function (s) {
+		s = s || linq.Selector;
+		var l = this.length;
+		var max = s(this[0]);
+		while (l-- > 0)
+			if (s(this[l]) > max) max = s(this[l]);
+		return max;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.sum = function (s) {
+		s = s || linq.Selector;
+		var l = this.length;
+		var sum = 0;
+		while (l-- > 0) sum += s(this[l]);
+		return sum;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	var global = global;
+	var window = window || global;
+
+	Array.prototype.where = Array.prototype.filter || function (predicate, context) {
+		context = context || window;
+		var arr = [];
+		var l = this.length;
+		for (var i = 0; i < l; i++)
+			if (Predicate.call(context, this[i], i, this) === true) arr.push(this[i]);
+		return arr;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	var global = global;
+	var window = window || global;
+
+	Array.prototype.any = function (predicate, context) {
+		context = context || window;
+		predicate = predicate || linq.Predicate;
+		var f = this.some || function (p, c) {
+			var l = this.length;
+			if (!p) return l > 0;
+			while (l-- > 0)
+				if (p.call(c, this[l], l, this) === true) return true;
+			return false;
+		};
+		return f.apply(this, [predicate, context]);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	var global = global;
+	var window = window || global;
+
+	Array.prototype.all = function (predicate, context) {
+		context = context || window;
+		predicate = predicate || linq.Predicate;
+		var f = this.every || function (p, c) {
+			return this.length == this.where(p, c).length;
+		};
+		return f.apply(this, [predicate, context]);
+	};
+
+}());
+
+(function () {
+	'use strict';
+
+	Array.prototype.takeWhile = function (predicate) {
+		predicate = predicate || linq.Predicate;
+		var l = this.length;
+		var arr = [];
+		for (var i = 0; i < l && predicate(this[i], i) === true; i++)
+			arr.push(this[i]);
+
+		return arr;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.skipWhile = function (predicate) {
+		predicate = predicate || linq.Predicate;
+		var l = this.length;
+		var i = 0;
+		for (i = 0; i < l; i++)
+			if (predicate(this[i], i) === false) break;
+
+		return this.skip(i);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.contains = function (o, comparer) {
+		comparer = comparer || linq.EqualityComparer;
+		var l = this.length;
+		while (l-- > 0)
+			if (comparer(this[l], o) === true) return true;
+		return false;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	var global = global;
+	var window = window || global;
+
+	Array.prototype.forEach = Array.prototype.forEach || function (callback, context) {
+		context = context || window;
+		var l = this.length;
+		for (var i = 0; i < l; i++)
+			callback.call(context, this[i], i, this);
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.prototype.defaultIfEmpty = function (val) {
+		return this.length === 0 ? [val === null ? null : val] : this;
+	};
+
+}());
+(function () {
+	'use strict';
+
+	Array.range = function (start, count) {
+		var arr = [];
+		while (count-- > 0) {
+			arr.push(start++);
+		}
+		return arr;
+	};
+
+}());
 
 /***/ }),
 

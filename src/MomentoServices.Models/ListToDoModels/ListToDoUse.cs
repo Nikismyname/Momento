@@ -1,8 +1,10 @@
 ﻿namespace Momento.Services.Models.ListToDoModels
 {
+    using Momento.Models.ListsToDo;
+    using Momento.Services.Models.Contracts;
     using System.Collections.Generic;
 
-    public class ListToDoUse
+    public class ListToDoUse: IMapFrom<ListToDo>
     {
         public ListToDoUse()
         {

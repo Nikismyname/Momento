@@ -206,7 +206,7 @@
                 throw new UserNotFound(username);
             }
 
-            if(video.UserId != user.Id)
+            if (video.UserId != null &&  video.UserId != user.Id)
             {
                 throw new AccessDenied("The video you are trying to delete does not belong to you!");
             }

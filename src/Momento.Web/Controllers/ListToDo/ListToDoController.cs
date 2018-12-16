@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Models.ListToDoModels;
+    using Momento.Services.Utilities;
     using System.Linq;
 
     public class ListToDoController : Controller
@@ -31,10 +32,10 @@
             if (ModelState.IsValid)
             {
                 toDoService.Create(model, User.Identity.Name);
-                return RedirectToAction("Index","Directory",new {id = model.DirectoryId});
+                return Redirect(Constants.ReactAppPath + "/" + model.DirectoryId);
             }
 
-            return View(model);
+            return Redirect("/Directory/IndexReact/" + model.DirectoryId);
         }
 
         [HttpGet]
@@ -53,18 +54,43 @@
             if (ModelState.IsValid)
             {
                 toDoService.Save(model, User.Identity.Name);
-                return Redirect($"/Directory/Index/{model.DirectoryId}");
+                return Redirect($"{Constants.ReactAppPath}/{model.DirectoryId}");
             }
 
             return View(model);
         }
-
-        [HttpPost]
-        [Authorize]
-        public IActionResult Delete(int id, int dirId)
-        {
-            toDoService.Delete(id, this.User.Identity.Name);
-            return RedirectToAction("Index","Directory", new {id = dirId});
-        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//[HttpPost]
+//[Authorize]
+//public IActionResult Delete(int id, int dirId)
+//{
+//    toDoService.Delete(id, this.User.Identity.Name);
+//    return RedirectToAction("Index","Directory", new {id = dirId});
+//}

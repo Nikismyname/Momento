@@ -5,6 +5,7 @@
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
     using Momento.Models.ListsToDo;
+    using Momento.Services.Contracts.Directory;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Shared;
@@ -16,20 +17,20 @@
     public class ListToDoService : IListToDoService
     {
         private readonly MomentoDbContext context;
-        private readonly IMapper mapper;
         private readonly ITrackableService trackableService;
         private readonly IUserService userService;
+        private readonly IReorderingService reorderingService;
 
         public ListToDoService(
             MomentoDbContext context,
-            IMapper mapper,
             ITrackableService trackableService,
-            IUserService userService)
+            IUserService userService,
+            IReorderingService reorderingService)
         {
             this.context = context;
-            this.mapper = mapper;
             this.trackableService = trackableService;
             this.userService = userService;
+            this.reorderingService =reorderingService;
         }
         #endregion
 
@@ -54,7 +55,14 @@
                 throw new AccessDenied("The directory you are trying to create you List does not belong to you!");
             }
 
-            var newListToDo = mapper.Map<ListToDo>(pageListToDo);
+            var order = 0;
+            var ids = direcotory.ListsToDo.Select(x => x.Order).ToArray();
+            if(ids.Length != 0) {
+                order = ids.Max() + 1;
+            }
+
+            var newListToDo = Mapper.Instance.Map<ListToDo>(pageListToDo);
+            newListToDo.Order = order;
             newListToDo.Id = default(int);
             newListToDo.UserId = user.Id;
             context.ListsTodo.Add(newListToDo);
@@ -77,7 +85,7 @@
 
             trackableService.RegisterViewing(model, DateTime.Now, true);
 
-            var returnModel = mapper.Map<ListToDoUse>(model);
+            var returnModel = Mapper.Instance.Map<ListToDoUse>(model);
             return returnModel;
         }
 
@@ -110,6 +118,19 @@
             trackableService.Delete(listToDo, now, false);
 
             context.SaveChanges();
+        }
+
+        public bool DeleteApi(int id, string username)
+        {
+            try
+            {
+                this.Delete(id, username);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #region SAVE

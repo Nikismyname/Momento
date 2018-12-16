@@ -1,12 +1,11 @@
 ﻿namespace Momento.Services.Models.ListToDoModels
 {
-    using System.ComponentModel.DataAnnotations;
+    using Momento.Models.ListsToDo;
+    using Momento.Services.Models.Contracts;
 
-    public class ListToDoCreate
+    public class ListToDoCreate: IMapTo<ListToDo>
     {
         public int DirectoryId { get; set; }
-
-        public int? Id { get; set; }
 
         public string Name { get; set; }
 

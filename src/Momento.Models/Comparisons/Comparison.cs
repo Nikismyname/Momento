@@ -6,7 +6,7 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class Comparison : SoftDeletableAndTrackable
+    public class Comparison : SoftDeletableAndTrackable, IOrderable<int>
     {
         public Comparison()
         {
@@ -14,6 +14,11 @@
         }
 
         public int Id { get; set; }
+
+        /// <summary>
+        /// 0 based
+        /// </summary>
+        public int Order { get; set; }
 
         public int DirectoryId { get; set; }
         public virtual Directory Directory { get; set; }
@@ -29,11 +34,6 @@
         public string  SourceLanguage { get; set; }
 
         public string  TargetLanguage { get; set; }
-
-        /// <summary>
-        /// 0 based
-        /// </summary>
-        public int  Order { get; set; }
 
         public virtual ICollection<ComparisonItem> Items { get; set; }
     }

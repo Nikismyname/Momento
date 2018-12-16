@@ -1,6 +1,9 @@
 ﻿namespace Momento.Services.Models.ListToDoModels
 {
-    public class ListToDoItemUse
+    using Momento.Models.ListsToDo;
+    using Momento.Services.Models.Contracts;
+
+    public class ListToDoItemUse : IMapFrom<ListToDoItem>
     {
         public string Content { get; set; }
 

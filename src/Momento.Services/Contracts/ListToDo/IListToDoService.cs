@@ -10,6 +10,8 @@
 
         void Delete(int id, string username);
 
+        bool DeleteApi(int id, string username);
+
         void Save(ListToDoUse model, string username);
     }
 }

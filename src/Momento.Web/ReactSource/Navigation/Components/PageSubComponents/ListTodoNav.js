@@ -1,21 +1,21 @@
 ﻿import React, { Component } from "react";
-import { linkSSRSafe } from './Helpers/HelperFuncs';
-import rootDir from './Helpers/RootDir';
+//import { linkSSRSafe } from '../Helpers/HelperFuncs';
+//import rootDir from '../Helpers/RootDir';
 
-class ComparisonNav extends Component {
+class ListTodoNav extends Component {
     constructor(props) {
         super(props);
     }
 
-    onClickDeleteComp(e, id) {
+    onClickDeletelist(e, id) {
         e.preventDefault();
 
-        if (confirm("Are you sure you want to delete this Comparison") == false) {
+        if (confirm("Are you sure you want to delete this listarison") == false) {
             return;
         }
 
-        fetch("/api/Comparison/Delete", {
-            method: "POST",
+        fetch("/api/ListToDo", {
+            method: "DELETE",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -28,7 +28,7 @@ class ComparisonNav extends Component {
             .then((data) => {
                 if (data == true) {
                     let newCurrentDir = this.props.parentState.currentDir;
-                    newCurrentDir.comparisons = newCurrentDir.comparisons.filter(x => x.id != id);
+                    newCurrentDir.listsToDo = newCurrentDir.listsToDo.filter(x => x.id != id);
                     let newHistory = this.props.parentState.history;
                     newHistory = newHistory.map(obj => {
                         return obj.id == newCurrentDir.id ? newCurrentDir : obj;
@@ -39,18 +39,21 @@ class ComparisonNav extends Component {
                         history: newHistory,
                     });
                 } else {
-                    alert("Delete did not work!")
+                    alert("Delete List did not work!")
                 }
             });
     }
 
     render() {
         return (
-            <div className="video" key={"comparison" + this.props.comp.id}>
-                {linkSSRSafe(rootDir + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null)}
-                <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
+            <div className="video" key={"listToDo" + this.props.list.id}>
+                <label>{this.props.list.name}</label>
+                <div className="d-flex">
+                    <a href={"/ListToDo/Use/" + this.props.list.id}>Use</a>
+                    <a href="#" className="ml-1" onClick={(e) => this.onClickDeletelist(e, this.props.list.id)}>Delete</a>
+                </div>
             </div>);
     }
 }
 
-export default ComparisonNav;
+export default ListTodoNav;

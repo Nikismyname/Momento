@@ -41,6 +41,15 @@ export default class Compare extends Component {
         this.onClickSave = this.onClickSave.bind(this);
     }
 
+    test() {
+        let arr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        arr = arr
+            .orderBy(x => x)
+            .thenBy(x => -x)
+            .select(x => x + 2);
+        return arr.select(x => <div>{x}</div>)
+    }
+
     componentWillMount() {
         //if we get the data from a prop, we do not downlad the data again
         if (typeof this.props.initialComp != "undefined") {
@@ -214,6 +223,7 @@ export default class Compare extends Component {
                 <NavLink to={`${rootDir}/${this.state.currentState.directoryId}`} className="btn btn-primary">Back</NavLink>
                 <button onClick={this.onClickNewComparison}>New Comparison</button>
                 <button className="btn btn-success" onClick={this.onClickSave}>Save</button>
+                {this.test()}
             </Fragment>)
     }
 }

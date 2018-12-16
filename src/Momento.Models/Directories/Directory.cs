@@ -8,7 +8,7 @@
     using Momento.Models.Contracts;
     using Momento.Models.Comparisons;
 
-    public class Directory : SoftDeletableAndTrackable
+    public class Directory : SoftDeletableAndTrackable, IOrderable<int>
     {
         public Directory()
         {

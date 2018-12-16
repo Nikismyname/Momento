@@ -5,7 +5,7 @@
     using Momento.Models.Directories;
     using Momento.Models.Users;
 
-    public class Video : SoftDeletableAndTrackable
+    public class Video : SoftDeletableAndTrackable, IOrderable<int>
     {
         public Video()
         {
