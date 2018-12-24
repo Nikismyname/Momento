@@ -46,7 +46,7 @@ class VideoNav extends Component {
 
     render() {
         return (
-            <div data-tip="Video Notes" className="card mb-2" style={{ border: borderString}}>
+            <div data-tip="Video Notes" className="card mb-2" style={{ border: borderString }}>
                 <div className="card-body">
                     <h6 className="card-title">{this.props.video.name}</h6>
                     <p className="card-text">{this.props.video.description}</p>

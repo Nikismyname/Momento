@@ -6,6 +6,11 @@
 
     public class NoteEdit : IMapFrom<Note>
     {
+        public NoteEdit()
+        {
+            this.Lines = new HashSet<CodeLineEdit>();
+        }
+
         public int Id { get; set; }
 
         public string Name { get; set; }

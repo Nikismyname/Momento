@@ -12,10 +12,9 @@ import '../../../wwwroot/css/froala.css';
 //import 'froala-editor/css/themes/dark.min.css';
 //import '../../../../node_modules/font-awesome/css/font-awesome.css';
 //import '../../../../node_modules/font-awesome/fonts/fontawesome-webfont.woff2';
-const initialNoteContent = '<span style = "color: rgb(255, 255, 255);" > Double Click To Edit!</span>'
+const initialNoteContent = '<span style = "color: rgb(255, 255, 255);" >Double Click To Edit!</span>'
 const indexPrefixRgx = /^\(\*([0-9]+)\*\)/;
 const ESCAPE_KEY = 27;
-const O_KEY = 79;
 
 export default class Note extends Component {
     constructor(props) {
@@ -33,7 +32,7 @@ export default class Note extends Component {
             codePresent: false,
             currentlyTyping: false,
             mainNote: { content: initialNoteContent, editorMode: false, visible: true },
-            code: { source: "", showSourceEditor: true, lines: []/*{content: "", id: 1, dbId=0, note: {content: "", editorMode: false, visible: false} }*/ },
+            code: { source: "", showSourceEditor: false, lines: []/*{content: "", id: 1, dbId=0, note: {content: "", editorMode: false, visible: false} }*/ },
         }
 
         this.onChangeMainNote = this.onChangeMainNote.bind(this);
@@ -44,6 +43,9 @@ export default class Note extends Component {
         this.onClickParseSource = this.onClickParseSource.bind(this);
         this.onClickSave = this.onClickSave.bind(this);
         this.onClickShowSource = this.onClickShowSource.bind(this);
+        this.onCLickAddCode = this.onCLickAddCode.bind(this);
+        this.onCLickRemoveCode = this.onCLickRemoveCode.bind(this);
+
         this.onDClickCodeLine = this.onDClickCodeLine.bind(this);
         this.onDClickMainNote = this.onDClickMainNote.bind(this);
         this.onDClickHtmlContent = this.onDClickHtmlContent.bind(this);
@@ -59,8 +61,7 @@ export default class Note extends Component {
         this.renderAddRemoveCodeButton = this.renderAddRemoveCodeButton.bind(this);
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.openUpNotes = this.openUpNotes.bind(this);
-        this.closeDownNotes = this.closeDownNotes.bind(this);
+        this.openCloseCodeLineNotes = this.openCloseCodeLineNotes.bind(this);
     }
 
     componentWillMount() {
@@ -87,7 +88,7 @@ export default class Note extends Component {
                 }
                 let newCode = {
                     source: note.source,
-                    showSourceEditor: note.showSourceEditor,
+                    showSourceEditor: false,
 
                     lines: note.lines
                         .sort((a, b) => a.order - b.order)
@@ -167,75 +168,39 @@ export default class Note extends Component {
     handleKeyDown(event) {
         switch (event.keyCode) {
             case ESCAPE_KEY:
-                this.closeDownNotes();
-                break;
-            case O_KEY:
-                if (this.state.currentlyTyping) {
-                    return;
-                }
-                this.openUpNotes();
+                this.openCloseCodeLineNotes();
                 break;
             default:
                 break;
         }
-        if (event.keyCode === ESCAPE_KEY) {
-        }
     }
 
-    openUpNotes() {
-        var newLines = this.state.code.lines;
-
-        if (newLines.some(x => x.note.visible == false)) {
-            newLines = newLines.map(x => {
-                if (x.note.visible == false) {
-                    x.note.visible = true;
-                    x.note.editorMode = false;
-                }
-                return x;
-            });
-        } else if (newLines.some(x => x.note.editorMode == false)) {
-            newLines = newLines.map(x => {
-                if (x.note.editorMode == false) {
-                    x.note.editorMode = true;
-                }
-                return x;
-            })
-        }
-
-        let newCode = this.state.code;
-        newCode.lines = newLines;
-        this.setState({ code: newCode });
-    }
-
-    closeDownNotes() {
-        ///Changing main note.
+    openCloseCodeLineNotes() {
+        ///Closing main note.
         if (this.state.mainNote.editorMode == true) {
             let note = this.state.mainNote;
             note.editorMode = false;
             this.setState({ mainNote: note });
+            return;
         }
 
-        ///Changing line notes.
         var newLines = this.state.code.lines;
-
-        if (newLines.some(x => x.note.visible == true)) {
-            if (newLines.some(x => x.note.editorMode == true)) {
-                newLines = newLines.map(x => {
-                    if (x.note.editorMode == true) {
-                        x.note.editorMode = false;
-                    }
-                    return x;
-                })
-            } else {
-                newLines = newLines.map(x => {
-                    if (x.note.visible == true) {
-                        x.note.visible = false;
-                    }
-                    return x;
-                })
-            }
+        if (newLines.some(x => x.note.editorMode == true)) {
+            newLines = newLines.map(x => {
+                x.note.editorMode = false;
+                return x;
+            });
+        } else if (newLines.some(x => x.note.visible == true)) {
+            newLines = newLines.map(x => {
+                x.note.visible = false;
+                return x;
+            });
+        } else {
+            newLines = newLines.map(x => {
+                x.note.visible = true;
+                return x;
+            });
         }
-
 
         let newCode = this.state.code;
         newCode.lines = newLines;
@@ -324,13 +289,26 @@ export default class Note extends Component {
     }
 
     renderCodeLines() {
-        if (this.state.PRLoaded) {
-            return this.state.code.lines.map(x =>
-                <Fragment key={"codeLine" + x.id}>
-                    {this.renderCodeLineNoteContent(x)}
-                    <pre className="prettyprint"
-                        onDoubleClick={() => this.onDClickCodeLine(x)}
-                        dangerouslySetInnerHTML={{ __html: PR.prettyPrintOne(x.content) }} />
+        if (this.state.PRLoaded == false || this.state.codePresent == false) {
+            return null;
+        } else {
+            return (
+                <Fragment>
+                    {this.state.code.lines.map(x =>
+                        <Fragment key={"codeLine" + x.id}>
+                            {this.renderCodeLineNoteContent(x)}
+                            <pre className="prettyprint"
+                                onDoubleClick={() => this.onDClickCodeLine(x)}
+                                dangerouslySetInnerHTML={{ __html: PR.prettyPrintOne(x.content) }} />
+                        </Fragment>)}
+                    <div className="mb-2 mt-2 row">
+                        <div className="col-sm-2">
+                            <button className="btn btn-primary btn-block" onClick={this.onClickParseSource}>Render</button>
+                        </div>
+                        <div className="col-sm-2">
+                            <button className="btn btn-primary btn-block" onClick={this.onClickShowSource}>Show Source</button>
+                        </div>
+                    </div>
                 </Fragment>)
         }
     }
@@ -364,7 +342,7 @@ export default class Note extends Component {
                     tag="textarea"
                     model={line.note.content}
                     onModelChange={(val) => this.onChangeCodeLineNote(val, line)}
-                    config={options} 
+                    config={options}
                 />)
         }
         else {
@@ -377,7 +355,7 @@ export default class Note extends Component {
 
     renderSourceEditor() {
         if (this.state.code.showSourceEditor) {
-            return <Textarea onChange={this.onChangeSourceEditor} style={{ overflow: "hidden" }} type="text" value={this.state.code.source} className="form-control-black" />
+            return <Textarea onChange={this.onChangeSourceEditor} style={{ overflow: "hidden" }} type="text" value={this.state.code.source} className="form-control-black mb-2 mt-2" />
         } else {
             return null;
         }
@@ -415,9 +393,9 @@ export default class Note extends Component {
 
     renderAddRemoveCodeButton() {
         if (this.state.codePresent) {
-            return <button className="btn btn-primary" onClick={this.onCLickRemoveCode}>Remove Code</button>
+            return <button className="btn btn-primary btn-block" onClick={this.onCLickRemoveCode}>Hide Code</button>
         } else {
-            return <button className="btn btn-primary" onClick={this.onCLickAddCode}>Remove Code</button>
+            return <button className="btn btn-primary btn-block" onClick={this.onCLickAddCode}>Show Code</button>
         }
     }
 
@@ -470,6 +448,22 @@ export default class Note extends Component {
         this.setState({ code: newCode });
     }
 
+    onCLickAddCode() {
+        let newCode = this.state.code;
+        if (this.state.code.lines.length > 0) {
+            newCode.showSourceEditor = false;
+        } else {
+            newCode.showSourceEditor = true;
+        }
+
+        this.setState({ codePresent: true, code: newCode });
+    }
+    onCLickRemoveCode() {
+        let newCode = this.state.code;
+        newCode.showSourceEditor = false;
+        this.setState({ codePresent: false, code: newCode });
+    }
+
     onBlurFroalaEditor() {
         this.setState({ currentlyTyping: false });
     }
@@ -482,11 +476,15 @@ export default class Note extends Component {
         const app = (<Fragment>
             {this.renderMainNote()}
             {this.renderSourceEditor()}
-            <button onClick={this.onClickParseSource}>Render</button>
-            <button onClick={this.onClickShowSource}>Show Source</button>
             {this.renderCodeLines()}
-            <button className="btn btn-success" onClick={this.onClickSave}>Save</button>
-            {this.renderAddRemoveCodeButton()}
+            <div className="mb-2 mt-2 row">
+                <div className="col-sm-2">
+                    <button className="btn btn-success btn-block" onClick={this.onClickSave}>Save</button>
+                </div>
+                <div className="col-sm-2">
+                    {this.renderAddRemoveCodeButton()}
+                </div>
+            </div>
         </Fragment>);
 
         if (this.FroalaEditor) {

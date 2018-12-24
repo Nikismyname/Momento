@@ -41,8 +41,9 @@
 
         // DELETE: api/Note/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult<bool> Delete(int id)
         {
+            return this.noteService.DeleteApi(id, this.User.Identity.Name);
         }
     }
 }

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Tests\ListToDo\" />
+    <Folder Include="Tests\ListToDoTests\" />
   </ItemGroup>
 
 </Project>

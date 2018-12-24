@@ -615,7 +615,7 @@ function linkSSRSafe(path, name) {
   var onClickFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
   var classNames = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
 
-  if (typeof window !== "undefined" && typeof onClickFunc !== "undefined")
+  if (typeof window !== "undefined")
     /*Client*/
     {
       if (onClickFunc != null) {
@@ -1212,10 +1212,9 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 //import '../../../../node_modules/font-awesome/css/font-awesome.css';
 //import '../../../../node_modules/font-awesome/fonts/fontawesome-webfont.woff2';
 
-var initialNoteContent = '<span style = "color: rgb(255, 255, 255);" > Double Click To Edit!</span>';
+var initialNoteContent = '<span style = "color: rgb(255, 255, 255);" >Double Click To Edit!</span>';
 var indexPrefixRgx = /^\(\*([0-9]+)\*\)/;
 var ESCAPE_KEY = 27;
-var O_KEY = 79;
 
 var Note =
 /*#__PURE__*/
@@ -1247,7 +1246,7 @@ function (_Component) {
       },
       code: {
         source: "",
-        showSourceEditor: true,
+        showSourceEditor: false,
         lines: []
         /*{content: "", id: 1, dbId=0, note: {content: "", editorMode: false, visible: false} }*/
 
@@ -1260,6 +1259,8 @@ function (_Component) {
     _this.onClickParseSource = _this.onClickParseSource.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickSave = _this.onClickSave.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickShowSource = _this.onClickShowSource.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onCLickAddCode = _this.onCLickAddCode.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onCLickRemoveCode = _this.onCLickRemoveCode.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onDClickCodeLine = _this.onDClickCodeLine.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onDClickMainNote = _this.onDClickMainNote.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onDClickHtmlContent = _this.onDClickHtmlContent.bind(_assertThisInitialized(_assertThisInitialized(_this)));
@@ -1272,8 +1273,7 @@ function (_Component) {
     _this.renderCodeLines = _this.renderCodeLines.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.renderAddRemoveCodeButton = _this.renderAddRemoveCodeButton.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.handleKeyDown = _this.handleKeyDown.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.openUpNotes = _this.openUpNotes.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.closeDownNotes = _this.closeDownNotes.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.openCloseCodeLineNotes = _this.openCloseCodeLineNotes.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
@@ -1305,7 +1305,7 @@ function (_Component) {
         };
         var newCode = {
           source: note.source,
-          showSourceEditor: note.showSourceEditor,
+          showSourceEditor: false,
           lines: note.lines.sort(function (a, b) {
             return a.order - b.order;
           }).map(function (line) {
@@ -1388,94 +1388,47 @@ function (_Component) {
     value: function handleKeyDown(event) {
       switch (event.keyCode) {
         case ESCAPE_KEY:
-          this.closeDownNotes();
-          break;
-
-        case O_KEY:
-          if (this.state.currentlyTyping) {
-            return;
-          }
-
-          this.openUpNotes();
+          this.openCloseCodeLineNotes();
           break;
 
         default:
           break;
       }
-
-      if (event.keyCode === ESCAPE_KEY) {}
     }
   }, {
-    key: "openUpNotes",
-    value: function openUpNotes() {
-      var newLines = this.state.code.lines;
-
-      if (newLines.some(function (x) {
-        return x.note.visible == false;
-      })) {
-        newLines = newLines.map(function (x) {
-          if (x.note.visible == false) {
-            x.note.visible = true;
-            x.note.editorMode = false;
-          }
-
-          return x;
-        });
-      } else if (newLines.some(function (x) {
-        return x.note.editorMode == false;
-      })) {
-        newLines = newLines.map(function (x) {
-          if (x.note.editorMode == false) {
-            x.note.editorMode = true;
-          }
-
-          return x;
-        });
-      }
-
-      var newCode = this.state.code;
-      newCode.lines = newLines;
-      this.setState({
-        code: newCode
-      });
-    }
-  }, {
-    key: "closeDownNotes",
-    value: function closeDownNotes() {
-      ///Changing main note.
+    key: "openCloseCodeLineNotes",
+    value: function openCloseCodeLineNotes() {
+      ///Closing main note.
       if (this.state.mainNote.editorMode == true) {
         var note = this.state.mainNote;
         note.editorMode = false;
         this.setState({
           mainNote: note
         });
-      } ///Changing line notes.
-
+        return;
+      }
 
       var newLines = this.state.code.lines;
 
       if (newLines.some(function (x) {
+        return x.note.editorMode == true;
+      })) {
+        newLines = newLines.map(function (x) {
+          x.note.editorMode = false;
+          return x;
+        });
+      } else if (newLines.some(function (x) {
         return x.note.visible == true;
       })) {
-        if (newLines.some(function (x) {
-          return x.note.editorMode == true;
-        })) {
-          newLines = newLines.map(function (x) {
-            if (x.note.editorMode == true) {
-              x.note.editorMode = false;
-            }
-
-            return x;
-          });
-        } else {
-          newLines = newLines.map(function (x) {
-            if (x.note.visible == true) {
-              x.note.visible = false;
-            }
-
-            return x;
-          });
-        }
+        newLines = newLines.map(function (x) {
+          x.note.visible = false;
+          return x;
+        });
+      } else {
+        newLines = newLines.map(function (x) {
+          x.note.visible = true;
+          return x;
+        });
       }
 
       var newCode = this.state.code;
@@ -1606,8 +1559,10 @@ function (_Component) {
     value: function renderCodeLines() {
       var _this5 = this;
 
-      if (this.state.PRLoaded) {
-        return this.state.code.lines.map(function (x) {
+      if (this.state.PRLoaded == false || this.state.codePresent == false) {
+        return null;
+      } else {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, this.state.code.lines.map(function (x) {
           return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], {
             key: "codeLine" + x.id
           }, _this5.renderCodeLineNoteContent(x), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("pre", {
@@ -1619,7 +1574,19 @@ function (_Component) {
               __html: PR.prettyPrintOne(x.content)
             }
           }));
-        });
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "mb-2 mt-2 row"
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "col-sm-2"
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          className: "btn btn-primary btn-block",
+          onClick: this.onClickParseSource
+        }, "Render")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "col-sm-2"
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          className: "btn btn-primary btn-block",
+          onClick: this.onClickShowSource
+        }, "Show Source"))));
       }
     }
   }, {
@@ -1685,7 +1652,7 @@ function (_Component) {
           },
           type: "text",
           value: this.state.code.source,
-          className: "form-control-black"
+          className: "form-control-black mb-2 mt-2"
         });
       } else {
         return null;
@@ -1729,14 +1696,14 @@ function (_Component) {
     value: function renderAddRemoveCodeButton() {
       if (this.state.codePresent) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-          className: "btn btn-primary",
+          className: "btn btn-primary btn-block",
           onClick: this.onCLickRemoveCode
-        }, "Remove Code");
+        }, "Hide Code");
       } else {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-          className: "btn btn-primary",
+          className: "btn btn-primary btn-block",
           onClick: this.onCLickAddCode
-        }, "Remove Code");
+        }, "Show Code");
       }
     }
   }, {
@@ -1807,6 +1774,32 @@ function (_Component) {
       });
     }
   }, {
+    key: "onCLickAddCode",
+    value: function onCLickAddCode() {
+      var newCode = this.state.code;
+
+      if (this.state.code.lines.length > 0) {
+        newCode.showSourceEditor = false;
+      } else {
+        newCode.showSourceEditor = true;
+      }
+
+      this.setState({
+        codePresent: true,
+        code: newCode
+      });
+    }
+  }, {
+    key: "onCLickRemoveCode",
+    value: function onCLickRemoveCode() {
+      var newCode = this.state.code;
+      newCode.showSourceEditor = false;
+      this.setState({
+        codePresent: false,
+        code: newCode
+      });
+    }
+  }, {
     key: "onBlurFroalaEditor",
     value: function onBlurFroalaEditor() {
       this.setState({
@@ -1823,14 +1816,16 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var app = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, this.renderMainNote(), this.renderSourceEditor(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        onClick: this.onClickParseSource
-      }, "Render"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        onClick: this.onClickShowSource
-      }, "Show Source"), this.renderCodeLines(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        className: "btn btn-success",
+      var app = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, this.renderMainNote(), this.renderSourceEditor(), this.renderCodeLines(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "mb-2 mt-2 row"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "col-sm-2"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        className: "btn btn-success btn-block",
         onClick: this.onClickSave
-      }, "Save"), this.renderAddRemoveCodeButton());
+      }, "Save")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "col-sm-2"
+      }, this.renderAddRemoveCodeButton())));
 
       if (this.FroalaEditor) {
         if (this.state.PRLoaded) {
@@ -2287,7 +2282,7 @@ function (_Component) {
         return;
       }
 
-      fetch("/api/Note", {
+      fetch("/api/Note/" + id, {
         method: "DELETE",
         headers: {
           'Accept': 'application/json',
@@ -2300,7 +2295,7 @@ function (_Component) {
         if (data == true) {
           var newState = _this.props.parentState;
           var newCurrentDir = newState.currentDir;
-          newCurrentDir.notes = newCurrentDir.videos.filter(function (x) {
+          newCurrentDir.notes = newCurrentDir.notes.filter(function (x) {
             return x.id != id;
           });
           var newHistory = newState.history;
@@ -2335,7 +2330,7 @@ function (_Component) {
         className: "ml-1",
         href: "#",
         onClick: function onClick(e) {
-          return _this2.onClickDeleteNote(e, _this2.props.video.id);
+          return _this2.onClickDeleteNote(e, _this2.props.note.id);
         }
       }, "Delete")));
     }
@@ -19236,7 +19231,7 @@ exports.push([module.i, "/*!\n * froala_editor v2.9.1 (https://www.froala.com/wy
 
 exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js")(false);
 // Module
-exports.push([module.i, ".fr-view p:last-child{\r\n    margin-bottom: 0;\r\n}\r\n\r\n.fr-view p{\r\n    color: #ffffff;\r\n}", ""]);
+exports.push([module.i, ".fr-view p:last-child{\r\n    margin-bottom: 0;\r\n}\r\n\r\n.fr-view p{\r\n    color: #ffffff;\r\n}\r\n\r\n.fr-view{\r\n    color: #ffffff !important;\r\n}", ""]);
 
 
 

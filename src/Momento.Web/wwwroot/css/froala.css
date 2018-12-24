@@ -5,3 +5,7 @@
 .fr-view p{
     color: #ffffff;
 }
+
+.fr-view{
+    color: #ffffff !important;
+}

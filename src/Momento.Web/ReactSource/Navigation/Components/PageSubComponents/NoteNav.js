@@ -16,7 +16,7 @@ class VideoNav extends Component {
             return;
         }
 
-        fetch("/api/Note", {
+        fetch("/api/Note/" + id, {
             method: "DELETE",
             headers: {
                 'Accept': 'application/json',
@@ -31,7 +31,7 @@ class VideoNav extends Component {
                 if (data == true) {
                     let newState = this.props.parentState;
                     let newCurrentDir = newState.currentDir;
-                    newCurrentDir.notes = newCurrentDir.videos.filter(x => x.id != id);
+                    newCurrentDir.notes = newCurrentDir.notes.filter(x => x.id != id);
 
                     let newHistory = newState.history;
                     newHistory = newHistory.map(obj => {
@@ -53,7 +53,7 @@ class VideoNav extends Component {
                     <h6 className="card-title">{this.props.note.name}</h6>
                     <p className="card-text">{this.props.note.description}</p>
                     {linkSSRSafe(c.rootDir + c.richTextNotePath + "/" + this.props.note.id + "/" + this.props.parentState.currentDir.id, "Edit", null)}
-                    <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteNote(e, this.props.video.id)} >Delete</a>
+                    <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteNote(e, this.props.note.id)} >Delete</a>
                 </div>
             </div>
         );

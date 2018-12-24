@@ -6,6 +6,7 @@
     using Momento.Models.Notes;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Notes;
+    using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Utilities;
     using Momento.Services.Exceptions;
     using Momento.Services.Models.NoteModels;
@@ -16,11 +17,17 @@
     {
         private readonly MomentoDbContext context;
         private readonly IUtilitiesService utilService;
+        ///TODO: Add the tracking
+        private readonly ITrackableService trackableService;
 
-        public NoteService(MomentoDbContext context, IUtilitiesService utilService)
+        public NoteService(
+            MomentoDbContext context,
+            IUtilitiesService utilService,
+            ITrackableService trackableService)
         {
             this.context = context;
             this.utilService = utilService;
+            this.trackableService = trackableService;
         }
 
         public Note Create(NoteCreate note, string username)
@@ -203,6 +210,52 @@
                 return true;
             }
             catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public void Delete(int id, string username)
+        {
+            var userId = this.context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
+            if(userId == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            var note = this.context.Notes.SingleOrDefault(x=>x.Id == id);
+            if(note == null)
+            {
+                throw new ItemNotFound("The note you are trying to delete does not exist!");
+            }
+
+            if(userId != note.UserId)
+            {
+                throw new AccessDenied("The note you are trying to delete does not belong to you!");
+            }
+
+            var now = DateTime.UtcNow;
+
+            foreach (var item in note.Lines)
+            {
+                item.DeletedOn = now;
+                item.IsDeleted = true;
+            }
+
+            note.DeletedOn = now;
+            note.IsDeleted = true;
+
+            context.SaveChanges();
+        }
+
+        public bool DeleteApi(int id, string username)
+        {
+            try
+            {
+                this.Delete(id, username);
+                return true;
+            }
+            catch
             {
                 return false;
             }

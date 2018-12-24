@@ -4,7 +4,7 @@
 
     public class CodeLine: SoftDeletableAndTrackable
     {
-        const string defaultNoteContent= "<span style = \"color: rgb(255, 255, 255);\" > Double Click To Edit!</span>";
+        const string defaultNoteContent= "<span style = \"color: rgb(255, 255, 255);\" >Double Click To Edit!</span>";
 
         public CodeLine()
         {

@@ -16,5 +16,9 @@
         Note Save(NoteEdit model, string username);
 
         bool SaveApi(NoteEdit model, string username);
+
+        void Delete(int id, string username);
+
+        bool DeleteApi(int id, string username);
     }
 }
