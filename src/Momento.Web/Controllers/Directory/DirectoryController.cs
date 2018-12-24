@@ -32,28 +32,46 @@
             return View(model);
         }
 
-        public IActionResult IndexReact()
+        public IActionResult IndexReact(int id)
         {
             var path = this.Request.Path;
             var reactPrerenderInfo = new ReactPrerenderInfo();
 
-            var urlTokens = path.ToString().Split("/");
+            var urlTokens = path.ToString().Split("/", StringSplitOptions.RemoveEmptyEntries);
             var lastPart = urlTokens.Last();
 
-            if (int.TryParse(lastPart, out int index))
+            if (urlTokens[0] != "Directory" || urlTokens[1] != "IndexReact")
+                throw new Exception("Wrong Spa Fallback");
+
+            if(int.TryParse(urlTokens[urlTokens.Length-1], out int index))
             {
                 reactPrerenderInfo.WantedIndex = index;
-                var component = urlTokens[urlTokens.Length - 2];
-                if (Enum.TryParse(component, out ReactComponent comp))
+                if (urlTokens.Length == 3)
                 {
-                    reactPrerenderInfo.WantedComponent = comp;
+                    reactPrerenderInfo.WantedComponent = ReactComponent.index;
+                }
+                else
+                {
+                    if(urlTokens[2] == "compare" && urlTokens.Length == 4)
+                    {
+                        reactPrerenderInfo.WantedComponent = ReactComponent.compare;
+                    }
                 }
             }
             else
             {
-                if (Enum.TryParse(lastPart, out ReactComponent comp))
+                reactPrerenderInfo.WantedIndex = 0;
+
+                if (urlTokens.Length == 2)
                 {
-                    reactPrerenderInfo.WantedComponent = comp;
+                    reactPrerenderInfo.WantedComponent = ReactComponent.index;
+                }
+                else
+                {
+                    if (urlTokens[2] == "compare" && urlTokens.Length == 3)
+                    {
+                        reactPrerenderInfo.WantedComponent = ReactComponent.compare;
+                    }
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { NavLink } from "react-router-dom";
 import Textarea from 'react-expanding-textarea';
-import rootDir from "./Helpers/RootDir";
+import * as c from "./Helpers/Constants";
 
 export default class Compare extends Component {
     constructor(props) {
@@ -220,7 +220,7 @@ export default class Compare extends Component {
                 </div >
                 {this.renderComparisonData()}
                 {this.renderCompItemsTextAreas()}
-                <NavLink to={`${rootDir}/${this.state.currentState.directoryId}`} className="btn btn-primary">Back</NavLink>
+                <NavLink to={`${c.rootDir}/${this.state.currentState.directoryId}`} className="btn btn-primary">Back</NavLink>
                 <button onClick={this.onClickNewComparison}>New Comparison</button>
                 <button className="btn btn-success" onClick={this.onClickSave}>Save</button>
                 {this.test()}

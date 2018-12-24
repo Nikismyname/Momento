@@ -7,6 +7,7 @@
     using Momento.Models.Videos;
     using Momento.Models.Contracts;
     using Momento.Models.Comparisons;
+    using Momento.Models.Notes;
 
     public class Directory : SoftDeletableAndTrackable, IOrderable<int>
     {
@@ -16,6 +17,7 @@
             this.ListsToDo = new HashSet<ListToDo>();
             this.Subdirectories = new HashSet<Directory>();
             this.Comparisons = new HashSet<Comparison>();
+            this.Notes = new HashSet<Note>();
         }
 
         public int Id { get; set; }
@@ -42,5 +44,7 @@
         public virtual ICollection<Directory> Subdirectories { get; set; }
 
         public virtual ICollection<Comparison> Comparisons { get; set; }
+
+        public virtual ICollection<Note> Notes { get; set; }
     }
 }

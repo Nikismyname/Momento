@@ -223,3 +223,12 @@
 .margin-top-1-percent{
     margin-top:1%;
 }
+/* to stop the overlay being moved by scrollbar */
+/*the scroll bar overlays*/
+/* html {
+    overflow-y: overlay
+  } */
+/*the scroll bar is always there*/
+html {
+    overflow-y: scroll
+  }

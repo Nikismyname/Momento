@@ -1,5 +1,7 @@
 ﻿import React, { Component } from "react";
 
+const borderString = "1px solid rgba(3, 91, 255, 0.6)";
+
 class VideoNav extends Component {
     constructor(props) {
         super(props);
@@ -44,9 +46,10 @@ class VideoNav extends Component {
 
     render() {
         return (
-            <div className="video">
-                <label>{this.props.video.name}</label>
-                <div className="d-flex">
+            <div data-tip="Video Notes" className="card mb-2" style={{ border: borderString}}>
+                <div className="card-body">
+                    <h6 className="card-title">{this.props.video.name}</h6>
+                    <p className="card-text">{this.props.video.description}</p>
                     <a href={'/Video/View?id=' + this.props.video.id}>View</a>
                     <a className="ml-1" href={'/Video/Edit?id=' + this.props.video.id}>Edit</a>
                     <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteVideo(e, this.props.video.id)} >Delete</a>

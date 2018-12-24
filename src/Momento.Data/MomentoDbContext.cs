@@ -13,6 +13,7 @@
     using Momento.Models.Directories;
     using Microsoft.AspNetCore.Identity;
     using Momento.Models.Comparisons;
+    using Momento.Models.Notes;
 
     public class MomentoDbContext : IdentityDbContext<User>
     {
@@ -64,6 +65,11 @@
         public DbSet<ComparisonItem> ComparisonItems { get; set; }
 
 
+        public DbSet<Note> Notes { get; set; }
+
+        public DbSet<CodeLine> CodeLines { get; set; }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
@@ -94,6 +100,8 @@
             builder.Entity<ListToDoItem>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<Comparison>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ComparisonItem>().HasQueryFilter(x => !x.IsDeleted);
+            builder.Entity<Note>().HasQueryFilter(x => !x.IsDeleted);
+            builder.Entity<CodeLine>().HasQueryFilter(x => !x.IsDeleted);
 
             builder.Entity<Point>(p =>
             {

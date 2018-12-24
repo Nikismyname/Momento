@@ -2,6 +2,9 @@
 import { Route, BrowserRouter, Switch } from "react-router-dom";
 import NavigationPage from './NavigationPage';
 import Compare from './Compare';
+import * as c from './Helpers/Constants';
+import Note from './Note';
+import NoteCreate from './NoteCreate'; 
 
 export default class AppRouting extends Component {
     constructor(props) {
@@ -30,38 +33,29 @@ export default class AppRouting extends Component {
                             setComparisonId={this.setComparisonId}
                             initialDir={this.props.initialDir} />
                     </div>)
-            } else if (this.prop.comp == "compare") {
+            } else if (this.props.comp == "compare") {
                 return (
                     <div className="pageContent">
                     <Compare
                         initialComp={this.props.initialComp}
                         id={this.state.comparisonId}
-                            dirId={this.state.comparisonDirId} />
+                        dirId={this.state.comparisonDirId} />
                     </div>)
             }
         } else {
-            //if (typeof this.props.comp == "undefined") {
-            //    return (<Fragment>
-            //        <BrowserRouter>
-            //            <Fragment>
-            //                <div className="pageContent">
-            //                    <Switch>
-            //                        <Route path="/compare/:id" component={Compare} />
-            //                        <Route path="/:id" component={NavigationPage} />
-            //                    </Switch>
-            //                </div>
-            //            </Fragment>
-            //        </BrowserRouter>
-            //    </Fragment>)
-            //} else {
+            if (typeof this.props.comp !== "udefined") {
+                console.log("We got server data gov!");
+            }
             return (<Fragment>
                 <BrowserRouter>
                     <div className="pageContent">
                         <Switch>
-                            <Route path="/Directory/IndexReact/compare/:id/:dirId" component={Compare} />
-                            <Route path="/Directory/IndexReact/:id" component={NavigationPage} />
-                            <Route path="/Directory/IndexReact/compare" render={() => <Compare id={this.state.comparisonId} dirId={this.state.comparisonDirId} />} />
-                            <Route path="/Directory/IndexReact" render={() => <NavigationPage setComparisonId={this.setComparisonId} initialDir={this.props.initialDir} />} />
+                            <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
+                            <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
+                            <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />
+                            <Route path={c.rootDir + "/:id"} component={NavigationPage} />
+                            <Route path={c.rootDir + c.comparePath} render={() => <Compare initialComp={this.props.initialComp} />} />
+                            <Route path={c.rootDir} render={() => <NavigationPage initialDir={this.props.initialDir} />} />
                         </Switch>
                     </div>
                 </BrowserRouter>

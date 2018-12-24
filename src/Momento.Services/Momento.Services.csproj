@@ -15,4 +15,8 @@
     <ProjectReference Include="..\MomentoServices.Models\Momento.Services.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\ReactFallback\" />
+  </ItemGroup>
+
 </Project>

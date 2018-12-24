@@ -4,6 +4,7 @@
     using Momento.Services.Models.ComparisonModels;
     using Momento.Services.Models.Contracts;
     using Momento.Services.Models.ListToDoModels;
+    using Momento.Services.Models.NoteModels;
     using Momento.Services.Models.VideoModels;
     using System.Collections.Generic;
 
@@ -22,5 +23,7 @@
         public ICollection<ComparisonIndex> Comparisons { get; set; }
 
         public ICollection<DirectoryNavigation> Subdirectories { get; set; }
+
+        public ICollection<NoteIndex> Notes { get; set; }
     }
 }

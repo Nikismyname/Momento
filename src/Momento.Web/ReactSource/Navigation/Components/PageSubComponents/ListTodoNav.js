@@ -1,6 +1,4 @@
 ﻿import React, { Component } from "react";
-//import { linkSSRSafe } from '../Helpers/HelperFuncs';
-//import rootDir from '../Helpers/RootDir';
 
 class ListTodoNav extends Component {
     constructor(props) {
@@ -46,7 +44,7 @@ class ListTodoNav extends Component {
 
     render() {
         return (
-            <div className="video" key={"listToDo" + this.props.list.id}>
+            <div data-tip="ToDo list" className="video" key={"listToDo" + this.props.list.id}>
                 <label>{this.props.list.name}</label>
                 <div className="d-flex">
                     <a href={"/ListToDo/Use/" + this.props.list.id}>Use</a>

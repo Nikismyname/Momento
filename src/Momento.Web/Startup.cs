@@ -36,6 +36,10 @@
     using Momento.Services.Models.VideoModels;
     using Momento.Services.Implementations.Comparisons;
     using Momento.Services.Contracts.Comparisons;
+    using Momento.Services.Contracts.Notes;
+    using Momento.Services.Implementations.Notes;
+    using Momento.Services.Contracts.Utilities;
+    using Momento.Services.Implementations.Utilities;
 
     public class Startup
     {
@@ -90,6 +94,8 @@
             services.AddTransient<IListToDoService, ListToDoService>();
             services.AddTransient<ITrackableService, TrackableService>();
             services.AddTransient<IComparisonService, ComparisonService>();
+            services.AddTransient<INoteService, NoteService>();
+            services.AddTransient<IUtilitiesService, UtilitiesService>();
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 

@@ -43,9 +43,9 @@ namespace Momento.Data.Migrations
                     b.ToTable("AspNetRoles");
 
                     b.HasData(
-                        new { Id = "3f0b7005-d559-45ce-8fb1-8b9c70305f87", ConcurrencyStamp = "0f1f255c-70ca-4572-b6d5-c9cf0ff7f201", Name = "Admin", NormalizedName = "ADMIN" },
-                        new { Id = "8646e35a-2fcf-4758-ba8b-a2da28449b87", ConcurrencyStamp = "74dcda0d-0520-4567-afa3-9dc2424ad8b1", Name = "Moderator", NormalizedName = "MODERATOR" },
-                        new { Id = "e7730a42-b033-4868-827a-d33ab862710e", ConcurrencyStamp = "46e7b3ec-1b45-4287-b648-faf00c6d4d25", Name = "User", NormalizedName = "USER" }
+                        new { Id = "580a0b98-a093-4343-a878-a21060270243", ConcurrencyStamp = "faf0fa23-fc1b-43b4-98e1-4351905feff2", Name = "Admin", NormalizedName = "ADMIN" },
+                        new { Id = "29a2e4da-aa5c-4b84-959c-4e2a753c9f87", ConcurrencyStamp = "8250e893-7b4c-4483-8bc2-b6c64cb553ab", Name = "Moderator", NormalizedName = "MODERATOR" },
+                        new { Id = "240faefb-4827-4604-8d58-c2eabfa2ea4d", ConcurrencyStamp = "faf305cf-5b62-4ba7-885a-646ebfa3dc6d", Name = "User", NormalizedName = "USER" }
                     );
                 });
 
@@ -630,6 +630,94 @@ namespace Momento.Data.Migrations
                     b.ToTable("ListToDoItems");
                 });
 
+            modelBuilder.Entity("Momento.Models.Notes.CodeLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedOn");
+
+                    b.Property<DateTime?>("DeletedOn");
+
+                    b.Property<bool>("EditorMode");
+
+                    b.Property<int>("InPageId");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime?>("LastModifiedOn");
+
+                    b.Property<DateTime?>("LastViewdOn");
+
+                    b.Property<string>("NoteContent");
+
+                    b.Property<int>("NoteId");
+
+                    b.Property<int>("Order");
+
+                    b.Property<string>("SourceContent");
+
+                    b.Property<int>("TimesModified");
+
+                    b.Property<int>("TimesViewd");
+
+                    b.Property<bool>("Visible");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NoteId");
+
+                    b.ToTable("CodeLines");
+                });
+
+            modelBuilder.Entity("Momento.Models.Notes.Note", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedOn");
+
+                    b.Property<DateTime?>("DeletedOn");
+
+                    b.Property<string>("Description");
+
+                    b.Property<int>("DirectoryId");
+
+                    b.Property<bool>("EditorMode");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime?>("LastModifiedOn");
+
+                    b.Property<DateTime?>("LastViewdOn");
+
+                    b.Property<string>("MainNoteContent");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("Order");
+
+                    b.Property<bool>("ShowSourceEditor");
+
+                    b.Property<string>("Source");
+
+                    b.Property<int>("TimesModified");
+
+                    b.Property<int>("TimesViewd");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DirectoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notes");
+                });
+
             modelBuilder.Entity("Momento.Models.Users.User", b =>
                 {
                     b.Property<string>("Id")
@@ -1030,6 +1118,26 @@ namespace Momento.Data.Migrations
                         .WithMany("Items")
                         .HasForeignKey("ListToDoId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Momento.Models.Notes.CodeLine", b =>
+                {
+                    b.HasOne("Momento.Models.Notes.Note", "Note")
+                        .WithMany("Lines")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Momento.Models.Notes.Note", b =>
+                {
+                    b.HasOne("Momento.Models.Directories.Directory", "Directory")
+                        .WithMany("Notes")
+                        .HasForeignKey("DirectoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Momento.Models.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Momento.Models.Users.UserSettings", b =>

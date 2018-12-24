@@ -1,12 +1,17 @@
 ﻿import { Component, Fragment } from 'react';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
-import { linkSSRSafe } from './Helpers/HelperFuncs';
-import 'linqjs';
-
-import rootDir from './Helpers/RootDir';
 import VideoNav from './PageSubComponents/VideoNav';
 import ComparisonNav from './PageSubComponents/ComparisonNav';
 import ListTodoNav from './PageSubComponents/ListTodoNav';
+import SubDirNav from './PageSubComponents/SubDirNav';
+import NoteNav from './PageSubComponents/NoteNav';
+import LoadSvg from './Helpers/LoadSvg';
+import { linkSSRSafe } from './Helpers/HelperFuncs';
+import 'linqjs';
+import * as c from './Helpers/Constants';
+import ReactTooltip from 'react-tooltip';
+
+const borderString = "3px solid rgba(0, 0, 0, 0.6)"
 
 export default class NavigationPage extends Component {
 
@@ -21,6 +26,7 @@ export default class NavigationPage extends Component {
                     videos: [],
                     comparisons: [],
                     listsToDo: [],
+                    notes: [],
                 },
                 itemsLoaded: false,
             };
@@ -50,9 +56,9 @@ export default class NavigationPage extends Component {
         this.renderListsToDo = this.renderListsToDo.bind(this);
     }
 
-    setStateFunc(obj) {
-        this.setState(obj);
-    }
+    //componentDidUpdate() {
+    //    ReactTooltip.rebuild();
+    //}
 
     componentDidMount() {
         if (this.state.itemsLoaded == false) {
@@ -64,20 +70,25 @@ export default class NavigationPage extends Component {
         }
     }
 
+    setStateFunc(obj) {
+        this.setState(obj);
+    }
+
     fetch(id) {
         console.log("Fetching: " + id);
         fetch('/api/Navigation/GetDirSingle/' + id)
             .then(data => data.json())
-            .then(json => this.setState({
-                currentDir: json,
-                history: this.state.history.concat(json),
-                itemsLoaded: true
-            }));
+            .then(json => {
+                history.pushState(null, null, c.rootDir + "/" + id);
+                this.setState({
+                    currentDir: json,
+                    history: this.state.history.concat(json),
+                    itemsLoaded: true
+                })
+            });
     };
 
     navigateToDirectory(id) {
-        console.log(id);
-
         if (id == null) {
             return;
         }
@@ -92,10 +103,10 @@ export default class NavigationPage extends Component {
                 currentDir: dir[0],
             });
             console.log("UsedHistory");
-            return;
+            history.pushState(null, null, c.rootDir + "/" + id);
         } else {
-            console.log("FetchedNewData");
             this.fetch(id);
+            console.log("FetchedNewData");
         }
     }
 
@@ -105,34 +116,44 @@ export default class NavigationPage extends Component {
 
     renderRoot(data) {
         return (
-            <div className="parent-directory-react" onClick={() => this.navigateToDirectory(data.parentDirectoryId)} key="Root">
-                <label>{data.name}</label>
-                <div><a href="#" onClick={e => this.createFolderOnClick(e)}>Create Folder</a></div>
-                <div><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes</a></div>
-                <div>{linkSSRSafe(`${rootDir}/compare/-1/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
-                <div><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
-            </div>
+            <Fragment >
+                <div className="card mb-2" style={{ border: borderString }} onClick={() => this.navigateToDirectory(data.parentDirectoryId)}>
+                    <div data-tip="Current folder and all things you can create in it." className="card-body">
+                        <div data-tip="The name of the current folder."><h6 className="card-title">{data.name}</h6></div>
+                        <div data-tip="Creates a Subfolder in the current folder."><a href="#" onClick={e => this.createFolderOnClick(e)}>Create Folder</a></div>
+                        <div data-tip="Creates new Video Notes in the current folder."><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes</a></div>
+                        <div data-tip="Creates new Comparison in the current folder.">{linkSSRSafe(`${c.rootDir}/compare/-1/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
+                        <div data-tip="Creates new ToDo list in the current folder."><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
+                        <div data-tip="Test stuff.">{linkSSRSafe(c.rootDir + c.richTextNotePath, "Go To RTE", null)}</div>
+                        <div data-tip="Creates new Note in the current folder.">{linkSSRSafe(`${c.rootDir + c.noteCreatePath}/${this.state.currentDir.id}`, "Create Note", null)}</div>
+                    </div>
+                </div>
+            </Fragment>
         )
     }
 
     renderSubDirectories(data) {
-        return data.map(subFolder =>
-            <ContextMenuTrigger id="subDirectory" attributes={{ id: subFolder.id }}>
-                <div className="directory-react" key={"subfolder" + subFolder.id} onClick={() => this.navigateToDirectory(subFolder.id)}>
-                    <label>{subFolder.name}</label>
-                </div>
-            </ContextMenuTrigger>
+        return data.map(subDir =>
+            <div key={"subDir" + subDir.id}>
+                <ContextMenuTrigger id="subDirectory" attributes={{ id: subDir.id }}>
+                    <SubDirNav dir={subDir} navigateToDirectory={this.navigateToDirectory} />
+                </ContextMenuTrigger>
+            </div>
+        );
+    }
+
+    renderNotes(data) {
+        return data.map(note =>
+            <Fragment key={"noteNav" + note.id}>
+                <NoteNav note={note} setStateFunc={this.setStateFunc} parentState={this.state} />
+            </Fragment>
         );
     }
 
     renderVideos(data) {
-        if (data.length == 0) {
-            return <Fragment></Fragment>
-        }
-        else {
+        if (data.length > 0) {
             return (
                 <div>
-                    <label style={{ color: "red" }}>Videos</label>
                     {data.map(x => <VideoNav key={"video" + x.id} setStateFunc={this.setStateFunc} parentState={this.state} video={x} />)}
                 </div>
             );
@@ -143,16 +164,17 @@ export default class NavigationPage extends Component {
         if (data.length > 0) {
             return (
                 <Fragment>
-                    <div className="text-center">
-                        <label style={{ color: "green" }}>Comparisons</label>
-                    </div>
-                    {data.map(comp => <ComparisonNav comp={comp} setStateFunc={this.setStateFunc} parentState={this.state} />)}
+                    {data.map(comp =>
+                        <div key={"compNav" + comp.id}>
+                            <ComparisonNav comp={comp} setStateFunc={this.setStateFunc} parentState={this.state} />
+                        </div>
+                    )}
                 </Fragment>)
         }
     }
 
     renderListsToDo(data) {
-        return data.map(list => <ListTodoNav list={list} setStateFunc={this.setStateFunc} parentState={this.state}/>)
+        return data.map(list => <ListTodoNav list={list} setStateFunc={this.setStateFunc} parentState={this.state} />)
     }
 
     createFolderOnClick(e) {
@@ -263,6 +285,7 @@ export default class NavigationPage extends Component {
                 </div>
                 <div className="col-sm-3">
                     {this.renderListsToDo(this.state.currentDir.listsToDo)}
+                    {this.renderNotes(this.state.currentDir.notes)}
                 </div>
 
                 <ContextMenu id="subDirectory">
@@ -272,9 +295,16 @@ export default class NavigationPage extends Component {
                             </MenuItem>
                     </div>
                 </ContextMenu>
+                <ReactTooltip
+                    place="bottom"
+                    effect="float" />
             </div>);
 
-        return app;
+        if (!this.state.itemsLoaded) {
+            return <LoadSvg />
+        } else {
+            return app;
+        }
     }
 }
 

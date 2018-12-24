@@ -1,6 +1,8 @@
 ﻿import React, { Component } from "react";
 import { linkSSRSafe } from '../Helpers/HelperFuncs';
-import rootDir from '../Helpers/RootDir';
+import * as c from '../Helpers/Constants';
+
+const borderString = "1px solid rgba(0, 0, 0, 0.6)";
 
 class ComparisonNav extends Component {
     constructor(props) {
@@ -45,11 +47,23 @@ class ComparisonNav extends Component {
     }
 
     render() {
+        //return (
+        //    <div className="video">
+        //        {linkSSRSafe(c.rootDir + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null)}
+        //        <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
+        //    </div>);
+
         return (
-            <div className="video" key={"comparison" + this.props.comp.id}>
-                {linkSSRSafe(rootDir + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null)}
-                <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
-            </div>);
+            <div data-tip="Comparison" className="card mb-2" style={{ border: borderString }}>
+                <div className="card-body">
+                    <h6 className="card-title">{this.props.comp.name}</h6>
+                    <p className="card-text">{this.props.comp.description}</p>
+                    <p className="card-text">Number of items: {this.props.comp.itemsCount}</p>
+                    {linkSSRSafe(c.rootDir + "/compare/" + this.props.comp.id + "/0", "Edit", null)}
+                    <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
+                </div>
+            </div>
+        )
     }
 }
 

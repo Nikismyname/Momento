@@ -22,13 +22,6 @@ namespace Momento.Web.Controllers.Api
             return new string[] { "value1", "value2" };
         }
 
-        // GET: api/ListToDo/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST: api/ListToDo
         [HttpPost]
         public void Post([FromBody] string value)
@@ -41,7 +34,7 @@ namespace Momento.Web.Controllers.Api
         {
         }
 
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/ListToDo/5
         [HttpDelete(/*"{id}"*/)]
         public ActionResult<bool> Delete([FromBody]int id)
         {
