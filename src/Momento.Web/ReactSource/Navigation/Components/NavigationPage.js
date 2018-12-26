@@ -48,7 +48,7 @@ export default class NavigationPage extends Component {
 
         this.fetch = this.fetch.bind(this);
         this.navigateToDirectory = this.navigateToDirectory.bind(this);
-        this.createFolderOnClick = this.createFolderOnClick.bind(this);
+        this.onClickCreateFolder = this.onClickCreateFolder.bind(this);
         this.onClickDeleteDir = this.onClickDeleteDir.bind(this);
         this.onClickNewCompareson = this.onClickNewCompareson.bind(this);
         this.setStateFunc = this.setStateFunc.bind(this);
@@ -120,7 +120,7 @@ export default class NavigationPage extends Component {
                 <div className="card mb-2" style={{ border: borderString }} onClick={() => this.navigateToDirectory(data.parentDirectoryId)}>
                     <div data-tip="Current folder and all things you can create in it." className="card-body">
                         <div data-tip="The name of the current folder."><h6 className="card-title">{data.name}</h6></div>
-                        <div data-tip="Creates a Subfolder in the current folder."><a href="#" onClick={e => this.createFolderOnClick(e)}>Create Folder</a></div>
+                        <div data-tip="Creates a Subfolder in the current folder."><a href="#" onClick={e => this.onClickCreateFolder(e)}>Create Folder</a></div>
                         <div data-tip="Creates new Video Notes in the current folder."><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes</a></div>
                         <div data-tip="Creates new Comparison in the current folder.">{linkSSRSafe(`${c.rootDir}/compare/-1/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
                         <div data-tip="Creates new ToDo list in the current folder."><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
@@ -177,7 +177,7 @@ export default class NavigationPage extends Component {
         return data.map(list => <ListTodoNav list={list} setStateFunc={this.setStateFunc} parentState={this.state} />)
     }
 
-    createFolderOnClick(e) {
+    onClickCreateFolder(e) {
         e.preventDefault();
         e.stopPropagation();
 

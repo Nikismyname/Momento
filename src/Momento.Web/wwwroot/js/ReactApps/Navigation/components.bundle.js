@@ -24538,7 +24538,7 @@ Tokenizer.prototype._emitPartial = function(value){
 module.exports = Stream;
 
 var Parser = __webpack_require__(/*! ./Parser.js */ "./node_modules/htmlparser2/lib/Parser.js");
-var WritableStream = __webpack_require__(/*! readable-stream */ 1).Writable;
+var WritableStream = __webpack_require__(/*! readable-stream */ 0).Writable;
 var StringDecoder = __webpack_require__(/*! string_decoder */ "./node_modules/node-libs-browser/node_modules/string_decoder/lib/string_decoder.js").StringDecoder;
 var Buffer = __webpack_require__(/*! buffer */ "./node_modules/buffer/index.js").Buffer;
 
@@ -35774,7 +35774,7 @@ var linq = {
  * @private
  */
 
-var http = __webpack_require__(/*! http */ 0);
+var http = __webpack_require__(/*! http */ 1);
 
 /**
  * Module exports.
@@ -78826,9 +78826,9 @@ if(false) {}
 /***/ }),
 
 /***/ 0:
-/*!**********************!*\
-  !*** http (ignored) ***!
-  \**********************/
+/*!*********************************!*\
+  !*** readable-stream (ignored) ***!
+  \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -78837,9 +78837,9 @@ if(false) {}
 /***/ }),
 
 /***/ 1:
-/*!*********************************!*\
-  !*** readable-stream (ignored) ***!
-  \*********************************/
+/*!**********************!*\
+  !*** http (ignored) ***!
+  \**********************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 

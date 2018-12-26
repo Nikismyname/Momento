@@ -40,15 +40,21 @@
     using Momento.Services.Implementations.Notes;
     using Momento.Services.Contracts.Utilities;
     using Momento.Services.Implementations.Utilities;
+    using Microsoft.Data.Sqlite;
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            this.Env = env;
         }
 
+        public IHostingEnvironment Env{ get; set; }
+
         public IConfiguration Configuration { get; }
+
+        private SqliteConnection inMemorySqlite;
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -61,9 +67,20 @@
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDbContext<MomentoDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            if (Env.IsEnvironment("Testing"))
+            {
+                inMemorySqlite = new SqliteConnection("Data Source=:memory:");
+                inMemorySqlite.Open();
+                //inMemorySqlite.Open();
+                services.AddDbContext<MomentoDbContext>(options =>
+                    options.UseSqlite(inMemorySqlite));
+            }
+            else
+            {
+                services.AddDbContext<MomentoDbContext>(options =>
+                    options.UseSqlServer(
+                        Configuration.GetConnectionString("DefaultConnection")));
+            }
 
             services.AddIdentity<User, IdentityRole>(options =>
             {
@@ -115,9 +132,20 @@
             return services.BuildServiceProvider();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder applicationBuilder, IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
+            ///Testing porpoises only
+            if (env.IsEnvironment("Testing"))
+            {
+                var serviceScopeFactory = applicationBuilder.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+                using (var serviceScope = serviceScopeFactory.CreateScope())
+                {
+                    var dbContext = serviceScope.ServiceProvider.GetService<MomentoDbContext>();
+                    dbContext.Database.EnsureCreated();
+                }
+            }
+
+            if (env.IsDevelopment()||env.IsEnvironment("Testing"))
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();

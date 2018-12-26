@@ -10,11 +10,15 @@
         public static string PeshoUsername = "PeshoPeshov";
         public static string PeshoRootDir = "PeshoRoot";
         public static int PeshoRootDirId = 1;
+        public static string PeshoPassword = "PeshoPass";
+        public static string PeshoEmail = "Pesho@Pesho.Pesho";
 
         public static string GoshoId = "GoshoGoshovId";
         public static string GoshoUsername = "GoshoGoshov";
         public static string GoshoRootDir = "GoshoRoot";
         public static int GoshoRootDirId = 2;
+        public static string GoshoPassword = "GoshoPass";
+        public static string GoshoEmail = "Gosho@Gosho.Gosho";
 
         /// <summary>
         /// Also seeds their root directories!

@@ -44,11 +44,6 @@
         {
             if (this.data == null)
             {
-                throw new Exception("NoDataIsPassedToTheView");
-            }
-
-            if (this.data == null)
-            {
                 this.data = new LayoutData
                 {
                     DarckInputs = true,
