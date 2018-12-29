@@ -9,11 +9,9 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using AutoMapper;
-    using Momento.Services.Contracts.CheatSheet;
     using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Directory;
     using Momento.Services.Contracts.ListRemind;
-    using Momento.Services.Implementations.CheatSheet;
     using Momento.Services.Implementations.Other;
     using Momento.Services.Implementations.Directory;
     using Momento.Services.Implementations.ListRemind;
@@ -40,7 +38,6 @@
     using Momento.Services.Implementations.Notes;
     using Momento.Services.Contracts.Utilities;
     using Momento.Services.Implementations.Utilities;
-    using Microsoft.Data.Sqlite;
 
     public class Startup
     {
@@ -50,11 +47,9 @@
             this.Env = env;
         }
 
-        public IHostingEnvironment Env{ get; set; }
+        public IHostingEnvironment Env { get; set; }
 
         public IConfiguration Configuration { get; }
-
-        private SqliteConnection inMemorySqlite;
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -67,15 +62,7 @@
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            if (Env.IsEnvironment("Testing"))
-            {
-                inMemorySqlite = new SqliteConnection("Data Source=:memory:");
-                inMemorySqlite.Open();
-                //inMemorySqlite.Open();
-                services.AddDbContext<MomentoDbContext>(options =>
-                    options.UseSqlite(inMemorySqlite));
-            }
-            else
+            if (!Env.IsEnvironment("Testing"))
             {
                 services.AddDbContext<MomentoDbContext>(options =>
                     options.UseSqlServer(
@@ -96,10 +83,7 @@
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<ICheatSheetService, CheatSheetService>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITopicService, TopicService>();
-            services.AddTransient<IPointService, PointService>();
             services.AddTransient<IVideoService, VideoService>();
             services.AddTransient<IListRemindService, ListRemindService>();
             services.AddTransient<IListRemindItemService, ListRemindItemService>();
@@ -134,18 +118,7 @@
 
         public void Configure(IApplicationBuilder applicationBuilder, IApplicationBuilder app, IHostingEnvironment env)
         {
-            ///Testing porpoises only
-            if (env.IsEnvironment("Testing"))
-            {
-                var serviceScopeFactory = applicationBuilder.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-                using (var serviceScope = serviceScopeFactory.CreateScope())
-                {
-                    var dbContext = serviceScope.ServiceProvider.GetService<MomentoDbContext>();
-                    dbContext.Database.EnsureCreated();
-                }
-            }
-
-            if (env.IsDevelopment()||env.IsEnvironment("Testing"))
+            if (env.IsDevelopment() || env.IsEnvironment("Testing"))
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();

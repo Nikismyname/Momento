@@ -18,6 +18,6 @@ namespace Momento.Models.Comparisons
         public int Order { get; set; }
 
         public int ComparisonId { get; set; }
-        public virtual Comparison Comparison { get; set; }
+        public Comparison Comparison { get; set; }
     }
 }

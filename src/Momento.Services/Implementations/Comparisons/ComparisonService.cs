@@ -1,5 +1,6 @@
 ﻿namespace Momento.Services.Implementations.Comparisons
 {
+    #region Initialization
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
@@ -22,7 +23,9 @@
         {
             this.context = context;
         }
+        #endregion
 
+        #region GetForEdit
         public const int NewEntryIdValue = -1;
         /// <summary>
         /// -1 for compId returns new dbEntry, otherwise returns the db entry with the given id.
@@ -63,7 +66,9 @@
 
             ///The request if for an existing items
 
-            var exstComp = context.Comparisons.SingleOrDefault(x => x.Id == compId);
+            var exstComp = context.Comparisons
+                .Include(x => x.Items)
+                .SingleOrDefault(x => x.Id == compId);
             if (exstComp == null)
             {
                 throw new ItemNotFound("The comparison you are looking for does not exist!");
@@ -74,27 +79,30 @@
                 throw new AccessDenied("This comparison does not belong to you!");
             }
 
-            var exstResult = Mapper.Instance.Map<ComparisonEdit>(exstComp);
-            return exstResult;
+            var result = Mapper.Instance.Map<ComparisonEdit>(exstComp);
+            return result;
         }
 
         public ComparisonEdit GetComparisonForEditApi(int compId, string username, int parentDirId = 0)
         {
             try
             {
-               var result = GetComparisonForEdit(compId, username, parentDirId);
-               return result;
+                var result = GetComparisonForEdit(compId, username, parentDirId);
+                return result;
             }
             catch
             {
                 return null;
             }
         }
+        #endregion
 
+        #region Save
         ///validated
         public void Save(ComparisonSave saveData, string username)
         {
-            User user = null; Comparison comp = null;
+            User user = null;
+            Comparison comp = null;
             this.ValidteSave(saveData, username, ref user, ref comp);
             this.SetCompatisonFields(saveData, comp);
             this.AlterExistingItems(saveData, comp);
@@ -149,13 +157,16 @@
 
         private void AlterExistingItems(ComparisonSave saveData, Comparison comp)
         {
-            var validItemIdsForAltering = comp.Items.Select(x => x.Id).ToArray();
-            var idsToAlterDistict = saveData.AlteredItems.Select(x => x.Id).Distinct().ToArray();
-
-            var dbItemsToAlter = comp.Items
-                .Where(x=> idsToAlterDistict.Contains(x.Id))
+            var validItemIdsForAltering = context.ComparisonItems
+                .Where(x => x.ComparisonId == comp.Id)
+                .Select(x => x.Id)
                 .ToArray();
 
+            var idsToAlterDistict = saveData.AlteredItems.Select(x => x.Id).Distinct().ToArray();
+
+            var dbItemsToAlter = context.ComparisonItems
+                .Where(x => x.ComparisonId == comp.Id && idsToAlterDistict.Contains(x.Id))
+                .ToArray();
 
             if (idsToAlterDistict.Any(x=> !validItemIdsForAltering.Contains(x)))
             {
@@ -165,7 +176,7 @@
             foreach (var alteredItem in saveData.AlteredItems)
             {
                 var propToAlter = typeof(ComparisonItem)
-                    .GetProperty(alteredItem.PropertyChanged, BindingFlags.Public | BindingFlags.Instance);
+                    .GetProperty(alteredItem.PropertyChanged, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
                 var propType = propToAlter.PropertyType;
 
@@ -197,12 +208,14 @@
                 this.Save(saveData, username);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 return false;
             }
         }
+        #endregion
 
+        #region Delete
         public void Delete(int id, string username)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
@@ -250,5 +263,6 @@
                 return false;
             }
         }
+        #endregion
     }
 }

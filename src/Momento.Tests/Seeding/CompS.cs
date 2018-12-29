@@ -41,7 +41,11 @@
             return comps.ToArray();
         }
 
-        public static ComparisonItem[] SeedItemsToComp(MomentoDbContext context, Comparison comp)
+        public const int Item1Id = 1;
+        public const int Item2Id = 2;
+        public const int Item3Id = 3;
+
+        public static ComparisonItem[] SeedThreeItemsToComp(MomentoDbContext context, Comparison comp)
         {
             var items = new HashSet<ComparisonItem>
             {

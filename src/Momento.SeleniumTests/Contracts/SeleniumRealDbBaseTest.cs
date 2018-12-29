@@ -25,7 +25,7 @@
 
         public void Dispose()
         {
-            Server.Dispose();
+            //Server.Dispose();
             Browser.Dispose();
         }
     }

@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Services.Mapping", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momento.Services.Models", "MomentoServices.Models\Momento.Services.Models.csproj", "{5E573666-A2B3-4339-B91A-1098925E306D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{495841CD-61A6-4433-8C2F-D9EFB49BA229}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momento.SeleniumTests", "Momento.SeleniumTests\Momento.SeleniumTests.csproj", "{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,14 +57,20 @@ Global
 		{5E573666-A2B3-4339-B91A-1098925E306D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E573666-A2B3-4339-B91A-1098925E306D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E573666-A2B3-4339-B91A-1098925E306D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{432A398A-C9C0-49D2-8FFC-B97B9FCF5ECB} = {7140C680-05FE-4963-83FC-9545D1FEB617}
+		{A9822611-BD42-4BD2-B2DC-D46ECC3EBFE5} = {495841CD-61A6-4433-8C2F-D9EFB49BA229}
 		{DC3587D4-A919-40F1-9A2F-A43AF157B7D7} = {7140C680-05FE-4963-83FC-9545D1FEB617}
 		{5E573666-A2B3-4339-B91A-1098925E306D} = {7140C680-05FE-4963-83FC-9545D1FEB617}
+		{BCCF26B0-9DCD-4806-80BF-2A1939BA27A1} = {495841CD-61A6-4433-8C2F-D9EFB49BA229}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97135A3C-49FA-465C-9D81-BD668DEE16E7}

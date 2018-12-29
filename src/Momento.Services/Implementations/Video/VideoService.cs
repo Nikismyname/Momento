@@ -17,16 +17,13 @@
     public class VideoService : IVideoService
     {
         private readonly MomentoDbContext context;
-        private readonly IMapper mapper;
         private readonly ITrackableService trackableService;
 
         public VideoService(
             MomentoDbContext context,
-            IMapper mapper,
             ITrackableService trackableService)
         {
             this.context = context;
-            this.mapper = mapper;
             this.trackableService = trackableService;
         }
 #endregion
@@ -47,7 +44,7 @@
 
             trackableService.RegisterViewing(video, DateTime.UtcNow, true);
 
-            var contentView = mapper.Map<VideoView>(video);
+            var contentView = Mapper.Instance.Map<VideoView>(video);
 
             return contentView;
         }

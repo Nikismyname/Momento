@@ -1,9 +1,11 @@
 ﻿namespace Momento.Services.Models.VideoModels
 {
     using Momento.Models.Enums;
+    using Momento.Models.Videos;
+    using Momento.Services.Models.Contracts;
     using System.Collections.Generic;
 
-    public class VideoNoteView
+    public class VideoNoteView : IMapFrom<VideoNote>
     {
         public VideoNoteView()
         {

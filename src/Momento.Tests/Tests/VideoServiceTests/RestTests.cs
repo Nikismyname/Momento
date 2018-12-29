@@ -11,6 +11,7 @@
     using Momento.Services.Models.VideoModels;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
+    using Momento.Tests.Utilities;
     using Momento.Web.Profiles;
     using NUnit.Framework;
     using System;
@@ -25,31 +26,29 @@
         {
             base.Setup();
 
-            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(new MomentoProfile()));
-            var mapper = new Mapper(configuration);
-
             var trackableService = new TrackableService(this.context);
 
             this.videoService = new VideoService(
                     this.context,
-                    mapper,
                     trackableService);
         }
         #endregion
 
         #region GetView
-        [Test]
+        [Test]///Checked
         public void GetViewThrowsIfVideoNotFound()
         {
-            Action action = () => this.videoService.GetView(42);
+            const int NonExistantVideoId = 42;
+
+            Action action = () => this.videoService.GetView(NonExistantVideoId);
             action.Should().Throw<ItemNotFound>().WithMessage("Video you are trying to view does not exist in the database!");
         }
 
-        [Test]
+        [Test]///Checked
         public void GetViewShouldReturnCorrectView()
         {
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.PeshoId);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.PeshoId);
             var resultView = this.videoService.GetView(video.Id);
             var expectedResultView = new VideoView
             {
@@ -62,11 +61,11 @@
             resultView.Should().BeEquivalentTo(expectedResultView);
         }
 
-        [Test]
+        [Test]///Checked
         public void GetViewShouldReturnCorrectViewWithNestedNotes()
         {
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.PeshoId, true);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.PeshoId, true);
             var resultView = this.videoService.GetView(video.Id);
             var expectedResultView = new VideoView
             {
@@ -83,49 +82,54 @@
 
         #region Create
         ///A little iffy how to test that it returns the right index 
-        [Test]
+        [Test]///Checked
         public void CreateThrowsIfDirectoryDoesNotExist()
         {
             const int NonExistantDirectoryId = 13;
             const string NonExistantUsername = "NonExistantUsername";
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.videoService.Create(NonExistantDirectoryId, NonExistantUsername);
+
             action.Should().Throw<ItemNotFound>().WithMessage("The Directory you selected for creating the new video notes in, does not exist!");
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateThrowsIfUserDoesNotExist()
         {
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
             const string NonExistantUsername = "NonExistantUsername";
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.videoService.Create(ExistingDirecotryId, NonExistantUsername);
             action.Should().Throw<UserNotFound>();
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateThrowsIfDirectoryDoesNotBelongToUser()
         {
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
-            string ExistingUsername = VideoS.PeshoUsername;
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
+            string ExistingUsername = UserS.PeshoUsername;
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
             action.Should().Throw<AccessDenied>().WithMessage("The directory you are trying to create a video on does note belong to you!");
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateCreatsVideo()
         {
             ///Also seeds their root directories
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
-            string ExistingUsername = VideoS.GoshoUsername;
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
+            string ExistingUsername = UserS.GoshoUsername;
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
             action.Invoke();
 
@@ -135,17 +139,17 @@
                 .SingleOrDefault();
 
             video.DirectoryId.Should().Be(ExistingDirecotryId);
-            video.UserId.Should().Be(VideoS.GoshoId);
+            video.UserId.Should().Be(UserS.GoshoId);
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateReturnsTheVideosId()
         {
             ///Also seeds their root directories
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
-            string ExistingUsername = VideoS.GoshoUsername;
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
+            string ExistingUsername = UserS.GoshoUsername;
 
             Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
             var videoId = funk.Invoke();
@@ -155,16 +159,16 @@
                 .Videos
                 .SingleOrDefault();
 
-            videoId.Should().Be(videoId);
+            videoId.Should().Be(video.Id);
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateSetNewVidosOrderTo0WhenItIsTheFirstVideoInAdirectory()
         {
             ///Also seeds their root directories
-            VideoS.SeedPeshoAndGosho(context);
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
-            string ExistingUsername = VideoS.GoshoUsername;
+            UserS.SeedPeshoAndGosho(context);
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
+            string ExistingUsername = UserS.GoshoUsername;
 
             Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
             var videoId = funk.Invoke();
@@ -173,13 +177,12 @@
             video.Order.Should().Be(0);
         }
 
-        [Test]
+        [Test]///Checked
         public void CreateSetNewVidosOrderToTheCountOfVideosMinusOne()
         {
-            ///Also seeds their root directories
-            VideoS.SeedPeshoAndGosho(context);
-            int ExistingDirecotryId = VideoS.GoshoRootDirId;
-            string ExistingUsername = VideoS.GoshoUsername;
+            UserS.SeedPeshoAndGosho(context);
+            int ExistingDirecotryId = UserS.GoshoRootDirId;
+            string ExistingUsername = UserS.GoshoUsername;
 
             Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
             funk.Invoke();
@@ -194,41 +197,41 @@
         #endregion
 
         #region GetVideoForEdit 
-        [Test]
+        [Test]///Checked
         public void GetVideoForEditShouldThrowIfVideoIsNotFound()
         {
             var nonExistantVideoId = 42;
-            VideoS.SeedPeshoAndGosho(context);
-            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(nonExistantVideoId, VideoS.GoshoUsername);
+            UserS.SeedPeshoAndGosho(context);
+            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(nonExistantVideoId, UserS.GoshoUsername);
             function.Should().Throw<ItemNotFound>().WithMessage("The video you are trying to edit does not exist!");
         }
 
-        [Test]
+        [Test]///Checked
         public void GetVideoForEditShouldThrowIfUserIsNotFound()
         {
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
             var nonExistantUsername = "Gosho420";
 
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
             Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, nonExistantUsername);
             function.Should().Throw<UserNotFound>();
         }
 
-        [Test]
+        [Test]///Checked
         public void GetVideoForEditShouldThrowIfVideoDoesNoteBelongToUser()
         {
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
-            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, VideoS.PeshoUsername);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
+            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, UserS.PeshoUsername);
             function.Should().Throw<AccessDenied>().WithMessage("You can note edit video that does not belong to you!");
         }
 
-        [Test]
+        [Test]///Checked
         public void GetVideoForEditShouldReturnCorrectResult()
         {
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId, true);
-            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, VideoS.GoshoUsername);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId, true);
+            Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, UserS.GoshoUsername);
             var result = function.Invoke();
 
             var dbNote0 = video.Notes.SingleOrDefault(x=>x.Order == 0);
@@ -262,43 +265,43 @@
         #endregion
 
         #region Delete
-        [Test]
+        [Test]///Checked
         public void DeleteShouldThrowIfVideIsNotFound()
         {
             var nonExistantVideoId = 42;
-            VideoS.SeedPeshoAndGosho(context);
-            Action action = () => this.videoService.Delete(nonExistantVideoId, VideoS.GoshoUsername, DateTime.UtcNow);
+            UserS.SeedPeshoAndGosho(context);
+            Action action = () => this.videoService.Delete(nonExistantVideoId, UserS.GoshoUsername, DateTime.UtcNow);
             action.Should().Throw<ItemNotFound>().WithMessage("The video you are trying to delete does not exist!");
         }
 
-        [Test]
+        [Test]///Checked
         public void DeleteShouldThrowIfUserIsNotFound()
         {
-            VideoS.SeedPeshoAndGosho(context);
+            UserS.SeedPeshoAndGosho(context);
             var nonExistantUsername = "Gosho420";
 
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
             Action action = () => this.videoService.Delete(video.Id, nonExistantUsername, DateTime.UtcNow);
             action.Should().Throw<UserNotFound>();
 
         }
 
-        [Test]
+        [Test]///Checked
         public void DeleteShouldThrowIfVideoDoesNoteBelongToUser()
         {
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId);
-            Action action = () => this.videoService.Delete(video.Id, VideoS.PeshoUsername, DateTime.UtcNow);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
+            Action action = () => this.videoService.Delete(video.Id, UserS.PeshoUsername, DateTime.UtcNow);
             action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to delete does not belong to you!");
         }
 
-        [Test]
+        [Test]///Checked
         public void DeleteShouldSoftDeleteTheVideoAndAllItsNotes()
         {
             var now = DateTime.Now;
-            VideoS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideosToUserWithNotes(context, VideoS.GoshoId, true);
-            Action action = () => this.videoService.Delete(video.Id, VideoS.GoshoUsername, now);
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId, true);
+            Action action = () => this.videoService.Delete(video.Id, UserS.GoshoUsername, now);
             action.Invoke();
             video.IsDeleted.Should().Be(true);
             video.DeletedOn.Should().Be(now);

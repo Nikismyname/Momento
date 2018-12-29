@@ -28,11 +28,11 @@
             CreateMap<Directory, DirectoryIndex>();
 
 
-            CreateMap<VideoNote, VideoNoteView>();
+            //CreateMap<VideoNote, VideoNoteView>();
 
-            CreateMap<Video, VideoView>()
-                .ForMember(dest => dest.Notes,
-                           opt => opt.MapFrom(src => src.Notes.Where(x=>x.NoteId==null)));
+            //CreateMap<Video, VideoView>()
+            //    .ForMember(dest => dest.Notes,
+            //               opt => opt.MapFrom(src => src.Notes.Where(x=>x.NoteId==null)));
 
 
             CreateMap<Code, CodeCreate>().ReverseMap();

@@ -240,6 +240,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-expanding-textarea */ "./node_modules/react-expanding-textarea/lib/ExpandingTextarea.js");
 /* harmony import */ var react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _Helpers_Constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helpers/Constants */ "./ReactSource/Navigation/Components/Helpers/Constants.js");
+/* harmony import */ var react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-sortable-hoc */ "./node_modules/react-sortable-hoc/dist/commonjs/index.js");
+/* harmony import */ var react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4__);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -271,6 +273,7 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 
 
+
 var Compare =
 /*#__PURE__*/
 function (_Component) {
@@ -283,13 +286,16 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Compare).call(this, props));
 
-    if (typeof _this.props.initialComp != "undefined") {
+    if (typeof _this.props.initialComp != "undefined" && _this.props.initialComp != null) {
+      console.log("server side");
       _this.state = {
         initialState: JSON.parse(JSON.stringify(_this.props.initialComp)),
         currentState: JSON.parse(JSON.stringify(_this.props.initialComp))
       };
     } else {
+      console.log("no server side");
       _this.state = {
+        testItems: [1, 2, 3, 4, 5, 6],
         initialState: {
           id: -1,
           directoryId: null,
@@ -300,40 +306,38 @@ function (_Component) {
           items: []
         },
         currentState: {
+          hiddenComps: [],
+          searchComments: true,
+          searchSource: true,
+          searchTarget: true,
+          searchQuery: "",
           id: -1,
           directoryId: null,
           name: "",
           description: "",
           sourceLanguage: "",
           targetLanguage: "",
-          items: []
+          items: [] /// {inPageId: 0, id: 0, comment: "", source: "", targer: "", order: 0,  }
+
         }
       };
     }
 
-    _this.onClickNewComparison = _this.onClickNewComparison.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.textAreaOnChanger = _this.textAreaOnChange.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.compTextAreaOnChange = _this.compTextAreaOnChange.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onChangeTextArea = _this.onChangeTextArea.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onChangeCompTextArea = _this.onChangeCompTextArea.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onChangeSearchQuery = _this.onChangeSearchQuery.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onChangeCheckBox = _this.onChangeCheckBox.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickSave = _this.onClickSave.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onClickNewComparison = _this.onClickNewComparison.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.renderCompItems = _this.renderCompItems.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.renderSearchBar = _this.renderSearchBar.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.renderComparisonData = _this.renderComparisonData.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.fiterSerchResults = _this.fiterSerchResults.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onSortEnd = _this.onSortEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
   _createClass(Compare, [{
-    key: "test",
-    value: function test() {
-      var arr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-      arr = arr.orderBy(function (x) {
-        return x;
-      }).thenBy(function (x) {
-        return -x;
-      }).select(function (x) {
-        return x + 2;
-      });
-      return arr.select(function (x) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, x);
-      });
-    }
-  }, {
     key: "componentWillMount",
     value: function componentWillMount() {
       var _this2 = this;
@@ -367,17 +371,35 @@ function (_Component) {
       }).then(function (response) {
         return response.json();
       }).then(function (data) {
-        console.log(data);
+        var fieldsTocheckForNull = ["name", "description", "sourceLanguage", "targetLanguage"];
+        var newCurrentState = JSON.parse(JSON.stringify(data));
+
+        for (var i = 0; i < fieldsTocheckForNull.length; i++) {
+          if (newCurrentState[fieldsTocheckForNull[i]] === null) {
+            newCurrentState[fieldsTocheckForNull[i]] = "";
+          }
+        }
+
+        newCurrentState.hiddenComps = [];
+
+        for (var i = 0; i < newCurrentState.items.length; i++) {
+          newCurrentState.items[i].inPageId = i;
+        }
+
+        newCurrentState.searchComments = true;
+        newCurrentState.searchSource = true;
+        newCurrentState.searchTarget = true;
+        newCurrentState.searchQuery = "";
 
         _this2.setState({
           initialState: JSON.parse(JSON.stringify(data)),
-          currentState: JSON.parse(JSON.stringify(data))
+          currentState: newCurrentState
         });
       });
     }
   }, {
-    key: "compTextAreaOnChange",
-    value: function compTextAreaOnChange(propName, event) {
+    key: "onChangeCompTextArea",
+    value: function onChangeCompTextArea(propName, event) {
       var newState = this.state.currentState;
       newState[propName] = event.target.value;
       this.setState({
@@ -400,7 +422,7 @@ function (_Component) {
           className: "col-sm-6"
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
           onChange: function onChange(e) {
-            return _this3.compTextAreaOnChange(x, e);
+            return _this3.onChangeCompTextArea(x, e);
           },
           id: "nameInput",
           value: _this3.state.currentState[x],
@@ -409,8 +431,8 @@ function (_Component) {
       });
     }
   }, {
-    key: "textAreaOnChange",
-    value: function textAreaOnChange(index, type, event) {
+    key: "onChangeTextArea",
+    value: function onChangeTextArea(index, type, event) {
       var newCurrentState = this.state.currentState;
       newCurrentState.items[index][type] = event.target.value;
       this.setState({
@@ -418,49 +440,199 @@ function (_Component) {
       });
     }
   }, {
-    key: "renderCompItemsTextAreas",
-    value: function renderCompItemsTextAreas() {
+    key: "onChangeSearchQuery",
+    value: function onChangeSearchQuery(e) {
+      var value = e.target.value;
+      var newCurrentState = this.state.currentState;
+      newCurrentState.searchQuery = value;
+      this.setState({
+        currentState: newCurrentState
+      });
+
+      if (this.state.currentState.searchComments == false && this.state.currentState.searchSource == false && this.state.currentState.searchTarget == false) {
+        var newCurrentState3 = this.state.currentState;
+        newCurrentState3.hiddenComps = [];
+        this.setState({
+          currentState: newCurrentState3
+        });
+        return;
+      }
+
+      this.fiterSerchResults(value);
+    }
+  }, {
+    key: "fiterSerchResults",
+    value: function fiterSerchResults(value) {
       var _this4 = this;
 
-      return this.state.currentState.items.map(function (x, ind) {
+      if (value.length == 0) {
+        var newCurrentState3 = this.state.currentState;
+        newCurrentState3.hiddenComps = [];
+        this.setState({
+          currentState: newCurrentState3
+        });
+        return;
+      }
+
+      var compsToHide = this.state.currentState.items.filter(function (x) {
+        var matchesComment = false;
+        var matchesTarger = false;
+        var matchesSource = false;
+
+        if (_this4.state.currentState.searchComments) {
+          if (x.comment.includes(value)) {
+            matchesComment = true;
+          }
+        }
+
+        if (_this4.state.currentState.searchTarget) {
+          if (x.target.includes(value)) {
+            matchesTarger = true;
+          }
+        }
+
+        if (_this4.state.currentState.searchSource) {
+          if (x.source.includes(value)) {
+            matchesSource = true;
+          }
+        }
+
+        if (matchesComment || matchesSource || matchesTarger) {
+          return false;
+        } else {
+          return true;
+        }
+      }).map(function (x) {
+        return x.inPageId;
+      });
+      var newCurrentState = this.state.currentState;
+      newCurrentState.hiddenComps = compsToHide;
+      this.setState({
+        currentState: newCurrentState
+      });
+    }
+  }, {
+    key: "onChangeCheckBox",
+    value: function onChangeCheckBox(e, propName) {
+      var newCurrentState = this.state.currentState;
+      newCurrentState[propName] = e.target.checked;
+      this.setState({
+        currentState: newCurrentState
+      });
+
+      if (this.state.currentState.searchComments == false && this.state.currentState.searchSource == false && this.state.currentState.searchTarget == false) {
+        var newCurrentState3 = this.state.currentState;
+        newCurrentState3.hiddenComps = [];
+        this.setState({
+          currentState: newCurrentState3
+        });
+        return;
+      }
+
+      this.fiterSerchResults(this.state.currentState.searchQuery);
+    }
+  }, {
+    key: "renderCompItems",
+    value: function renderCompItems() {
+      var _this5 = this;
+
+      console.log(this.state.currentState.hiddenComps);
+      return this.state.currentState.items.filter(function (x) {
+        return !_this5.state.currentState.hiddenComps.includes(x.inPageId);
+      }).map(function (x, ind) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "comparison-div mb-4",
-          key: x.inPageId
+          key: "CompItem" + x.inPageId
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "d-flex"
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
           onChange: function onChange(e) {
-            return _this4.textAreaOnChange(ind, "source", e);
+            return _this5.onChangeTextArea(ind, "source", e);
           },
           style: {
             overflow: "hidden"
           },
           type: "text",
-          value: _this4.state.currentState.items[ind].source,
+          value: _this5.state.currentState.items.filter(function (y) {
+            return y.inPageId == x.inPageId;
+          })[0].source,
           className: "form-control-black"
         }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
           onChange: function onChange(e) {
-            return _this4.textAreaOnChange(ind, "target", e);
+            return _this5.onChangeTextArea(ind, "target", e);
           },
           style: {
             overflow: "hidden"
           },
           type: "text",
-          value: _this4.state.currentState.items[ind].target,
+          value: _this5.state.currentState.items.filter(function (y) {
+            return y.inPageId == x.inPageId;
+          })[0].target,
           className: "form-control-black"
         })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
           onChange: function onChange(e) {
-            return _this4.textAreaOnChange(ind, "comment", e);
+            return _this5.onChangeTextArea(ind, "comment", e);
           },
           style: {
             overflow: "hidden"
           },
           type: "text",
-          value: _this4.state.currentState.items[ind].comment,
-          placeholder: x.id,
+          value: _this5.state.currentState.items.filter(function (y) {
+            return y.inPageId == x.inPageId;
+          })[0].comment,
+          placeholder: x.inPageId,
           className: "form-control-black"
-        }));
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, x.inPageId));
       });
+    }
+  }, {
+    key: "renderSearchBar",
+    value: function renderSearchBar() {
+      var _this6 = this;
+
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "row mb-4 mt-4"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: ""
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "d-flex col-sm-6"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        id: "source",
+        className: "form-control-black",
+        type: "checkbox",
+        checked: this.state.currentState.searchSource,
+        onChange: function onChange(e) {
+          return _this6.onChangeCheckBox(e, "searchSource");
+        }
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+        htmlFor: "source"
+      }, "Source"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        id: "target",
+        className: "form-control-black",
+        type: "checkbox",
+        checked: this.state.currentState.searchTarget,
+        onChange: function onChange(e) {
+          return _this6.onChangeCheckBox(e, "searchTarget");
+        }
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+        htmlFor: "target"
+      }, "Target"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        id: "comment",
+        className: "form-control-black",
+        type: "checkbox",
+        checked: this.state.currentState.searchComments,
+        onChange: function onChange(e) {
+          return _this6.onChangeCheckBox(e, "searchComments");
+        }
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+        htmlFor: "comment"
+      }, "Comment")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "col-sm-6"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        className: "form-control-black",
+        value: this.state.currentState.searchQuery,
+        onChange: this.onChangeSearchQuery
+      })));
     }
   }, {
     key: "onClickNewComparison",
@@ -475,10 +647,21 @@ function (_Component) {
         }))) + 1;
       }
 
+      var nextOrder;
+
+      if (this.state.currentState.items.length == 0) {
+        nextOrder = 0;
+      } else {
+        nextOrder = Math.max.apply(Math, _toConsumableArray(this.state.currentState.items.map(function (x) {
+          return x.order;
+        }))) + 1;
+      }
+
       var newState = this.state.currentState;
       newState.items.push({
+        id: 0,
         inPageId: nextId,
-        dbId: 0,
+        order: nextOrder,
         source: "",
         target: "",
         comment: ""
@@ -492,14 +675,15 @@ function (_Component) {
     value: function onClickSave() {
       ///This collects all the newly created items
       var newItemsCollection = this.state.currentState.items.filter(function (x) {
-        return x.dbId == 0;
+        return x.id == 0;
       });
+      console.log(newItemsCollection);
       var changes = [];
       var preExistingItems = this.state.initialState.items.sort(function (a, b) {
         return a - b;
       });
       var currentStateOfPEItems = this.state.currentState.items.filter(function (x) {
-        return x.dbId > 0;
+        return x.id > 0;
       }).sort(function (a, b) {
         return a - b;
       });
@@ -507,11 +691,12 @@ function (_Component) {
       if (preExistingItems.length != currentStateOfPEItems.length) {
         alert("The preexisting collection is not the same size!");
         return;
-      }
+      } ///TODO: Deleteion is not covered yet
+
 
       for (var i = 0; i < preExistingItems.length; i++) {
-        initialState = preExistingItems[i];
-        currentState = currentStateOfPEItems[i];
+        var initialState = preExistingItems[i];
+        var currentState = currentStateOfPEItems[i];
 
         for (var _prop in initialState) {
           if (initialState[_prop] != currentState[_prop]) {
@@ -558,9 +743,73 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this7 = this;
+
+      var SortableItem = Object(react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4__["SortableElement"])(function (_ref) {
+        var value = _ref.value,
+            index = _ref.index;
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "comparison-div mb-4",
+          key: "CompItem" + value.inPageId
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "d-flex"
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
+          onChange: function onChange(e) {
+            return _this7.onChangeTextArea(index, "source", e);
+          },
+          style: {
+            overflow: "hidden"
+          },
+          type: "text",
+          value: _this7.state.currentState.items.filter(function (y) {
+            return y.inPageId == value.inPageId;
+          })[0].source,
+          className: "form-control-black"
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
+          onChange: function onChange(e) {
+            return _this7.onChangeTextArea(index, "target", e);
+          },
+          style: {
+            overflow: "hidden"
+          },
+          type: "text",
+          value: _this7.state.currentState.items.filter(function (y) {
+            return y.inPageId == value.inPageId;
+          })[0].target,
+          className: "form-control-black"
+        })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_expanding_textarea__WEBPACK_IMPORTED_MODULE_2___default.a, {
+          onChange: function onChange(e) {
+            return _this7.onChangeTextArea(index, "comment", e);
+          },
+          style: {
+            overflow: "hidden"
+          },
+          type: "text",
+          value: _this7.state.currentState.items.filter(function (y) {
+            return y.inPageId == value.inPageId;
+          })[0].comment,
+          className: "form-control-black"
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, value.inPageId));
+      });
+      var SortableList = Object(react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4__["SortableContainer"])(function (_ref2) {
+        var items = _ref2.items;
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, items.map(function (value, index) {
+          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(SortableItem, {
+            key: "item-".concat(index),
+            index: index,
+            value: value
+          });
+        }));
+      });
+      var itemsTorender = this.state.currentState.items.filter(function (x) {
+        return !_this7.state.currentState.hiddenComps.includes(x.inPageId);
+      });
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "text-center"
-      }, this.state.currentState.id), this.renderComparisonData(), this.renderCompItemsTextAreas(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["NavLink"], {
+      }, this.state.currentState.id), this.renderComparisonData(), this.renderSearchBar(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(SortableList, {
+        items: itemsTorender,
+        onSortEnd: this.onSortEnd
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["NavLink"], {
         to: "".concat(_Helpers_Constants__WEBPACK_IMPORTED_MODULE_3__["rootDir"], "/").concat(this.state.currentState.directoryId),
         className: "btn btn-primary"
       }, "Back"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
@@ -568,7 +817,23 @@ function (_Component) {
       }, "New Comparison"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "btn btn-success",
         onClick: this.onClickSave
-      }, "Save"), this.test());
+      }, "Save"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, "V01"));
+    }
+  }, {
+    key: "onSortEnd",
+    value: function onSortEnd(_ref3) {
+      var oldIndex = _ref3.oldIndex,
+          newIndex = _ref3.newIndex;
+
+      ///Stop sorting when searching since it makes no sense to sort there
+      if (this.state.currentState.hiddenComps.length > 0) {
+        return;
+      }
+
+      var newCurrentState = this.state.currentState;
+      newCurrentState.items = Object(react_sortable_hoc__WEBPACK_IMPORTED_MODULE_4__["arrayMove"])(newCurrentState.items, oldIndex, newIndex), this.setState({
+        currentState: newCurrentState
+      });
     }
   }]);
 
@@ -778,7 +1043,7 @@ function (_Component) {
 
     _this.fetch = _this.fetch.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.navigateToDirectory = _this.navigateToDirectory.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.createFolderOnClick = _this.createFolderOnClick.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onClickCreateFolder = _this.onClickCreateFolder.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickDeleteDir = _this.onClickDeleteDir.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onClickNewCompareson = _this.onClickNewCompareson.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.setStateFunc = _this.setStateFunc.bind(_assertThisInitialized(_assertThisInitialized(_this)));
@@ -893,7 +1158,7 @@ function (_Component) {
       }, React.createElement("a", {
         href: "#",
         onClick: function onClick(e) {
-          return _this3.createFolderOnClick(e);
+          return _this3.onClickCreateFolder(e);
         }
       }, "Create Folder")), React.createElement("div", {
         "data-tip": "Creates new Video Notes in the current folder."
@@ -998,8 +1263,8 @@ function (_Component) {
       });
     }
   }, {
-    key: "createFolderOnClick",
-    value: function createFolderOnClick(e) {
+    key: "onClickCreateFolder",
+    value: function onClickCreateFolder(e) {
       var _this9 = this;
 
       e.preventDefault();
@@ -69406,6 +69671,1335 @@ function withSideEffect(reducePropsToState, handleStateChangeOnClient, mapStateO
 
 module.exports = withSideEffect;
 
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/Manager.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/Manager.js ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Manager = function () {
+  function Manager() {
+    _classCallCheck(this, Manager);
+
+    this.refs = {};
+  }
+
+  _createClass(Manager, [{
+    key: "add",
+    value: function add(collection, ref) {
+      if (!this.refs[collection]) {
+        this.refs[collection] = [];
+      }
+
+      this.refs[collection].push(ref);
+    }
+  }, {
+    key: "remove",
+    value: function remove(collection, ref) {
+      var index = this.getIndex(collection, ref);
+
+      if (index !== -1) {
+        this.refs[collection].splice(index, 1);
+      }
+    }
+  }, {
+    key: "isActive",
+    value: function isActive() {
+      return this.active;
+    }
+  }, {
+    key: "getActive",
+    value: function getActive() {
+      var _this = this;
+
+      return this.refs[this.active.collection].find(
+      // eslint-disable-next-line eqeqeq
+      function (_ref) {
+        var node = _ref.node;
+        return node.sortableInfo.index == _this.active.index;
+      });
+    }
+  }, {
+    key: "getIndex",
+    value: function getIndex(collection, ref) {
+      return this.refs[collection].indexOf(ref);
+    }
+  }, {
+    key: "getOrderedRefs",
+    value: function getOrderedRefs() {
+      var collection = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.active.collection;
+
+      return this.refs[collection].sort(sortByIndex);
+    }
+  }]);
+
+  return Manager;
+}();
+
+exports.default = Manager;
+
+
+function sortByIndex(_ref2, _ref3) {
+  var index1 = _ref2.node.sortableInfo.index;
+  var index2 = _ref3.node.sortableInfo.index;
+
+  return index1 - index2;
+}
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/SortableContainer/index.js":
+/*!**********************************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/SortableContainer/index.js ***!
+  \**********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.default = sortableContainer;
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _reactDom = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+
+var _invariant = __webpack_require__(/*! invariant */ "./node_modules/invariant/browser.js");
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _Manager = __webpack_require__(/*! ../Manager */ "./node_modules/react-sortable-hoc/dist/commonjs/Manager.js");
+
+var _Manager2 = _interopRequireDefault(_Manager);
+
+var _utils = __webpack_require__(/*! ../utils */ "./node_modules/react-sortable-hoc/dist/commonjs/utils.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// Export Higher Order Sortable Container Component
+function sortableContainer(WrappedComponent) {
+  var _class, _temp;
+
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { withRef: false };
+
+  return _temp = _class = function (_Component) {
+    _inherits(_class, _Component);
+
+    function _class(props) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
+
+      _this.handleStart = function (event) {
+        var _this$props = _this.props,
+            distance = _this$props.distance,
+            shouldCancelStart = _this$props.shouldCancelStart;
+
+
+        if (event.button === 2 || shouldCancelStart(event)) {
+          return false;
+        }
+
+        _this._touched = true;
+        _this._pos = (0, _utils.getPosition)(event);
+
+        var node = (0, _utils.closest)(event.target, function (el) {
+          return el.sortableInfo != null;
+        });
+
+        if (node && node.sortableInfo && _this.nodeIsChild(node) && !_this.state.sorting) {
+          var useDragHandle = _this.props.useDragHandle;
+          var _node$sortableInfo = node.sortableInfo,
+              index = _node$sortableInfo.index,
+              collection = _node$sortableInfo.collection;
+
+
+          if (useDragHandle && !(0, _utils.closest)(event.target, function (el) {
+            return el.sortableHandle != null;
+          })) return;
+
+          _this.manager.active = { index: index, collection: collection };
+
+          /*
+          * Fixes a bug in Firefox where the :active state of anchor tags
+          * prevent subsequent 'mousemove' events from being fired
+          * (see https://github.com/clauderic/react-sortable-hoc/issues/118)
+          */
+          if (!(0, _utils.isTouchEvent)(event) && event.target.tagName.toLowerCase() === 'a') {
+            event.preventDefault();
+          }
+
+          if (!distance) {
+            if (_this.props.pressDelay === 0) {
+              _this.handlePress(event);
+            } else {
+              _this.pressTimer = setTimeout(function () {
+                return _this.handlePress(event);
+              }, _this.props.pressDelay);
+            }
+          }
+        }
+      };
+
+      _this.nodeIsChild = function (node) {
+        return node.sortableInfo.manager === _this.manager;
+      };
+
+      _this.handleMove = function (event) {
+        var _this$props2 = _this.props,
+            distance = _this$props2.distance,
+            pressThreshold = _this$props2.pressThreshold;
+
+
+        if (!_this.state.sorting && _this._touched) {
+          var position = (0, _utils.getPosition)(event);
+          var delta = _this._delta = {
+            x: _this._pos.x - position.x,
+            y: _this._pos.y - position.y
+          };
+          var combinedDelta = Math.abs(delta.x) + Math.abs(delta.y);
+
+          if (!distance && (!pressThreshold || pressThreshold && combinedDelta >= pressThreshold)) {
+            clearTimeout(_this.cancelTimer);
+            _this.cancelTimer = setTimeout(_this.cancel, 0);
+          } else if (distance && combinedDelta >= distance && _this.manager.isActive()) {
+            _this.handlePress(event);
+          }
+        }
+      };
+
+      _this.handleEnd = function () {
+        _this._touched = false;
+        _this.cancel();
+      };
+
+      _this.cancel = function () {
+        var distance = _this.props.distance;
+        var sorting = _this.state.sorting;
+
+
+        if (!sorting) {
+          if (!distance) {
+            clearTimeout(_this.pressTimer);
+          }
+          _this.manager.active = null;
+        }
+      };
+
+      _this.handlePress = function (event) {
+        var active = _this.manager.getActive();
+
+        if (active) {
+          var _this$props3 = _this.props,
+              axis = _this$props3.axis,
+              getHelperDimensions = _this$props3.getHelperDimensions,
+              helperClass = _this$props3.helperClass,
+              hideSortableGhost = _this$props3.hideSortableGhost,
+              onSortStart = _this$props3.onSortStart,
+              useWindowAsScrollContainer = _this$props3.useWindowAsScrollContainer;
+          var node = active.node,
+              collection = active.collection;
+          var index = node.sortableInfo.index;
+
+          var margin = (0, _utils.getElementMargin)(node);
+
+          var containerBoundingRect = _this.container.getBoundingClientRect();
+          var dimensions = getHelperDimensions({ index: index, node: node, collection: collection });
+
+          _this.node = node;
+          _this.margin = margin;
+          _this.width = dimensions.width;
+          _this.height = dimensions.height;
+          _this.marginOffset = {
+            x: _this.margin.left + _this.margin.right,
+            y: Math.max(_this.margin.top, _this.margin.bottom)
+          };
+          _this.boundingClientRect = node.getBoundingClientRect();
+          _this.containerBoundingRect = containerBoundingRect;
+          _this.index = index;
+          _this.newIndex = index;
+
+          _this.axis = {
+            x: axis.indexOf('x') >= 0,
+            y: axis.indexOf('y') >= 0
+          };
+          _this.offsetEdge = (0, _utils.getEdgeOffset)(node, _this.container);
+          _this.initialOffset = (0, _utils.getPosition)(event);
+          _this.initialScroll = {
+            top: _this.container.scrollTop,
+            left: _this.container.scrollLeft
+          };
+
+          _this.initialWindowScroll = {
+            top: window.pageYOffset,
+            left: window.pageXOffset
+          };
+
+          var fields = node.querySelectorAll('input, textarea, select');
+          var clonedNode = node.cloneNode(true);
+          var clonedFields = [].concat(_toConsumableArray(clonedNode.querySelectorAll('input, textarea, select'))); // Convert NodeList to Array
+
+          clonedFields.forEach(function (field, index) {
+            if (field.type !== 'file' && fields[index]) {
+              field.value = fields[index].value;
+            }
+          });
+
+          _this.helper = _this.document.body.appendChild(clonedNode);
+
+          _this.helper.style.position = 'fixed';
+          _this.helper.style.top = _this.boundingClientRect.top - margin.top + 'px';
+          _this.helper.style.left = _this.boundingClientRect.left - margin.left + 'px';
+          _this.helper.style.width = _this.width + 'px';
+          _this.helper.style.height = _this.height + 'px';
+          _this.helper.style.boxSizing = 'border-box';
+          _this.helper.style.pointerEvents = 'none';
+
+          if (hideSortableGhost) {
+            _this.sortableGhost = node;
+            node.style.visibility = 'hidden';
+            node.style.opacity = 0;
+          }
+
+          _this.minTranslate = {};
+          _this.maxTranslate = {};
+          if (_this.axis.x) {
+            _this.minTranslate.x = (useWindowAsScrollContainer ? 0 : containerBoundingRect.left) - _this.boundingClientRect.left - _this.width / 2;
+            _this.maxTranslate.x = (useWindowAsScrollContainer ? _this.contentWindow.innerWidth : containerBoundingRect.left + containerBoundingRect.width) - _this.boundingClientRect.left - _this.width / 2;
+          }
+          if (_this.axis.y) {
+            _this.minTranslate.y = (useWindowAsScrollContainer ? 0 : containerBoundingRect.top) - _this.boundingClientRect.top - _this.height / 2;
+            _this.maxTranslate.y = (useWindowAsScrollContainer ? _this.contentWindow.innerHeight : containerBoundingRect.top + containerBoundingRect.height) - _this.boundingClientRect.top - _this.height / 2;
+          }
+
+          if (helperClass) {
+            var _this$helper$classLis;
+
+            (_this$helper$classLis = _this.helper.classList).add.apply(_this$helper$classLis, _toConsumableArray(helperClass.split(' ')));
+          }
+
+          _this.listenerNode = event.touches ? node : _this.contentWindow;
+          _utils.events.move.forEach(function (eventName) {
+            return _this.listenerNode.addEventListener(eventName, _this.handleSortMove, false);
+          });
+          _utils.events.end.forEach(function (eventName) {
+            return _this.listenerNode.addEventListener(eventName, _this.handleSortEnd, false);
+          });
+
+          _this.setState({
+            sorting: true,
+            sortingIndex: index
+          });
+
+          if (onSortStart) {
+            onSortStart({ node: node, index: index, collection: collection }, event);
+          }
+        }
+      };
+
+      _this.handleSortMove = function (event) {
+        var onSortMove = _this.props.onSortMove;
+
+        event.preventDefault(); // Prevent scrolling on mobile
+
+        _this.updatePosition(event);
+        _this.animateNodes();
+        _this.autoscroll();
+
+        if (onSortMove) {
+          onSortMove(event);
+        }
+      };
+
+      _this.handleSortEnd = function (event) {
+        var _this$props4 = _this.props,
+            hideSortableGhost = _this$props4.hideSortableGhost,
+            onSortEnd = _this$props4.onSortEnd;
+        var collection = _this.manager.active.collection;
+
+        // Remove the event listeners if the node is still in the DOM
+
+        if (_this.listenerNode) {
+          _utils.events.move.forEach(function (eventName) {
+            return _this.listenerNode.removeEventListener(eventName, _this.handleSortMove);
+          });
+          _utils.events.end.forEach(function (eventName) {
+            return _this.listenerNode.removeEventListener(eventName, _this.handleSortEnd);
+          });
+        }
+
+        // Remove the helper from the DOM
+        _this.helper.parentNode.removeChild(_this.helper);
+
+        if (hideSortableGhost && _this.sortableGhost) {
+          _this.sortableGhost.style.visibility = '';
+          _this.sortableGhost.style.opacity = '';
+        }
+
+        var nodes = _this.manager.refs[collection];
+        for (var i = 0, len = nodes.length; i < len; i++) {
+          var node = nodes[i];
+          var el = node.node;
+
+          // Clear the cached offsetTop / offsetLeft value
+          node.edgeOffset = null;
+
+          // Remove the transforms / transitions
+          el.style[_utils.vendorPrefix + 'Transform'] = '';
+          el.style[_utils.vendorPrefix + 'TransitionDuration'] = '';
+        }
+
+        // Stop autoscroll
+        clearInterval(_this.autoscrollInterval);
+        _this.autoscrollInterval = null;
+
+        // Update state
+        _this.manager.active = null;
+
+        _this.setState({
+          sorting: false,
+          sortingIndex: null
+        });
+
+        if (typeof onSortEnd === 'function') {
+          onSortEnd({
+            oldIndex: _this.index,
+            newIndex: _this.newIndex,
+            collection: collection
+          }, event);
+        }
+
+        _this._touched = false;
+      };
+
+      _this.autoscroll = function () {
+        var translate = _this.translate;
+        var direction = {
+          x: 0,
+          y: 0
+        };
+        var speed = {
+          x: 1,
+          y: 1
+        };
+        var acceleration = {
+          x: 10,
+          y: 10
+        };
+
+        if (translate.y >= _this.maxTranslate.y - _this.height / 2) {
+          direction.y = 1; // Scroll Down
+          speed.y = acceleration.y * Math.abs((_this.maxTranslate.y - _this.height / 2 - translate.y) / _this.height);
+        } else if (translate.x >= _this.maxTranslate.x - _this.width / 2) {
+          direction.x = 1; // Scroll Right
+          speed.x = acceleration.x * Math.abs((_this.maxTranslate.x - _this.width / 2 - translate.x) / _this.width);
+        } else if (translate.y <= _this.minTranslate.y + _this.height / 2) {
+          direction.y = -1; // Scroll Up
+          speed.y = acceleration.y * Math.abs((translate.y - _this.height / 2 - _this.minTranslate.y) / _this.height);
+        } else if (translate.x <= _this.minTranslate.x + _this.width / 2) {
+          direction.x = -1; // Scroll Left
+          speed.x = acceleration.x * Math.abs((translate.x - _this.width / 2 - _this.minTranslate.x) / _this.width);
+        }
+
+        if (_this.autoscrollInterval) {
+          clearInterval(_this.autoscrollInterval);
+          _this.autoscrollInterval = null;
+          _this.isAutoScrolling = false;
+        }
+
+        if (direction.x !== 0 || direction.y !== 0) {
+          _this.autoscrollInterval = setInterval(function () {
+            _this.isAutoScrolling = true;
+            var offset = {
+              left: 1 * speed.x * direction.x,
+              top: 1 * speed.y * direction.y
+            };
+            _this.scrollContainer.scrollTop += offset.top;
+            _this.scrollContainer.scrollLeft += offset.left;
+            _this.translate.x += offset.left;
+            _this.translate.y += offset.top;
+            _this.animateNodes();
+          }, 5);
+        }
+      };
+
+      _this.manager = new _Manager2.default();
+      _this.events = {
+        start: _this.handleStart,
+        move: _this.handleMove,
+        end: _this.handleEnd
+      };
+
+      (0, _invariant2.default)(!(props.distance && props.pressDelay), 'Attempted to set both `pressDelay` and `distance` on SortableContainer, you may only use one or the other, not both at the same time.');
+
+      _this.state = {};
+      return _this;
+    }
+
+    _createClass(_class, [{
+      key: 'getChildContext',
+      value: function getChildContext() {
+        return {
+          manager: this.manager
+        };
+      }
+    }, {
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        var _this2 = this;
+
+        var useWindowAsScrollContainer = this.props.useWindowAsScrollContainer;
+
+        /*
+         *  Set our own default rather than using defaultProps because Jest
+         *  snapshots will serialize window, causing a RangeError
+         *  https://github.com/clauderic/react-sortable-hoc/issues/249
+         */
+
+        var container = this.getContainer();
+
+        Promise.resolve(container).then(function (containerNode) {
+          _this2.container = containerNode;
+          _this2.document = _this2.container.ownerDocument || document;
+
+          var contentWindow = _this2.props.contentWindow || _this2.document.defaultView || window;
+
+          _this2.contentWindow = typeof contentWindow === 'function' ? contentWindow() : contentWindow;
+          _this2.scrollContainer = useWindowAsScrollContainer ? _this2.document.scrollingElement || _this2.document.documentElement : _this2.container;
+
+          var _loop = function _loop(key) {
+            if (_this2.events.hasOwnProperty(key)) {
+              _utils.events[key].forEach(function (eventName) {
+                return _this2.container.addEventListener(eventName, _this2.events[key], false);
+              });
+            }
+          };
+
+          for (var key in _this2.events) {
+            _loop(key);
+          }
+        });
+      }
+    }, {
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        var _this3 = this;
+
+        if (this.container) {
+          var _loop2 = function _loop2(key) {
+            if (_this3.events.hasOwnProperty(key)) {
+              _utils.events[key].forEach(function (eventName) {
+                return _this3.container.removeEventListener(eventName, _this3.events[key]);
+              });
+            }
+          };
+
+          for (var key in this.events) {
+            _loop2(key);
+          }
+        }
+      }
+    }, {
+      key: 'getLockPixelOffsets',
+      value: function getLockPixelOffsets() {
+        var width = this.width,
+            height = this.height;
+        var lockOffset = this.props.lockOffset;
+
+        var offsets = Array.isArray(lockOffset) ? lockOffset : [lockOffset, lockOffset];
+
+        (0, _invariant2.default)(offsets.length === 2, 'lockOffset prop of SortableContainer should be a single ' + 'value or an array of exactly two values. Given %s', lockOffset);
+
+        var _offsets = _slicedToArray(offsets, 2),
+            minLockOffset = _offsets[0],
+            maxLockOffset = _offsets[1];
+
+        return [(0, _utils.getLockPixelOffset)({ lockOffset: minLockOffset, width: width, height: height }), (0, _utils.getLockPixelOffset)({ lockOffset: maxLockOffset, width: width, height: height })];
+      }
+    }, {
+      key: 'updatePosition',
+      value: function updatePosition(event) {
+        var _props = this.props,
+            lockAxis = _props.lockAxis,
+            lockToContainerEdges = _props.lockToContainerEdges;
+
+
+        var offset = (0, _utils.getPosition)(event);
+        var translate = {
+          x: offset.x - this.initialOffset.x,
+          y: offset.y - this.initialOffset.y
+        };
+
+        // Adjust for window scroll
+        translate.y -= window.pageYOffset - this.initialWindowScroll.top;
+        translate.x -= window.pageXOffset - this.initialWindowScroll.left;
+
+        this.translate = translate;
+
+        if (lockToContainerEdges) {
+          var _getLockPixelOffsets = this.getLockPixelOffsets(),
+              _getLockPixelOffsets2 = _slicedToArray(_getLockPixelOffsets, 2),
+              minLockOffset = _getLockPixelOffsets2[0],
+              maxLockOffset = _getLockPixelOffsets2[1];
+
+          var minOffset = {
+            x: this.width / 2 - minLockOffset.x,
+            y: this.height / 2 - minLockOffset.y
+          };
+          var maxOffset = {
+            x: this.width / 2 - maxLockOffset.x,
+            y: this.height / 2 - maxLockOffset.y
+          };
+
+          translate.x = (0, _utils.limit)(this.minTranslate.x + minOffset.x, this.maxTranslate.x - maxOffset.x, translate.x);
+          translate.y = (0, _utils.limit)(this.minTranslate.y + minOffset.y, this.maxTranslate.y - maxOffset.y, translate.y);
+        }
+
+        if (lockAxis === 'x') {
+          translate.y = 0;
+        } else if (lockAxis === 'y') {
+          translate.x = 0;
+        }
+
+        this.helper.style[_utils.vendorPrefix + 'Transform'] = 'translate3d(' + translate.x + 'px,' + translate.y + 'px, 0)';
+      }
+    }, {
+      key: 'animateNodes',
+      value: function animateNodes() {
+        var _props2 = this.props,
+            transitionDuration = _props2.transitionDuration,
+            hideSortableGhost = _props2.hideSortableGhost,
+            onSortOver = _props2.onSortOver;
+
+        var nodes = this.manager.getOrderedRefs();
+        var containerScrollDelta = {
+          left: this.container.scrollLeft - this.initialScroll.left,
+          top: this.container.scrollTop - this.initialScroll.top
+        };
+        var sortingOffset = {
+          left: this.offsetEdge.left + this.translate.x + containerScrollDelta.left,
+          top: this.offsetEdge.top + this.translate.y + containerScrollDelta.top
+        };
+        var windowScrollDelta = {
+          top: window.pageYOffset - this.initialWindowScroll.top,
+          left: window.pageXOffset - this.initialWindowScroll.left
+        };
+        var prevIndex = this.newIndex;
+        this.newIndex = null;
+
+        for (var i = 0, len = nodes.length; i < len; i++) {
+          var node = nodes[i].node;
+
+          var index = node.sortableInfo.index;
+          var width = node.offsetWidth;
+          var height = node.offsetHeight;
+          var offset = {
+            width: this.width > width ? width / 2 : this.width / 2,
+            height: this.height > height ? height / 2 : this.height / 2
+          };
+
+          var translate = {
+            x: 0,
+            y: 0
+          };
+          var edgeOffset = nodes[i].edgeOffset;
+
+          // If we haven't cached the node's offsetTop / offsetLeft value
+
+          if (!edgeOffset) {
+            nodes[i].edgeOffset = edgeOffset = (0, _utils.getEdgeOffset)(node, this.container);
+          }
+
+          // Get a reference to the next and previous node
+          var nextNode = i < nodes.length - 1 && nodes[i + 1];
+          var prevNode = i > 0 && nodes[i - 1];
+
+          // Also cache the next node's edge offset if needed.
+          // We need this for calculating the animation in a grid setup
+          if (nextNode && !nextNode.edgeOffset) {
+            nextNode.edgeOffset = (0, _utils.getEdgeOffset)(nextNode.node, this.container);
+          }
+
+          // If the node is the one we're currently animating, skip it
+          if (index === this.index) {
+            if (hideSortableGhost) {
+              /*
+              * With windowing libraries such as `react-virtualized`, the sortableGhost
+              * node may change while scrolling down and then back up (or vice-versa),
+              * so we need to update the reference to the new node just to be safe.
+              */
+              this.sortableGhost = node;
+              node.style.visibility = 'hidden';
+              node.style.opacity = 0;
+            }
+            continue;
+          }
+
+          if (transitionDuration) {
+            node.style[_utils.vendorPrefix + 'TransitionDuration'] = transitionDuration + 'ms';
+          }
+
+          if (this.axis.x) {
+            if (this.axis.y) {
+              // Calculations for a grid setup
+              if (index < this.index && (sortingOffset.left + windowScrollDelta.left - offset.width <= edgeOffset.left && sortingOffset.top + windowScrollDelta.top <= edgeOffset.top + offset.height || sortingOffset.top + windowScrollDelta.top + offset.height <= edgeOffset.top)) {
+                // If the current node is to the left on the same row, or above the node that's being dragged
+                // then move it to the right
+                translate.x = this.width + this.marginOffset.x;
+                if (edgeOffset.left + translate.x > this.containerBoundingRect.width - offset.width) {
+                  // If it moves passed the right bounds, then animate it to the first position of the next row.
+                  // We just use the offset of the next node to calculate where to move, because that node's original position
+                  // is exactly where we want to go
+                  translate.x = nextNode.edgeOffset.left - edgeOffset.left;
+                  translate.y = nextNode.edgeOffset.top - edgeOffset.top;
+                }
+                if (this.newIndex === null) {
+                  this.newIndex = index;
+                }
+              } else if (index > this.index && (sortingOffset.left + windowScrollDelta.left + offset.width >= edgeOffset.left && sortingOffset.top + windowScrollDelta.top + offset.height >= edgeOffset.top || sortingOffset.top + windowScrollDelta.top + offset.height >= edgeOffset.top + height)) {
+                // If the current node is to the right on the same row, or below the node that's being dragged
+                // then move it to the left
+                translate.x = -(this.width + this.marginOffset.x);
+                if (edgeOffset.left + translate.x < this.containerBoundingRect.left + offset.width) {
+                  // If it moves passed the left bounds, then animate it to the last position of the previous row.
+                  // We just use the offset of the previous node to calculate where to move, because that node's original position
+                  // is exactly where we want to go
+                  translate.x = prevNode.edgeOffset.left - edgeOffset.left;
+                  translate.y = prevNode.edgeOffset.top - edgeOffset.top;
+                }
+                this.newIndex = index;
+              }
+            } else {
+              if (index > this.index && sortingOffset.left + windowScrollDelta.left + offset.width >= edgeOffset.left) {
+                translate.x = -(this.width + this.marginOffset.x);
+                this.newIndex = index;
+              } else if (index < this.index && sortingOffset.left + windowScrollDelta.left <= edgeOffset.left + offset.width) {
+                translate.x = this.width + this.marginOffset.x;
+                if (this.newIndex == null) {
+                  this.newIndex = index;
+                }
+              }
+            }
+          } else if (this.axis.y) {
+            if (index > this.index && sortingOffset.top + windowScrollDelta.top + offset.height >= edgeOffset.top) {
+              translate.y = -(this.height + this.marginOffset.y);
+              this.newIndex = index;
+            } else if (index < this.index && sortingOffset.top + windowScrollDelta.top <= edgeOffset.top + offset.height) {
+              translate.y = this.height + this.marginOffset.y;
+              if (this.newIndex == null) {
+                this.newIndex = index;
+              }
+            }
+          }
+          node.style[_utils.vendorPrefix + 'Transform'] = 'translate3d(' + translate.x + 'px,' + translate.y + 'px,0)';
+        }
+
+        if (this.newIndex == null) {
+          this.newIndex = this.index;
+        }
+
+        if (onSortOver && this.newIndex !== prevIndex) {
+          onSortOver({
+            newIndex: this.newIndex,
+            oldIndex: prevIndex,
+            index: this.index,
+            collection: this.manager.active.collection
+          });
+        }
+      }
+    }, {
+      key: 'getWrappedInstance',
+      value: function getWrappedInstance() {
+        (0, _invariant2.default)(config.withRef, 'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableContainer() call');
+
+        return this.refs.wrappedInstance;
+      }
+    }, {
+      key: 'getContainer',
+      value: function getContainer() {
+        var getContainer = this.props.getContainer;
+
+
+        if (typeof getContainer !== 'function') {
+          return (0, _reactDom.findDOMNode)(this);
+        }
+
+        return getContainer(config.withRef ? this.getWrappedInstance() : undefined);
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        var ref = config.withRef ? 'wrappedInstance' : null;
+
+        return _react2.default.createElement(WrappedComponent, _extends({
+          ref: ref
+        }, (0, _utils.omit)(this.props, 'contentWindow', 'useWindowAsScrollContainer', 'distance', 'helperClass', 'hideSortableGhost', 'transitionDuration', 'useDragHandle', 'pressDelay', 'pressThreshold', 'shouldCancelStart', 'onSortStart', 'onSortMove', 'onSortEnd', 'axis', 'lockAxis', 'lockOffset', 'lockToContainerEdges', 'getContainer', 'getHelperDimensions')));
+      }
+    }]);
+
+    return _class;
+  }(_react.Component), _class.displayName = (0, _utils.provideDisplayName)('sortableList', WrappedComponent), _class.defaultProps = {
+    axis: 'y',
+    transitionDuration: 300,
+    pressDelay: 0,
+    pressThreshold: 5,
+    distance: 0,
+    useWindowAsScrollContainer: false,
+    hideSortableGhost: true,
+    shouldCancelStart: function shouldCancelStart(e) {
+      // Cancel sorting if the event target is an `input`, `textarea`, `select` or `option`
+      var disabledElements = ['input', 'textarea', 'select', 'option', 'button'];
+
+      if (disabledElements.indexOf(e.target.tagName.toLowerCase()) !== -1) {
+        return true; // Return true to cancel sorting
+      }
+    },
+    lockToContainerEdges: false,
+    lockOffset: '50%',
+    getHelperDimensions: function getHelperDimensions(_ref) {
+      var node = _ref.node;
+      return {
+        width: node.offsetWidth,
+        height: node.offsetHeight
+      };
+    }
+  }, _class.propTypes = {
+    axis: _propTypes2.default.oneOf(['x', 'y', 'xy']),
+    distance: _propTypes2.default.number,
+    lockAxis: _propTypes2.default.string,
+    helperClass: _propTypes2.default.string,
+    transitionDuration: _propTypes2.default.number,
+    contentWindow: _propTypes2.default.any,
+    onSortStart: _propTypes2.default.func,
+    onSortMove: _propTypes2.default.func,
+    onSortOver: _propTypes2.default.func,
+    onSortEnd: _propTypes2.default.func,
+    shouldCancelStart: _propTypes2.default.func,
+    pressDelay: _propTypes2.default.number,
+    useDragHandle: _propTypes2.default.bool,
+    useWindowAsScrollContainer: _propTypes2.default.bool,
+    hideSortableGhost: _propTypes2.default.bool,
+    lockToContainerEdges: _propTypes2.default.bool,
+    lockOffset: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string, _propTypes2.default.arrayOf(_propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]))]),
+    getContainer: _propTypes2.default.func,
+    getHelperDimensions: _propTypes2.default.func
+  }, _class.childContextTypes = {
+    manager: _propTypes2.default.object.isRequired
+  }, _temp;
+}
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/SortableElement/index.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/SortableElement/index.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.default = sortableElement;
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _reactDom = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+
+var _invariant = __webpack_require__(/*! invariant */ "./node_modules/invariant/browser.js");
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _utils = __webpack_require__(/*! ../utils */ "./node_modules/react-sortable-hoc/dist/commonjs/utils.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// Export Higher Order Sortable Element Component
+function sortableElement(WrappedComponent) {
+  var _class, _temp;
+
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { withRef: false };
+
+  return _temp = _class = function (_Component) {
+    _inherits(_class, _Component);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+    }
+
+    _createClass(_class, [{
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        var _props = this.props,
+            collection = _props.collection,
+            disabled = _props.disabled,
+            index = _props.index;
+
+
+        if (!disabled) {
+          this.setDraggable(collection, index);
+        }
+      }
+    }, {
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(nextProps) {
+        if (this.props.index !== nextProps.index && this.node) {
+          this.node.sortableInfo.index = nextProps.index;
+        }
+        if (this.props.disabled !== nextProps.disabled) {
+          var collection = nextProps.collection,
+              disabled = nextProps.disabled,
+              index = nextProps.index;
+
+          if (disabled) {
+            this.removeDraggable(collection);
+          } else {
+            this.setDraggable(collection, index);
+          }
+        } else if (this.props.collection !== nextProps.collection) {
+          this.removeDraggable(this.props.collection);
+          this.setDraggable(nextProps.collection, nextProps.index);
+        }
+      }
+    }, {
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        var _props2 = this.props,
+            collection = _props2.collection,
+            disabled = _props2.disabled;
+
+
+        if (!disabled) this.removeDraggable(collection);
+      }
+    }, {
+      key: 'setDraggable',
+      value: function setDraggable(collection, index) {
+        var node = this.node = (0, _reactDom.findDOMNode)(this);
+
+        node.sortableInfo = {
+          index: index,
+          collection: collection,
+          manager: this.context.manager
+        };
+
+        this.ref = { node: node };
+        this.context.manager.add(collection, this.ref);
+      }
+    }, {
+      key: 'removeDraggable',
+      value: function removeDraggable(collection) {
+        this.context.manager.remove(collection, this.ref);
+      }
+    }, {
+      key: 'getWrappedInstance',
+      value: function getWrappedInstance() {
+        (0, _invariant2.default)(config.withRef, 'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableElement() call');
+        return this.refs.wrappedInstance;
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        var ref = config.withRef ? 'wrappedInstance' : null;
+
+        return _react2.default.createElement(WrappedComponent, _extends({
+          ref: ref
+        }, (0, _utils.omit)(this.props, 'collection', 'disabled', 'index')));
+      }
+    }]);
+
+    return _class;
+  }(_react.Component), _class.displayName = (0, _utils.provideDisplayName)('sortableElement', WrappedComponent), _class.contextTypes = {
+    manager: _propTypes2.default.object.isRequired
+  }, _class.propTypes = {
+    index: _propTypes2.default.number.isRequired,
+    collection: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
+    disabled: _propTypes2.default.bool
+  }, _class.defaultProps = {
+    collection: 0
+  }, _temp;
+}
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/SortableHandle/index.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/SortableHandle/index.js ***!
+  \*******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.default = sortableHandle;
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+
+var _invariant = __webpack_require__(/*! invariant */ "./node_modules/invariant/browser.js");
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _utils = __webpack_require__(/*! ../utils */ "./node_modules/react-sortable-hoc/dist/commonjs/utils.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// Export Higher Order Sortable Element Component
+function sortableHandle(WrappedComponent) {
+  var _class, _temp;
+
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { withRef: false };
+
+  return _temp = _class = function (_Component) {
+    _inherits(_class, _Component);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+    }
+
+    _createClass(_class, [{
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        var node = (0, _reactDom.findDOMNode)(this);
+        node.sortableHandle = true;
+      }
+    }, {
+      key: 'getWrappedInstance',
+      value: function getWrappedInstance() {
+        (0, _invariant2.default)(config.withRef, 'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableHandle() call');
+        return this.refs.wrappedInstance;
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        var ref = config.withRef ? 'wrappedInstance' : null;
+
+        return _react2.default.createElement(WrappedComponent, _extends({ ref: ref }, this.props));
+      }
+    }]);
+
+    return _class;
+  }(_react.Component), _class.displayName = (0, _utils.provideDisplayName)('sortableHandle', WrappedComponent), _temp;
+}
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/index.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/index.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.arrayMove = exports.sortableHandle = exports.sortableElement = exports.sortableContainer = exports.SortableHandle = exports.SortableElement = exports.SortableContainer = undefined;
+
+var _utils = __webpack_require__(/*! ./utils */ "./node_modules/react-sortable-hoc/dist/commonjs/utils.js");
+
+Object.defineProperty(exports, 'arrayMove', {
+  enumerable: true,
+  get: function get() {
+    return _utils.arrayMove;
+  }
+});
+
+var _SortableContainer2 = __webpack_require__(/*! ./SortableContainer */ "./node_modules/react-sortable-hoc/dist/commonjs/SortableContainer/index.js");
+
+var _SortableContainer3 = _interopRequireDefault(_SortableContainer2);
+
+var _SortableElement2 = __webpack_require__(/*! ./SortableElement */ "./node_modules/react-sortable-hoc/dist/commonjs/SortableElement/index.js");
+
+var _SortableElement3 = _interopRequireDefault(_SortableElement2);
+
+var _SortableHandle2 = __webpack_require__(/*! ./SortableHandle */ "./node_modules/react-sortable-hoc/dist/commonjs/SortableHandle/index.js");
+
+var _SortableHandle3 = _interopRequireDefault(_SortableHandle2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.SortableContainer = _SortableContainer3.default;
+exports.SortableElement = _SortableElement3.default;
+exports.SortableHandle = _SortableHandle3.default;
+exports.sortableContainer = _SortableContainer3.default;
+exports.sortableElement = _SortableElement3.default;
+exports.sortableHandle = _SortableHandle3.default;
+
+/***/ }),
+
+/***/ "./node_modules/react-sortable-hoc/dist/commonjs/utils.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/react-sortable-hoc/dist/commonjs/utils.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.vendorPrefix = exports.events = undefined;
+exports.arrayMove = arrayMove;
+exports.omit = omit;
+exports.closest = closest;
+exports.limit = limit;
+exports.getElementMargin = getElementMargin;
+exports.provideDisplayName = provideDisplayName;
+exports.getPosition = getPosition;
+exports.isTouchEvent = isTouchEvent;
+exports.getEdgeOffset = getEdgeOffset;
+exports.getLockPixelOffset = getLockPixelOffset;
+
+var _invariant = __webpack_require__(/*! invariant */ "./node_modules/invariant/browser.js");
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function arrayMove(arr, previousIndex, newIndex) {
+  var array = arr.slice(0);
+  if (newIndex >= array.length) {
+    var k = newIndex - array.length;
+    while (k-- + 1) {
+      array.push(undefined);
+    }
+  }
+  array.splice(newIndex, 0, array.splice(previousIndex, 1)[0]);
+  return array;
+}
+
+function omit(obj) {
+  for (var _len = arguments.length, keysToOmit = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    keysToOmit[_key - 1] = arguments[_key];
+  }
+
+  return Object.keys(obj).reduce(function (acc, key) {
+    if (keysToOmit.indexOf(key) === -1) acc[key] = obj[key];
+    return acc;
+  }, {});
+}
+
+var events = exports.events = {
+  start: ['touchstart', 'mousedown'],
+  move: ['touchmove', 'mousemove'],
+  end: ['touchend', 'touchcancel', 'mouseup']
+};
+
+var vendorPrefix = exports.vendorPrefix = function () {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return ''; // server environment
+  // fix for:
+  //    https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+  //    window.getComputedStyle() returns null inside an iframe with display: none
+  // in this case return an array with a fake mozilla style in it.
+  var styles = window.getComputedStyle(document.documentElement, '') || ['-moz-hidden-iframe'];
+  var pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || styles.OLink === '' && ['', 'o'])[1];
+
+  switch (pre) {
+    case 'ms':
+      return 'ms';
+    default:
+      return pre && pre.length ? pre[0].toUpperCase() + pre.substr(1) : '';
+  }
+}();
+
+function closest(el, fn) {
+  while (el) {
+    if (fn(el)) return el;
+    el = el.parentNode;
+  }
+}
+
+function limit(min, max, value) {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}
+
+function getCSSPixelValue(stringValue) {
+  if (stringValue.substr(-2) === 'px') {
+    return parseFloat(stringValue);
+  }
+  return 0;
+}
+
+function getElementMargin(element) {
+  var style = window.getComputedStyle(element);
+
+  return {
+    top: getCSSPixelValue(style.marginTop),
+    right: getCSSPixelValue(style.marginRight),
+    bottom: getCSSPixelValue(style.marginBottom),
+    left: getCSSPixelValue(style.marginLeft)
+  };
+}
+
+function provideDisplayName(prefix, Component) {
+  var componentName = Component.displayName || Component.name;
+
+  return componentName ? prefix + '(' + componentName + ')' : prefix;
+}
+
+function getPosition(event) {
+  if (event.touches && event.touches.length) {
+    return {
+      x: event.touches[0].pageX,
+      y: event.touches[0].pageY
+    };
+  } else if (event.changedTouches && event.changedTouches.length) {
+    return {
+      x: event.changedTouches[0].pageX,
+      y: event.changedTouches[0].pageY
+    };
+  } else {
+    return {
+      x: event.pageX,
+      y: event.pageY
+    };
+  }
+}
+
+function isTouchEvent(event) {
+  return event.touches && event.touches.length || event.changedTouches && event.changedTouches.length;
+}
+
+function getEdgeOffset(node, parent) {
+  var offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { top: 0, left: 0 };
+
+  // Get the actual offsetTop / offsetLeft value, no matter how deep the node is nested
+  if (node) {
+    var nodeOffset = {
+      top: offset.top + node.offsetTop,
+      left: offset.left + node.offsetLeft
+    };
+
+    if (node.parentNode !== parent) {
+      return getEdgeOffset(node.parentNode, parent, nodeOffset);
+    } else {
+      return nodeOffset;
+    }
+  }
+}
+
+function getLockPixelOffset(_ref) {
+  var lockOffset = _ref.lockOffset,
+      width = _ref.width,
+      height = _ref.height;
+
+  var offsetX = lockOffset;
+  var offsetY = lockOffset;
+  var unit = 'px';
+
+  if (typeof lockOffset === 'string') {
+    var match = /^[+-]?\d*(?:\.\d*)?(px|%)$/.exec(lockOffset);
+
+    (0, _invariant2.default)(match !== null, 'lockOffset value should be a number or a string of a ' + 'number followed by "px" or "%". Given %s', lockOffset);
+
+    offsetX = offsetY = parseFloat(lockOffset);
+    unit = match[1];
+  }
+
+  (0, _invariant2.default)(isFinite(offsetX) && isFinite(offsetY), 'lockOffset value should be a finite. Given %s', lockOffset);
+
+  if (unit === '%') {
+    offsetX = offsetX * width / 100;
+    offsetY = offsetY * height / 100;
+  }
+
+  return {
+    x: offsetX,
+    y: offsetY
+  };
+}
 
 /***/ }),
 

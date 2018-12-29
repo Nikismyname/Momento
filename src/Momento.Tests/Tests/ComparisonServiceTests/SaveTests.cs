@@ -4,8 +4,6 @@
     using Momento.Services.Contracts.Comparisons;
     using Momento.Services.Exceptions;
     using Momento.Services.Implementations.Comparisons;
-    using Momento.Services.Mapping;
-    using Momento.Services.Models.VideoModels;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
     using Momento.Services.Models.ComparisonModels;
@@ -13,8 +11,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Momento.Tests.Utilities;
+    using Microsoft.EntityFrameworkCore;
 
-    public class ComparisonServicesTests : BaseTestsSqliteInMemory
+    public class SaveTests : BaseTestsSqliteInMemory
     {
         private IComparisonService comparisonService;
 
@@ -24,16 +24,19 @@
             this.comparisonService = new ComparisonService(this.context);
         }
 
-        [Test]
+        [Test]///Checked
         public void SaveShouldThrowIfInvalidUsername()
         {
             UserS.SeedPeshoAndGosho(context);
             var invalidUsername = "invalidUsername";
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(new ComparisonSave(), invalidUsername);
+
             action.Should().Throw<UserNotFound>();
         }
 
-        [Test]
+        [Test]///Checked
         public void SaveShouldThrowIfNonexistantComparison()
         {
             UserS.SeedPeshoAndGosho(context);
@@ -43,11 +46,14 @@
             {
                 Id = invalidCompId,
             };
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
+
             action.Should().Throw<ItemNotFound>().WithMessage("The comparison you are trying to modify does not exist!");
         }
 
-        [Test]
+        [Test]///Checked
         public void SaveShouldThrowIfCompDoesNotBelongToUser()
         {
             UserS.SeedPeshoAndGosho(context);
@@ -56,11 +62,14 @@
             {
                 Id = comps[0].Id,
             };
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.PeshoUsername);
+
             action.Should().Throw<AccessDenied>().WithMessage("The comparison does not belong to you!");
         }
 
-        [Test]
+        [Test]///Checked
         public void SaveShouldChangeCompFieldsIfTheyAreNotNull()
         {
             const string newDescription = "New Description";
@@ -70,58 +79,69 @@
 
             UserS.SeedPeshoAndGosho(context);
             var comps = CompS.SeedTwoCompsToUser(context, UserS.GoshoId);
+            var usedComp = comps[0];
             var compSave = new ComparisonSave
             {
-                Id = comps[0].Id,
+                Id = usedComp.Id,
                 Description = newDescription,
                 Name = newName,
                 TargetLanguage = newTargetLanguage,
                 SourceLanguage = newSourceLanguage,
             };
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
             action.Invoke();
 
-            comps[0].Description.Should().Be(newDescription);
-            comps[0].Name.Should().Be(newName);
-            comps[0].TargetLanguage.Should().Be(newTargetLanguage);
-            comps[0].SourceLanguage.Should().Be(newSourceLanguage);
+            ///reataching the entity we want to monitor
+            usedComp = context.Comparisons.SingleOrDefault(x=>x.Id == usedComp.Id);
+
+            usedComp.Description.Should().Be(newDescription);
+            usedComp.Name.Should().Be(newName);
+            usedComp.TargetLanguage.Should().Be(newTargetLanguage);
+            usedComp.SourceLanguage.Should().Be(newSourceLanguage);
         }
 
-        [Test]
+        [Test]///Checked
         public void SaveShouldNotChangeCompFieldsIfTheyAreNull()
         {
             UserS.SeedPeshoAndGosho(context);
             var comps = CompS.SeedTwoCompsToUser(context, UserS.GoshoId);
+            var usedComp = comps[0];
 
-            string initialDescription = comps[0].Description;
-            string initialName = comps[0].Name;
-            string initialTargetLanguage = comps[0].TargetLanguage;
-            string initialSourceLanguage = comps[0].SourceLanguage;
+            string initialDescription = usedComp.Description;
+            string initialName = usedComp.Name;
+            string initialTargetLanguage = usedComp.TargetLanguage;
+            string initialSourceLanguage = usedComp.SourceLanguage;
 
             var compSave = new ComparisonSave
             {
-                Id = comps[0].Id,
+                Id = usedComp.Id,
                 Description = null,
                 Name = null,
                 TargetLanguage = null,
                 SourceLanguage = null,
             };
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
             action.Invoke();
 
-            comps[0].Description.Should().Be(initialDescription);
-            comps[0].Name.Should().Be(initialName);
-            comps[0].TargetLanguage.Should().Be(initialTargetLanguage);
-            comps[0].SourceLanguage.Should().Be(initialSourceLanguage);
+            usedComp = context.Comparisons.SingleOrDefault(x => x.Id == usedComp.Id);
+
+            usedComp.Description.Should().Be(initialDescription);
+            usedComp.Name.Should().Be(initialName);
+            usedComp.TargetLanguage.Should().Be(initialTargetLanguage);
+            usedComp.SourceLanguage.Should().Be(initialSourceLanguage);
         }
 
-        [Test]
+        [Test]///Checked 
         public void SaveShouldThrow_IfSomeOfToBeAlteredItems_HaveIdsNotInTheComparisonsItems()
         {
             UserS.SeedPeshoAndGosho(context);
             var comps = CompS.SeedTwoCompsToUser(context, UserS.GoshoId);
             var usedComp = comps[0];
-            var items = CompS.SeedItemsToComp(this.context, usedComp);
+            var items = CompS.SeedThreeItemsToComp(this.context, usedComp);
 
             var compSave = new ComparisonSave
             {
@@ -159,12 +179,14 @@
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
+
             action.Should().Throw<AccessDenied>().WithMessage("The comparison items you are trying to alter does not belong the comparison you are altering!");
         }
 
-        [Test]
-        public void SaveShouldAlterExistingItems_forAValidRequest()
+        [Test]///Checked 
+        public void SaveShouldAlterExistingItems_ForAValidRequest()
         {
             const string item1NewSource = "itemOneNewSource";
             const string item1NewTarget = "itemOneNewTarget";
@@ -180,7 +202,7 @@
             UserS.SeedPeshoAndGosho(context);
             var comps = CompS.SeedTwoCompsToUser(context, UserS.GoshoId);
             var usedComp = comps[0];
-            var items = CompS.SeedItemsToComp(this.context, usedComp);
+            var items = CompS.SeedThreeItemsToComp(this.context, usedComp);
 
             var compSave = new ComparisonSave
             {
@@ -193,25 +215,25 @@
                 {
                     new ComparisonItemChange
                     {
-                        Id = 1,
+                        Id = CompS.Item1Id,
                         NewValue = item1NewComment,
                         PropertyChanged = "Comment"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 1,
+                        Id = CompS.Item1Id,
                         NewValue = item1NewOrder.ToString(),
                         PropertyChanged = "Order"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 1,
+                        Id = CompS.Item1Id,
                         NewValue = item1NewSource,
                         PropertyChanged = "Source"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 1,
+                        Id = CompS.Item1Id,
                         NewValue = item1NewTarget,
                         PropertyChanged = "Target"
                     },
@@ -219,36 +241,37 @@
 
                     new ComparisonItemChange
                     {
-                        Id = 2,
+                        Id = CompS.Item2Id,
                         NewValue = item2NewComment,
                         PropertyChanged = "Comment"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 2,
+                        Id = CompS.Item2Id,
                         NewValue = item2NewOrder.ToString(),
                         PropertyChanged = "Order"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 2,
+                        Id = CompS.Item2Id,
                         NewValue = item2NewSource,
                         PropertyChanged = "Source"
                     },
                     new ComparisonItemChange
                     {
-                        Id = 2,
+                        Id = CompS.Item2Id,
                         NewValue = item2NewTarget,
                         PropertyChanged = "Target"
                     },
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
             action.Invoke();
 
-            var item1 = items.SingleOrDefault(x => x.Id == 1);
-            var item2 = items.SingleOrDefault(x => x.Id == 2);
+            var item1 = context.ComparisonItems.SingleOrDefault(x => x.Id == CompS.Item1Id);
+            var item2 = context.ComparisonItems.SingleOrDefault(x => x.Id == CompS.Item2Id);
 
             item1.Comment.Should().Be(item1NewComment);
             item1.Order.Should().Be(item1NewOrder);
@@ -261,11 +284,9 @@
             item2.Target.Should().Be(item2NewTarget);
         }
 
-        [Test]
+        [Test]///Checked 
         public void SaveShouldSaveNewItems()
         {
-            AutoMapperConfig.RegisterMappings(typeof(VideoCreate).Assembly);
-
             const string item1Comment = "Comment1";
             const int item1Order = 4;
             const string item1Source = "Source1";
@@ -308,12 +329,20 @@
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
             ///The mapping should set preSaved db items ids to 0; It Does
             action.Invoke();
 
+            ///The items are actually already tracked from the execution 
+            ///of the action but I am including them for consistancy
+            usedComp = context.Comparisons
+                .Include(x=>x.Items)
+                .SingleOrDefault(x => x.Id == usedComp.Id);
+
             var newCompItems = usedComp.Items;
 
+            ///TODO: find better way to identify the items, maybe seed them with id
             var item1 = newCompItems.SingleOrDefault(x => x.Comment == item1Comment);
             item1.Should().NotBe(null);
             item1.Source.Should().Be(item1Source);

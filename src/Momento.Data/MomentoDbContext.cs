@@ -2,7 +2,6 @@
 {
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Models.CheatSheets;
     using Momento.Models.Hashtags.MappingTables;
     using Momento.Models.Codes;
     using Momento.Models.Hashtags;
@@ -31,13 +30,6 @@
         public DbSet<CodeHashtag> CodesHashtags { get; set; }
 
         public DbSet <CodeNoteHashtag> CodeNotesHashtags { get; set; }
-
-
-        public DbSet<CheatSheet> CheatSheets { get; set; }
-
-        public DbSet<Topic> Topics { get; set; }
-
-        public DbSet<Point> Points { get; set; }
 
 
         public DbSet<Video> Videos { get; set; }
@@ -72,7 +64,6 @@
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLazyLoadingProxies();
             base.OnConfiguring(optionsBuilder);
         }
 
@@ -87,9 +78,6 @@
             builder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<UserSettings>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<Directory>().HasQueryFilter(x => !x.IsDeleted);
-            builder.Entity<CheatSheet>().HasQueryFilter(x => !x.IsDeleted);
-            builder.Entity<Topic>().HasQueryFilter(x => !x.IsDeleted);
-            builder.Entity<Point>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<Video>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<VideoNote>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListRemind>().HasQueryFilter(x => !x.IsDeleted);
@@ -103,12 +91,6 @@
             builder.Entity<Note>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<CodeLine>().HasQueryFilter(x => !x.IsDeleted);
 
-            builder.Entity<Point>(p =>
-            {
-                p.HasOne(x => x.ParentPoint)
-                .WithMany(x => x.ChildPoints)
-                .HasForeignKey(x => x.ParentPointId);
-            });
 
             builder.Entity<VideoNote>(n =>
             {

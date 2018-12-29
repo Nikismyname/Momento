@@ -6,9 +6,7 @@
     using Momento.Services.Implementations.Notes;
     using Momento.Services.Implementations.Shared;
     using Momento.Services.Implementations.Utilities;
-    using Momento.Services.Mapping;
     using Momento.Services.Models.NoteModels;
-    using Momento.Services.Models.VideoModels;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
     using NUnit.Framework;
@@ -24,8 +22,8 @@
         {
             base.Setup();
             ///TODO: I guess I have to mock this
-            AutoMapperConfig.RegisterMappings(typeof(VideoCreate).Assembly);
             this.noteService = new NoteService(this.context, new UtilitiesService(), new TrackableService(this.context));
+            ///Automapper is configured in in a SetUpFixture in the same hamespace.
         }
 
         [Test]

@@ -20,7 +20,7 @@
             base.Setup();
             base.Setup();
             this.userService = new UserService(this.context);
-            VideoS.SeedPeshoAndGosho(this.context);
+            UserS.SeedPeshoAndGosho(this.context);
         }
 
         [Test]
@@ -35,8 +35,8 @@
         [Test]
         public void GetUserIdShouldReturnTheRightIdIfUserExists()
         {
-            var username = VideoS.GoshoUsername;
-            var correctId = VideoS.GoshoId;
+            var username = UserS.GoshoUsername;
+            var correctId = UserS.GoshoId;
             var id = userService.GetUserId(username);
             id.Should().Be(correctId);
         }
@@ -54,8 +54,8 @@
         [Test]
         public void ByUsernameShouldReturnTheRightUser()
         {
-            var username = VideoS.PeshoUsername;
-            var correctId = VideoS.PeshoId;
+            var username = UserS.PeshoUsername;
+            var correctId = UserS.PeshoId;
             var user = userService.ByUsername(username);
             user.Id.Should().Be(correctId);
         }

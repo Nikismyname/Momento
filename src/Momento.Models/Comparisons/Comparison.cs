@@ -21,11 +21,11 @@
         public int Order { get; set; }
 
         public int DirectoryId { get; set; }
-        public virtual Directory Directory { get; set; }
+        public Directory Directory { get; set; }
 
         [Required]
         public string  UserId { get; set; }
-        public virtual User User { get; set; }
+        public User User { get; set; }
 
         public string  Name { get; set; }
 
@@ -35,6 +35,6 @@
 
         public string  TargetLanguage { get; set; }
 
-        public virtual ICollection<ComparisonItem> Items { get; set; }
+        public ICollection<ComparisonItem> Items { get; set; }
     }
 }
