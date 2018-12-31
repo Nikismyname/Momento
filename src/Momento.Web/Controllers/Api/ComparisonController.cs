@@ -17,23 +17,19 @@
             this.comparisonService = comparisonService;
         }
 
-        public class CreateEditData
+        [HttpPost]
+        [Route("[action]")]
+        public ActionResult<bool> Create([FromBody] ComparisonCreate data)
         {
-            /// <summary>
-            /// if -1, - new comparison and parentDirId is required
-            /// </summary>
-            public int comparisonId { get; set; }
-            /// <summary>
-            /// not needed when existing comparison is wanted 
-            /// </summary>
-            public int parentDirId { get; set; }
+            var result = this.comparisonService.CreateApi(data, this.User.Identity.Name);
+            return result;
         }
 
         [HttpPost]
         [Route("[action]")]
-        public ActionResult<ComparisonEdit> Get([FromBody] CreateEditData data)
+        public ActionResult<ComparisonEdit> Get([FromBody] int comparisonId)
         {
-            var comp = this.comparisonService.GetComparisonForEditApi(data.comparisonId, this.User.Identity.Name ,data.parentDirId);
+            var comp = this.comparisonService.GetForEditApi(comparisonId, this.User.Identity.Name);
             return comp;
         }
 

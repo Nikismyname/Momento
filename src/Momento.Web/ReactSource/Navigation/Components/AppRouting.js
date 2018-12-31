@@ -4,7 +4,8 @@ import NavigationPage from './NavigationPage';
 import Compare from './Compare';
 import * as c from './Helpers/Constants';
 import Note from './Note';
-import NoteCreate from './NoteCreate'; 
+import NoteCreate from './NoteCreate';
+import ComparisonCreate from './ComparisonCreate';
 
 export default class AppRouting extends Component {
     constructor(props) {
@@ -36,10 +37,10 @@ export default class AppRouting extends Component {
             } else if (this.props.comp == "compare") {
                 return (
                     <div className="pageContent">
-                    <Compare
-                        initialComp={this.props.initialComp}
-                        id={this.state.comparisonId}
-                        dirId={this.state.comparisonDirId} />
+                        <Compare
+                            initialComp={this.props.initialComp}
+                            id={this.state.comparisonId}
+                            dirId={this.state.comparisonDirId} />
                     </div>)
             }
         } else {
@@ -51,6 +52,8 @@ export default class AppRouting extends Component {
                     <div className="pageContent">
                         <Switch>
                             <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
+                            <Route path={c.rootDir + c.comparisonCreate + "/:id"} component={ComparisonCreate} />
+
                             <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
                             <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />
                             <Route path={c.rootDir + "/:id"} component={NavigationPage} />

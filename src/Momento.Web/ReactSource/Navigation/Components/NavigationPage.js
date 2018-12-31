@@ -122,7 +122,7 @@ export default class NavigationPage extends Component {
                         <div data-tip="The name of the current folder."><h6 className="card-title">{data.name}</h6></div>
                         <div data-tip="Creates a Subfolder in the current folder."><a href="#" onClick={e => this.onClickCreateFolder(e)}>Create Folder</a></div>
                         <div data-tip="Creates new Video Notes in the current folder."><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes</a></div>
-                        <div data-tip="Creates new Comparison in the current folder.">{linkSSRSafe(`${c.rootDir}/compare/-1/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
+                        <div data-tip="Creates new Comparison in the current folder.">{linkSSRSafe(`${c.rootDir + c.comparisonCreate}/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
                         <div data-tip="Creates new ToDo list in the current folder."><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
                         <div data-tip="Test stuff.">{linkSSRSafe(c.rootDir + c.richTextNotePath, "Go To RTE", null)}</div>
                         <div data-tip="Creates new Note in the current folder.">{linkSSRSafe(`${c.rootDir + c.noteCreatePath}/${this.state.currentDir.id}`, "Create Note", null)}</div>
