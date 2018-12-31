@@ -20,7 +20,7 @@
     }
     else if (Model.WantedComponent == ReactComponent.compare)
     {
-        compData = cs.GetComparisonForEditApi(Model.WantedIndex, this.User.Identity.Name);
+        compData = cs.GetForEditApi(Model.WantedIndex, this.User.Identity.Name);
         component = "compare";
     }
 }

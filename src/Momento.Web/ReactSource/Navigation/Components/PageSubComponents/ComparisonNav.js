@@ -59,7 +59,7 @@ class ComparisonNav extends Component {
                     <h6 className="card-title">{this.props.comp.name}</h6>
                     <p className="card-text">{this.props.comp.description}</p>
                     <p className="card-text">Number of items: {this.props.comp.itemsCount}</p>
-                    {linkSSRSafe(c.rootDir + "/compare/" + this.props.comp.id + "/0", "Edit", null)}
+                    {linkSSRSafe(c.rootDir + c.comparePath +"/"+ this.props.comp.id + "/0", "Edit", null)}
                     <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
                 </div>
             </div>

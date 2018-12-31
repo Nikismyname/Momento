@@ -26,11 +26,7 @@
         #endregion
 
         #region GetForEdit
-        public const int NewEntryIdValue = -1;
-        /// <summary>
-        /// -1 for compId returns new dbEntry, otherwise returns the db entry with the given id.
-        /// </summary>
-        public ComparisonEdit GetComparisonForEdit(int compId, string username, int parentDirId = 0)
+        public ComparisonEdit GetForEdit(int compId, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -38,37 +34,10 @@
                 throw new UserNotFound(username);
             }
 
-            ///Creating New Comparison
-            if (compId == NewEntryIdValue)
-            {
-                var parentDir = this.context.Directories.SingleOrDefault(x => x.Id == parentDirId);
-
-                if (parentDir == null)
-                {
-                    throw new ItemNotFound("The parent directory for the comparison you are trying to create does not exist!");
-                }
-
-                var order = parentDir.Comparisons.Any() ? parentDir.Comparisons.Select(x => x.Order).Max() + 1 : 0;
-
-                var comparison = new Comparison
-                {
-                    UserId = user.Id,
-                    DirectoryId = parentDir.Id,
-                    Order = order,
-                };
-
-                context.Comparisons.Add(comparison);
-                context.SaveChanges();
-
-                var newResult = Mapper.Instance.Map<ComparisonEdit>(comparison);
-                return newResult;
-            }
-
-            ///The request if for an existing items
-
             var exstComp = context.Comparisons
                 .Include(x => x.Items)
                 .SingleOrDefault(x => x.Id == compId);
+
             if (exstComp == null)
             {
                 throw new ItemNotFound("The comparison you are looking for does not exist!");
@@ -83,11 +52,11 @@
             return result;
         }
 
-        public ComparisonEdit GetComparisonForEditApi(int compId, string username, int parentDirId = 0)
+        public ComparisonEdit GetForEditApi(int compId, string username)
         {
             try
             {
-                var result = GetComparisonForEdit(compId, username, parentDirId);
+                var result = GetForEdit(compId, username);
                 return result;
             }
             catch
@@ -97,20 +66,81 @@
         }
         #endregion
 
+        #region Create
+
+        public void Create(ComparisonCreate data, string username)
+        {
+            var parentDirId = data.ParentDirId;
+
+            var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
+            if(user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            var parentDir = this.context.Directories.SingleOrDefault(x => x.Id == parentDirId);
+
+            if (parentDir == null)
+            {
+                throw new ItemNotFound("The parent directory for the comparison you are trying to create does not exist!");
+            }
+
+            ///Check the Dir belongs to the user
+            if(parentDir.UserId != user.Id)
+            {
+                throw new AccessDenied("The directory you are trying to put the comparison in does not belong to you!");
+            }
+
+            var numberOfExistingComparisonsInGivenDirectory = this.context.Directories.
+                Where(x => x.Id == parentDirId)
+                .Select(x => x.Comparisons.Count)
+                .SingleOrDefault();
+            var order = numberOfExistingComparisonsInGivenDirectory;
+
+            var comparison = new Comparison
+            {
+                UserId = user.Id,
+                DirectoryId = parentDir.Id,
+                Order = order,
+                Name = data.Name,
+                Description = data.Description,
+                TargetLanguage = data.TargetLanguage,
+                SourceLanguage= data.SourceLanguage,    
+            };
+
+            context.Comparisons.Add(comparison);
+            context.SaveChanges();
+        } 
+
+        public bool CreateApi(ComparisonCreate data, string username)
+        {
+            try
+            {
+                this.Create(data, username);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
         #region Save
         ///validated
         public void Save(ComparisonSave saveData, string username)
         {
             User user = null;
             Comparison comp = null;
-            this.ValidteSave(saveData, username, ref user, ref comp);
+            this.ValidateSave(saveData, username, ref user, ref comp);
             this.SetCompatisonFields(saveData, comp);
             this.AlterExistingItems(saveData, comp);
             this.SaveNewItems(saveData, comp);
             context.SaveChanges();
         }
 
-        private void ValidteSave(ComparisonSave saveData, string username,ref User user, ref Comparison comp)
+        private void ValidateSave(ComparisonSave saveData, string username,ref User user, ref Comparison comp)
         {
             user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -172,6 +202,27 @@
             {
                 throw new AccessDenied("The comparison items you are trying to alter does not belong the comparison you are altering!");
             }
+
+            ///DELETION
+            var idsToDelete = saveData.AlteredItems.Where(x=>x.PropertyChanged=="deleted")
+                .Select(x=>x.Id)
+                .ToArray();
+
+            if (idsToDelete.Length != idsToDelete.Distinct().ToArray().Length)
+            {
+                throw new Exception("deletion should be send once per item");
+            }
+
+            var now = DateTime.UtcNow;
+            foreach (var id in idsToDelete)
+            {
+                var currentItem = dbItemsToAlter.Single(x => x.Id == id);
+                currentItem.DeletedOn = now;
+                currentItem.IsDeleted = true;
+            }
+
+            ///Removing the deleted items from other changes that might have happened to them;
+            saveData.AlteredItems = saveData.AlteredItems.Where(x=> !idsToDelete.Contains(x.Id)).ToHashSet();
 
             foreach (var alteredItem in saveData.AlteredItems)
             {

@@ -1,8 +1,55 @@
-﻿import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from "react";
 import { NavLink } from "react-router-dom";
-import Textarea from 'react-expanding-textarea';
+import Textarea from "react-expanding-textarea";
 import * as c from "./Helpers/Constants";
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
+import LoadSvg from './Helpers/LoadSvg';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
+
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowsAlt } from '@fortawesome/free-solid-svg-icons'
+library.add(faArrowsAlt)
+
+const compItemBorderString = "2px solid rgba(50, 50, 50, 0.50)";
+const searchBarBorderString = "2px solid rgba(0, 0, 0, 0.5)";
+
+const SortableItem = SortableElement(({ value, ind, index, _this }) => {
+    if (_this.state.currentState.hiddenComps.includes(value.inPageId) || typeof value.deleted !== "undefined") {
+        return <div></div>
+    } else {
+        return (
+            <div>
+                <div className="comparison-div mb-4">
+                    <div className="d-flex">
+                        <Textarea onChange={(e) => _this.onChangeTextArea(ind, "source", e)} style={{ overflow: "hidden", backgroundColor: c.secondaryColor, border: compItemBorderString }} type="text" value={_this.state.currentState.items[ind].source} className="form-control-black" />
+                        <Textarea onChange={(e) => _this.onChangeTextArea(ind, "target", e)} style={{ overflow: "hidden", backgroundColor: c.secondaryColor, border: compItemBorderString }} type="text" value={_this.state.currentState.items[ind].target} className="form-control-black" />
+                    </div>
+                    <div className="d-flex">
+                        <Textarea onChange={(e) => _this.onChangeTextArea(ind, "comment", e)} style={{ overflow: "hidden", backgroundColor: c.secondaryColor, border: compItemBorderString }} type="text" value={_this.state.currentState.items[ind].comment} className="form-control-black" />
+                        <div className="anchor d-flex" style={{ backgroundColor: "black", alignItems: "center", justifyItems: "center" }}>
+                            <ContextMenuTrigger id="comparisonItems" attributes={{ id: value.inPageId }}>
+                                <div className="container text-center">
+                                    <FontAwesomeIcon icon={faArrowsAlt} />
+                                </div>
+                            </ContextMenuTrigger>
+                        </div>
+                    </div>
+                </div>
+            </div>)
+    }
+});
+
+const SortableList = SortableContainer(({ items, _this }) => {
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableItem key={`item-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
 
 export default class Compare extends Component {
 
@@ -18,7 +65,7 @@ export default class Compare extends Component {
         } else {
             console.log("no server side")
             this.state = {
-                testItems: [1,2,3,4,5,6],
+                testItems: [1, 2, 3, 4, 5, 6],
                 initialState: {
                     id: -1,
                     directoryId: null,
@@ -34,6 +81,7 @@ export default class Compare extends Component {
                     searchSource: true,
                     searchTarget: true,
                     searchQuery: "",
+                    loaded: false,
 
                     id: -1,
                     directoryId: null,
@@ -54,32 +102,34 @@ export default class Compare extends Component {
         this.onClickSave = this.onClickSave.bind(this);
         this.onClickNewComparison = this.onClickNewComparison.bind(this);
 
-        this.renderCompItems = this.renderCompItems.bind(this);
         this.renderSearchBar = this.renderSearchBar.bind(this);
         this.renderComparisonData = this.renderComparisonData.bind(this);
 
         this.fiterSerchResults = this.fiterSerchResults.bind(this);
         this.onSortEnd = this.onSortEnd.bind(this);
+        this.onClickContexMenuItem = this.onClickContexMenuItem.bind(this);
+    }
+
+    componentDidUpdate() {
+        let anchors = $(".anchor");
+        console.log(anchors);
+        for (var i = 0; i < anchors.length; i++) {
+            console.log(anchors[i].clientWidth);
+            console.log(anchors[i].clientHeight);
+            $(anchors[i]).width($(anchors[i]).height());
+        }
     }
 
     componentWillMount() {
-        //if we get the data from a prop, we do not downlad the data again
-        if (typeof this.props.initialComp != "undefined") {
-            return;
-        }
+        ///if we get the data from a prop, we do not downlad the data again
+        //if (typeof this.props.initialComp != "undefined") {
+        //    return;
+        //}
 
         let id = this.props.match.params.id;
         let dirId = this.props.match.params.dirId;
 
-        var data = {};
-        data.comparisonId = id;
-
-        if (this.props.id > 0)/*calling for existing props*/ {
-            ///we do not care about this
-            data.parentDirId = 0;
-        } else {
-            data.parentDirId = dirId;
-        }
+        let comparisonId = id;
 
         fetch("/api/Comparison/Get", {
             method: "POST",
@@ -87,13 +137,15 @@ export default class Compare extends Component {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(comparisonId)
         })
             .then((response) => {
                 return response.json();
             })
             .then((data) => {
 
+                ///Fix up the null values of properties from null to "" so the text fields 
+                ///that connect to them are managed from the beginning and to avoid warnings
                 let fieldsTocheckForNull = ["name", "description", "sourceLanguage", "targetLanguage"]
                 let newCurrentState = JSON.parse(JSON.stringify(data));
                 for (var i = 0; i < fieldsTocheckForNull.length; i++) {
@@ -102,16 +154,22 @@ export default class Compare extends Component {
                     }
                 }
 
+                ///Only have it in the currentStat state because it is not persisted
                 newCurrentState.hiddenComps = [];
-
-                for (var i = 0; i < newCurrentState.items.length; i++) {
-                    newCurrentState.items[i].inPageId = i;
-                }
-
                 newCurrentState.searchComments = true;
                 newCurrentState.searchSource = true;
                 newCurrentState.searchTarget = true;
                 newCurrentState.searchQuery = "";
+
+                newCurrentState.loaded = true;
+
+                ///Adding inPageIds to the preexisting Items
+                for (var i = 0; i < newCurrentState.items.length; i++) {
+                    newCurrentState.items[i].inPageId = i;
+                }
+
+                ///Reordering The preexisting items so they are in the same order the user left them
+                newCurrentState.items = newCurrentState.items.sort((a, b) => a.order - b.order)
 
                 this.setState({
                     initialState: JSON.parse(JSON.stringify(data)),
@@ -133,7 +191,7 @@ export default class Compare extends Component {
             <div className="form-group row" key={x}>
                 <label className="col-sm-2 col-form-label text-right">{x}</label>
                 <div className="col-sm-6">
-                    <input onChange={(e) => this.onChangeCompTextArea(x, e)} id="nameInput" value={this.state.currentState[x]} className="form-control-black" />
+                    <input onChange={(e) => this.onChangeCompTextArea(x, e)} id="nameInput" value={this.state.currentState[x]} className="form-control-black" style={{ backgroundColor: c.secondaryColor }} />
                 </div>
             </div>);
     }
@@ -181,19 +239,19 @@ export default class Compare extends Component {
             let matchesSource = false;
 
             if (this.state.currentState.searchComments) {
-                if (x.comment.includes(value)) {
+                if (x.comment.toUpperCase().includes(value.toUpperCase())) {
                     matchesComment = true;
                 }
             }
 
             if (this.state.currentState.searchTarget) {
-                if (x.target.includes(value)) {
+                if (x.target.toUpperCase().includes(value.toUpperCase())) {
                     matchesTarger = true;
                 }
             }
 
             if (this.state.currentState.searchSource) {
-                if (x.source.includes(value)) {
+                if (x.source.toUpperCase().includes(value.toUpperCase())) {
                     matchesSource = true;
                 }
             }
@@ -233,53 +291,38 @@ export default class Compare extends Component {
         this.fiterSerchResults(this.state.currentState.searchQuery);
     }
 
-    renderCompItems() {
-        console.log(this.state.currentState.hiddenComps);
-        return this.state.currentState.items
-            .filter(x => !this.state.currentState.hiddenComps.includes(x.inPageId))
-            .map((x, ind) =>
-                <div className="comparison-div mb-4" key={"CompItem" + x.inPageId}>
-                    <div className="d-flex">
-                        <Textarea onChange={(e) => this.onChangeTextArea(ind, "source", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == x.inPageId)[0].source} className="form-control-black" />
-                        <Textarea onChange={(e) => this.onChangeTextArea(ind, "target", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == x.inPageId)[0].target} className="form-control-black" />
-                    </div>
-                    <Textarea onChange={(e) => this.onChangeTextArea(ind, "comment", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == x.inPageId)[0].comment} placeholder={x.inPageId} className="form-control-black" />
-                    <span>{x.inPageId}</span>
-                </div>
-            )
-    }
-
     renderSearchBar() {
         return (
             <div className="row mb-4 mt-4">
                 <div className=""></div>
                 <div className="d-flex col-sm-6">
+                    <label htmlFor="source">Source</label>
                     <input
                         id="source"
                         className="form-control-black"
                         type="checkbox"
                         checked={this.state.currentState.searchSource}
                         onChange={(e) => this.onChangeCheckBox(e, "searchSource")} />
-                    <label htmlFor="source">Source</label>
+
+                    <label htmlFor="target">Target</label>
                     <input
                         id="target"
                         className="form-control-black"
                         type="checkbox"
                         checked={this.state.currentState.searchTarget}
                         onChange={(e) => this.onChangeCheckBox(e, "searchTarget")} />
-                    <label htmlFor="target">Target</label>
 
+                    <label htmlFor="comment">Comment</label>
                     <input
                         id="comment"
                         className="form-control-black"
                         type="checkbox"
                         checked={this.state.currentState.searchComments}
                         onChange={(e) => this.onChangeCheckBox(e, "searchComments")} />
-                    <label htmlFor="comment">Comment</label>
                 </div>
 
                 <div className="col-sm-6">
-                    <input className="form-control-black" value={this.state.currentState.searchQuery} onChange={this.onChangeSearchQuery} />
+                    <input className="form-control-black" value={this.state.currentState.searchQuery} onChange={this.onChangeSearchQuery} style={{ backgroundColor: c.secondaryColor, border: searchBarBorderString }} />
                 </div>
             </div>)
     }
@@ -315,30 +358,56 @@ export default class Compare extends Component {
     }
 
     onClickSave() {
+        ///This saves the final order of the elements
+        let newCurrentState = this.state.currentState;
+        for (var i = 0; i < newCurrentState.items.length; i++) {
+            newCurrentState.items[i].order = i;
+        }
+        this.setState({ currentState: newCurrentState });
+
         ///This collects all the newly created items
-        let newItemsCollection = this.state.currentState.items.filter(x => x.id == 0);
-        console.log(newItemsCollection);
+        let newItemsCollection = this.state.currentState.items.filter(x => x.id == 0 && typeof x.deleted === "undefined");
 
+        ///This orders the preexisting items and their new versions by Id so I can
+        ///Compare then to get the differences
         let changes = [];
-        let preExistingItems = this.state.initialState.items.sort((a, b) => a - b);
-        let currentStateOfPEItems = this.state.currentState.items.filter(x => x.id > 0).sort((a, b) => a - b);
+        let preExistingItems = this.state.initialState.items.sort((a, b) => a.id - b.id);
+        let currentStateOfPEItems = this.state.currentState.items.filter(x => x.id > 0).sort((a, b) => a.id - b.id);
 
+        ///Check to make sure we didn't give nonzero id to a new item
         if (preExistingItems.length != currentStateOfPEItems.length) {
             alert("The preexisting collection is not the same size!")
             return;
         }
 
-        ///TODO: Deleteion is not covered yet
+        ///Collect all the differences
         for (var i = 0; i < preExistingItems.length; i++) {
             let initialState = preExistingItems[i];
             let currentState = currentStateOfPEItems[i];
-            for (let prop in initialState) {
+            for (let prop in currentState) {
+
+                if (prop === "deleted") {
+                    changes.push({
+                        id: currentState.id,
+                        propertyChanged: "deleted",
+                        newValue: true,
+                    });
+                    continue;
+                }
+
+                ///InPageId is only for the front end
+                if (prop == "inPageId") {
+                    continue;
+                }
 
                 if (initialState[prop] != currentState[prop]) {
+                    ///Check to make sure Ids are aligned
                     if (prop == "id") {
-                        alert("Existring Item Id changed ERROR")
+                        alert("Ids are not aligned ERROR")
                         return;
                     }
+
+                    ///Push the difference in a collection
                     changes.push({
                         id: currentState.id,
                         propertyChanged: prop,
@@ -375,49 +444,12 @@ export default class Compare extends Component {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
+                if (data == true) {
+                    this.props.history.push(c.rootDir + "/" + this.props.match.params.dirId);
+                } else {
+                    alert("The save did not work!");
+                }
             });
-    }
-
-    render() {
-        const SortableItem = SortableElement(({ value, index }) =>
-            <div className="comparison-div mb-4" key={"CompItem" + value.inPageId}>
-                <div className="d-flex">
-                    <Textarea onChange={(e) => this.onChangeTextArea(index, "source", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == value.inPageId)[0].source} className="form-control-black" />
-                    <Textarea onChange={(e) => this.onChangeTextArea(index, "target", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == value.inPageId)[0].target} className="form-control-black" />
-                </div>
-                <Textarea onChange={(e) => this.onChangeTextArea(index, "comment", e)} style={{ overflow: "hidden" }} type="text" value={this.state.currentState.items.filter(y => y.inPageId == value.inPageId)[0].comment} className="form-control-black" />
-                <span>{value.inPageId}</span>
-            </div>
-        );
-
-        const SortableList = SortableContainer(({ items }) => {
-            return (
-                <ul>
-                    {items.map((value, index) => (
-                        <SortableItem key={`item-${index}`} index={index} value={value} />
-                    ))}
-                </ul>
-            );
-        });
-
-       let itemsTorender = this.state.currentState.items
-                .filter(x => !this.state.currentState.hiddenComps.includes(x.inPageId))
-
-        return (
-            <Fragment>
-                <div className="text-center">
-                    {this.state.currentState.id}
-                </div >
-                {this.renderComparisonData()}
-                {this.renderSearchBar()}
-                {/*this.renderCompItems()*/}
-                <SortableList items={itemsTorender} onSortEnd={this.onSortEnd} />
-                <NavLink to={`${c.rootDir}/${this.state.currentState.directoryId}`} className="btn btn-primary">Back</NavLink>
-                <button onClick={this.onClickNewComparison}>New Comparison</button>
-                <button className="btn btn-success" onClick={this.onClickSave}>Save</button>
-                <h1>V01</h1>
-            </Fragment>)
     }
 
     onSortEnd({ oldIndex, newIndex }) {
@@ -430,7 +462,46 @@ export default class Compare extends Component {
         newCurrentState.items = arrayMove(newCurrentState.items, oldIndex, newIndex),
             this.setState({
                 currentState: newCurrentState,
-        });
+            });
     };
-}
 
+    onClickContexMenuItem(e, data, target) {
+        const id = parseInt(target.getAttribute('id'), 10);
+        let newCurrentState = this.state.currentState;
+        let itemToBeDeleted = newCurrentState.items.filter(x => x.inPageId == id);
+        if (itemToBeDeleted.length != 1) {
+            alert("item to be deleted id multiple items with the same id");
+        }
+        itemToBeDeleted = itemToBeDeleted[0];
+        itemToBeDeleted.deleted = true;
+
+        this.setState({ currentState: newCurrentState });
+    }
+
+    render() {
+        const app = (
+            <Fragment>
+                {this.renderComparisonData()}
+                {this.renderSearchBar()}
+                <SortableList items={this.state.currentState.items} onSortEnd={this.onSortEnd} _this={this} />
+                <div className="d-flex justify-content-around">
+                    <button className="btn btn-success" onClick={this.onClickSave}>Save</button>
+                    <button className="btn btn-primary" onClick={this.onClickNewComparison}>New Comparison</button>
+                    <NavLink to={`${c.rootDir}/${this.state.currentState.directoryId}`} className="btn btn-warning">Back</NavLink>
+                </div>
+                <ContextMenu id="comparisonItems">
+                    <div style={{ color: "white", backgroundColor: "black" }}>
+                        <MenuItem data={{ action: 'delete' }} onClick={this.onClickContexMenuItem}>
+                            Delete
+                            </MenuItem>
+                    </div>
+                </ContextMenu>
+            </Fragment>)
+
+        if (this.state.currentState.loaded == true) {
+            return app;
+        } else {
+            return <LoadSvg />
+        }
+    }
+}
