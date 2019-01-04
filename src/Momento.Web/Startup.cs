@@ -97,7 +97,7 @@
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 
-            services.AddAutoMapper(); ///TODO: Make the automapper fancy like in the lecture
+            services.AddAutoMapper();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -106,7 +106,7 @@
                 options.Filters.Add<AddDataToLayoutServiceActionFilter>();
                 options.Filters.Add<AddDataToLayoutServicePageFilter>();
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddReact();
 

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-Momento.Web-E69DDDF0-6509-46B4-A888-166BD44BCFE0</UserSecretsId>
   </PropertyGroup>
 
@@ -30,9 +30,9 @@
     <PackageReference Include="HtmlSanitizer" Version="4.0.187" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.6" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.4" PrivateAssets="All" />
-	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" Culture="neutral" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" PrivateAssets="All" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" Culture="neutral" />
 	<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 	<PackageReference Include="React.AspNet" Version="3.4.1" />
 	<PackageReference Include="React.Router" Version="3.4.1" />
