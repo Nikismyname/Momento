@@ -14,13 +14,25 @@
 
         public int Id { get; set; }
 
-        public string Content { get; set; }
+        public int Order { get; set; }
 
-        public string Preview { get; set; }
+        public string Content { get; set; }
 
         public int? SeekTo { get; set; }
 
         public int Level { get; set; }
+
+        ///Border Items
+        public string BorderColor { get; set; }
+
+        public string BackgroundColor { get; set; }
+
+        public string TextColor { get; set; }
+
+        public int BorderThickness { get; set; }
+        ///...
+
+        public VideoNoteType Type { get; set; }
 
         public Formatting Formatting { get; set; }
 

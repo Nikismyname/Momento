@@ -29,6 +29,14 @@
 
         public int Order { get; set; }
 
+        public string  BorderColor { get; set; }
+
+        public string BackgroundColor { get; set; }
+
+        public string TextColor { get; set; }
+
+        public int BorderThickness { get; set; }
+
         public int? NoteId { get; set; }
         public virtual VideoNote Note { get; set; }
 

@@ -28,7 +28,7 @@
         function subNoteButtonFunction(level, parentId, mainAdd, top) {
             $('.goBack').remove();
 
-            //setting up the SSub buttons
+            ///setting up the SSub buttons
             if (level < 4) {
                 let zbLevel = level - 1;
                 subNoteButtonInfo[zbLevel].enabled = true;

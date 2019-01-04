@@ -43,9 +43,9 @@ namespace Momento.Data.Migrations
                     b.ToTable("AspNetRoles");
 
                     b.HasData(
-                        new { Id = "580a0b98-a093-4343-a878-a21060270243", ConcurrencyStamp = "faf0fa23-fc1b-43b4-98e1-4351905feff2", Name = "Admin", NormalizedName = "ADMIN" },
-                        new { Id = "29a2e4da-aa5c-4b84-959c-4e2a753c9f87", ConcurrencyStamp = "8250e893-7b4c-4483-8bc2-b6c64cb553ab", Name = "Moderator", NormalizedName = "MODERATOR" },
-                        new { Id = "240faefb-4827-4604-8d58-c2eabfa2ea4d", ConcurrencyStamp = "faf305cf-5b62-4ba7-885a-646ebfa3dc6d", Name = "User", NormalizedName = "USER" }
+                        new { Id = "1b347d74-8167-4f4c-a4cc-2566c4344954", ConcurrencyStamp = "0def96c5-94f2-40c1-86ce-2de584e2ba12", Name = "Admin", NormalizedName = "ADMIN" },
+                        new { Id = "c3d5acca-0173-4ece-a256-8ba17d1e3be6", ConcurrencyStamp = "e6888ecc-9260-4d71-8789-76cf301dc507", Name = "Moderator", NormalizedName = "MODERATOR" },
+                        new { Id = "a2c367c1-7aeb-4ffd-b2cf-67f247b9efb7", ConcurrencyStamp = "4c8be457-b2ff-4951-a847-cd1768652ed8", Name = "User", NormalizedName = "USER" }
                     );
                 });
 
@@ -133,118 +133,6 @@ namespace Momento.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.CheatSheet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime?>("CreatedOn");
-
-                    b.Property<DateTime?>("DeletedOn");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(300);
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime?>("LastModifiedOn");
-
-                    b.Property<DateTime?>("LastViewdOn");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30);
-
-                    b.Property<int>("TimesModified");
-
-                    b.Property<int>("TimesViewd");
-
-                    b.Property<string>("UserId")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CheatSheets");
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.Point", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content")
-                        .IsRequired();
-
-                    b.Property<DateTime?>("CreatedOn");
-
-                    b.Property<DateTime?>("DeletedOn");
-
-                    b.Property<int>("Formatting");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime?>("LastModifiedOn");
-
-                    b.Property<DateTime?>("LastViewdOn");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<int?>("ParentPointId");
-
-                    b.Property<int>("TimesModified");
-
-                    b.Property<int>("TimesViewd");
-
-                    b.Property<int?>("TopicId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentPointId");
-
-                    b.HasIndex("TopicId");
-
-                    b.ToTable("Points");
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CheatSheetId");
-
-                    b.Property<DateTime?>("CreatedOn");
-
-                    b.Property<DateTime?>("DeletedOn");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime?>("LastModifiedOn");
-
-                    b.Property<DateTime?>("LastViewdOn");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30);
-
-                    b.Property<int>("TimesModified");
-
-                    b.Property<int>("TimesViewd");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CheatSheetId");
-
-                    b.ToTable("Topics");
                 });
 
             modelBuilder.Entity("Momento.Models.Codes.Code", b =>
@@ -897,6 +785,12 @@ namespace Momento.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("BackgroundColor");
+
+                    b.Property<string>("BorderColor");
+
+                    b.Property<int>("BorderThickness");
+
                     b.Property<string>("Content");
 
                     b.Property<DateTime?>("CreatedOn");
@@ -920,6 +814,8 @@ namespace Momento.Data.Migrations
                     b.Property<int>("Order");
 
                     b.Property<int?>("SeekTo");
+
+                    b.Property<string>("TextColor");
 
                     b.Property<int>("TimesModified");
 
@@ -980,33 +876,6 @@ namespace Momento.Data.Migrations
                     b.HasOne("Momento.Models.Users.User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.CheatSheet", b =>
-                {
-                    b.HasOne("Momento.Models.Users.User", "User")
-                        .WithMany("CheatSheets")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.Point", b =>
-                {
-                    b.HasOne("Momento.Models.CheatSheets.Point", "ParentPoint")
-                        .WithMany("ChildPoints")
-                        .HasForeignKey("ParentPointId");
-
-                    b.HasOne("Momento.Models.CheatSheets.Topic", "Topic")
-                        .WithMany("Points")
-                        .HasForeignKey("TopicId");
-                });
-
-            modelBuilder.Entity("Momento.Models.CheatSheets.Topic", b =>
-                {
-                    b.HasOne("Momento.Models.CheatSheets.CheatSheet", "CheatSheet")
-                        .WithMany("Topics")
-                        .HasForeignKey("CheatSheetId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

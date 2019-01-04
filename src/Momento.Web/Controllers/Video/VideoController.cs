@@ -33,31 +33,31 @@
         ///This is where you can press buttons to move around the video.
         public IActionResult View(int id)
         {
-            var model = videoService.GetView(id);
+            var model = videoService.GetView(id, this.User.Identity.Name);
             return View(model);
         }
         #endregion
 
         #region Create 
-        [HttpGet]
-        public IActionResult Create(int id)///Id is parent dir Id
-        {
-            var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
-            var videoId = videoService.Create(id, this.User.Identity.Name);
+        //[HttpGet]
+        //public IActionResult Create(int id)///Id is parent dir Id
+        //{
+        //    var settings = settingsService.GetVideoNoteSettings(User.Identity.Name);
+        //    var videoId = videoService.Create(id, this.User.Identity.Name);
 
-            var model = new VideoCreateWithSettings
-            {
-                ContentCreate = new VideoCreate()
-                {
-                    Id = videoId,
-                    DirectoryId = id,
-                },
-                Settings = settings,
-                Mode = "create",
-            };
+        //    var model = new VideoCreateWithSettings
+        //    {
+        //        ContentCreate = new VideoCreate()
+        //        {
+        //            Id = videoId,
+        //            DirectoryId = id,
+        //        },
+        //        Settings = settings,
+        //        Mode = "create",
+        //    };
 
-            return View("CreateEdit",model);
-        }
+        //    return View("CreateEdit",model);
+        //}
         #endregion
 
         #region Edit 

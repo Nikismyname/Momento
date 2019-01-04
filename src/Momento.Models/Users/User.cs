@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Identity;
-    using Momento.Models.Codes;
     using Momento.Models.ListsRemind;
     using Momento.Models.ListsToDo;
     using Momento.Models.Videos;
@@ -18,7 +17,6 @@
             this.ListsToDo = new HashSet<ListToDo>();
             this.ListsRemind = new HashSet<ListRemind>();
             this.ListsToDo = new HashSet<ListToDo>();
-            this.CodeSnippets = new HashSet<Code>();
             this.Videos = new HashSet<Video>();
             this.Comparisons = new HashSet<Comparisons.Comparison>();
 
@@ -43,8 +41,6 @@
         public virtual ICollection<Directory> Directories { get; set; }
 
         public virtual ICollection<Video> Videos { get; set; }
-
-        public virtual ICollection<Code> CodeSnippets { get; set; }
 
         public virtual ICollection<ListRemind> ListsRemind { get; set; }
 

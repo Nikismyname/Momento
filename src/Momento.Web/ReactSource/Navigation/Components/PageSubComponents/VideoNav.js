@@ -1,4 +1,6 @@
 ﻿import React, { Component } from "react";
+import { linkSSRSafe } from '../Helpers/HelperFuncs';
+import * as c from '../Helpers/Constants';
 
 const borderString = "1px solid rgba(3, 91, 255, 0.6)";
 
@@ -50,7 +52,8 @@ class VideoNav extends Component {
                 <div className="card-body">
                     <h6 className="card-title">{this.props.video.name}</h6>
                     <p className="card-text">{this.props.video.description}</p>
-                    <a href={'/Video/View?id=' + this.props.video.id}>View</a>
+                    {linkSSRSafe(c.rootDir + c.videoViewPath + "/" + this.props.video.id, "View", null, null)}
+                    {linkSSRSafe(c.rootDir + c.VideoNotesPath + "/" + this.props.video.id, "ViewTest", null, null)}
                     <a className="ml-1" href={'/Video/Edit?id=' + this.props.video.id}>Edit</a>
                     <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteVideo(e, this.props.video.id)} >Delete</a>
                 </div>

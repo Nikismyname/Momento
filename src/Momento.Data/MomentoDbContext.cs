@@ -2,9 +2,6 @@
 {
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Models.Hashtags.MappingTables;
-    using Momento.Models.Codes;
-    using Momento.Models.Hashtags;
     using Momento.Models.ListsToDo;
     using Momento.Models.ListsRemind;
     using Momento.Models.Videos;
@@ -25,12 +22,6 @@
 
         public DbSet<Directory> Directories { get; set; }
 
-        public DbSet<Hashtag> Hashtags { get; set; }
-
-        public DbSet<CodeHashtag> CodesHashtags { get; set; }
-
-        public DbSet <CodeNoteHashtag> CodeNotesHashtags { get; set; }
-
 
         public DbSet<Video> Videos { get; set; }
 
@@ -40,11 +31,6 @@
         public DbSet<ListRemind> ListsRemind { get; set; }
 
         public DbSet<ListRemindItem> ListRemindItems { get; set; }
-
-
-        public DbSet<Code> Code { get; set; }
-
-        public DbSet<CodeNote> CodeNotes { get; set; }
 
 
         public DbSet<ListToDo> ListsTodo { get; set; }
@@ -82,8 +68,6 @@
             builder.Entity<VideoNote>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListRemind>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListRemindItem>().HasQueryFilter(x => !x.IsDeleted);
-            builder.Entity<Code>().HasQueryFilter(x => !x.IsDeleted);
-            builder.Entity<CodeNote>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListToDo>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<ListToDoItem>().HasQueryFilter(x => !x.IsDeleted);
             builder.Entity<Comparison>().HasQueryFilter(x => !x.IsDeleted);
@@ -117,37 +101,6 @@
                 d.HasMany(x=>x.Subdirectories)
                 .WithOne(x=>x.ParentDirectory)
                 .HasForeignKey(x=>x.ParentDirectoryId);
-            });
-
-            builder.Entity<CodeHashtag>(c =>
-            {
-                c.HasKey(x => new { x.CodeId, x.HashtagId });
-
-                c.HasOne(x => x.Code)
-                .WithMany(x => x.CodeHashtags)
-                .HasForeignKey(x => x.CodeId);
-
-                c.HasOne(x => x.Hashtag)
-                .WithMany(x => x.CodeHashtags)
-                .HasForeignKey(x => x.HashtagId);
-            });
-
-            builder.Entity<CodeNoteHashtag>(c =>
-            {
-                c.HasKey(x => new { x.CodeNoteId, x.HashtagId });
-
-                c.HasOne(x => x.CodeNote)
-                .WithMany(x => x.CodeNoteHashtags)
-                .HasForeignKey(x => x.CodeNoteId);
-
-                c.HasOne(x => x.Hashtag)
-                .WithMany(x => x.CodeNoteHashtags)
-                .HasForeignKey(x => x.HashtagId);
-            });
-
-            builder.Entity<Hashtag>(h=> {
-                h.HasIndex(x => x.Name)
-                .IsUnique(true);
             });
 
             builder.Entity<User>(u => {

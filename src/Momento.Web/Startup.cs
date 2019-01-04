@@ -17,8 +17,6 @@
     using Momento.Services.Implementations.ListRemind;
     using Momento.Services.Contracts.Video;
     using Momento.Services.Implementations.Video;
-    using Momento.Services.Contracts.Code;
-    using Momento.Services.Implementations.Code;
     using Momento.Models.Users;
     using Momento.Services.Contracts.View;
     using Momento.Services.Implementations.View;
@@ -89,7 +87,6 @@
             services.AddTransient<IListRemindItemService, ListRemindItemService>();
             services.AddTransient<IDirectoryService, DirectoryService>();
             services.AddTransient<IReorderingService, ReorderingService>();
-            services.AddTransient<ICodeService, CodeService>();
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<ISaveData, SaveData>();
             services.AddTransient<IListToDoService, ListToDoService>();

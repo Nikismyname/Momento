@@ -1,12 +1,9 @@
 ﻿namespace Momento.Web.Profiles
 {
-    using System.Linq;
     using AutoMapper;
-    using Momento.Models.Codes;
     using Momento.Models.ListsToDo;
     using Momento.Models.Videos;
     using Momento.Models.Directories;
-    using Momento.Services.Models.Code;
     using Momento.Services.Models.VideoModels;
     using Momento.Services.Models.ListToDoModels;
     using Momento.Services.Models.DirectoryModels;
@@ -26,19 +23,6 @@
             CreateMap<ListToDo, ListToDoIndex>();
 
             CreateMap<Directory, DirectoryIndex>();
-
-
-            //CreateMap<VideoNote, VideoNoteView>();
-
-            //CreateMap<Video, VideoView>()
-            //    .ForMember(dest => dest.Notes,
-            //               opt => opt.MapFrom(src => src.Notes.Where(x=>x.NoteId==null)));
-
-
-            CreateMap<Code, CodeCreate>().ReverseMap();
-
-            CreateMap<CodeNote, CodeNoteCreate>().ReverseMap();
-
 
             CreateMap<ListToDoCreate, ListToDo>().ReverseMap();
 

@@ -22,22 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js" />
-    <None Remove="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js.map" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="TrashCan\ListToDoUse - SmallItems.js" />
-    <Content Include="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="TrashCan\WorkingPrerenderingSetup\Compiled\components.bundle.js.map">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -73,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Views\Code\BootStrapAC.cshtml">
+    <Content Update="TrashCan\CodeViews\BootStrapAC.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Views\Directory\IndexReact.cshtml">

@@ -1,11 +1,14 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { Route, BrowserRouter, Switch } from "react-router-dom";
+import * as c from './Helpers/Constants';
 import NavigationPage from './NavigationPage';
 import Compare from './Compare';
-import * as c from './Helpers/Constants';
 import Note from './Note';
 import NoteCreate from './NoteCreate';
 import ComparisonCreate from './ComparisonCreate';
+import VideoView from "./VideoView";
+import VideoNotes from './VideoNotes';
+import VideoNoteCreate from './VideoNoteCreate';
 
 export default class AppRouting extends Component {
     constructor(props) {
@@ -52,7 +55,10 @@ export default class AppRouting extends Component {
                     <div className="pageContent">
                         <Switch>
                             <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
-                            <Route path={c.rootDir + c.comparisonCreate + "/:id"} component={ComparisonCreate} />
+                            <Route path={c.rootDir + c.comparisonCreatePath + "/:id"} component={ComparisonCreate} />
+                            <Route path={c.rootDir + c.videoViewPath + "/:id"} component={VideoView} />
+                            <Route path={c.rootDir + c.VideoNotesPath + "/:id"} component={VideoNotes} />
+                            <Route path={c.rootDir + c.VideoNotesCreatePath + "/:id"} component={VideoNoteCreate} />
 
                             <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
                             <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />

@@ -5,16 +5,25 @@
 
     public interface IVideoService
     {
-        int Create(int dirId, string username);
+        void Create(VideoInitialCreate videoCreate, string username);
+
+        bool CreateApi(VideoInitialCreate videoCreate, string username);
 
         void Delete(int id, string username, DateTime now);
 
         bool DeleteApi(int id, string username);
 
-        VideoView GetView(int videoId);
+        VideoView GetView(int videoId, string username);
+        /// <summary>
+        /// Returns null is there is a problem;
+        /// </summary>
+        VideoView GetViewApi(int videoId, string username);
 
         VideoCreate GetVideoForEdit(int videoId, string username);
+        VideoCreate GetVideoForEditApi(int videoId, string username);
 
         int[][] PartialSave(int videoId,string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
+        bool PartialSaveApi(int videoId, string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
+
     }
 }
