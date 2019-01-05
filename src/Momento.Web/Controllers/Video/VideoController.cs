@@ -88,10 +88,11 @@
 
         [HttpPost]
         public IActionResult PartialSave(int videoId, int? seekTo, string name, string description,
-                                         string url, string[][] changes, VideoNoteCreate[] newItems, bool finalSave)
+                                          string[][] changes, VideoNoteCreate[] newItems, bool finalSave)
         {
             var username = this.User.Identity.Name;
-            var result = this.videoService.PartialSave(videoId, username, seekTo, name, description, url, changes, newItems, finalSave);            
+            var result = this.videoService.PartialSave(
+                videoId, username, seekTo, name, description, changes, newItems, finalSave);            
             return Json(result);
         }
 

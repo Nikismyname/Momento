@@ -6,6 +6,9 @@ import { SortableContainer, SortableElement, arrayMove } from "react-sortable-ho
 import LoadSvg from './Helpers/LoadSvg';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
+import { handeleValidationErrors, clientSideValidation } from "./Helpers/HelperFuncs";
+import ShowError from "./Helpers/ShowError"
+
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowsAlt } from '@fortawesome/free-solid-svg-icons'
@@ -65,7 +68,9 @@ export default class Compare extends Component {
         } else {
             console.log("no server side")
             this.state = {
-                testItems: [1, 2, 3, 4, 5, 6],
+                showErrors: true,
+                ERRORS: [],
+
                 initialState: {
                     id: -1,
                     directoryId: null,
@@ -188,12 +193,16 @@ export default class Compare extends Component {
         let fields = ["name", "description", "sourceLanguage", "targetLanguage"];
 
         return fields.map(x =>
-            <div className="form-group row" key={x}>
-                <label className="col-sm-2 col-form-label text-right">{x}</label>
-                <div className="col-sm-6">
-                    <input onChange={(e) => this.onChangeCompTextArea(x, e)} id="nameInput" value={this.state.currentState[x]} className="form-control-black" style={{ backgroundColor: c.secondaryColor }} />
+            <Fragment>
+                <ShowError prop={x.toUpperCase()} ERRORS={this.state.ERRORS} showErrors={this.state.showErrors} />
+                <div className="form-group row" key={x}>
+                    <label className="col-sm-2 col-form-label text-right">{x}</label>
+                    <div className="col-sm-6">
+                        <input onChange={(e) => this.onChangeCompTextArea(x, e)} id="nameInput" value={this.state.currentState[x]} className="form-control-black" style={{ backgroundColor: c.secondaryColor }} />
+                    </div>
                 </div>
-            </div>);
+            </Fragment>
+        );
     }
 
     onChangeTextArea(index, type, event) {
@@ -358,6 +367,9 @@ export default class Compare extends Component {
     }
 
     onClickSave() {
+        ///Reset The error messages
+        this.setState({ ERRORS: [] });
+
         ///This saves the final order of the elements
         let newCurrentState = this.state.currentState;
         for (var i = 0; i < newCurrentState.items.length; i++) {
@@ -425,10 +437,16 @@ export default class Compare extends Component {
         };
 
         var trackedProps = ["description", "name", "sourceLanguage", "targetLanguage"];
+        //for (var i = 0; i < trackedProps.length; i++) {
+        //    var prop = trackedProps[i];
+        //    var result = this.state.currentState[prop] != this.state.initialState[prop]
+        //        ? this.state.currentState[prop] : null;
+        //    data[prop] = result;
+        //}
+
         for (var i = 0; i < trackedProps.length; i++) {
             var prop = trackedProps[i];
-            var result = this.state.currentState[prop] != this.state.initialState[prop]
-                ? this.state.currentState[prop] : null;
+            var result = this.state.currentState[prop];
             data[prop] = result;
         }
 
@@ -444,9 +462,15 @@ export default class Compare extends Component {
                 return response.json();
             })
             .then((data) => {
+
+                if (data.hasOwnProperty("errors")) {
+                    handeleValidationErrors(data.errors, this);
+                    return;
+                }
+
                 if (data == true) {
                     this.props.history.push(c.rootDir + "/" + this.props.match.params.dirId);
-                } else {
+                } else if (data == false) {
                     alert("The save did not work!");
                 }
             });

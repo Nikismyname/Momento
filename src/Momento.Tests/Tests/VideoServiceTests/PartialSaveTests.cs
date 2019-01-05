@@ -56,7 +56,7 @@
             ChangeTrackerOperations.DetachAll(this.context);
             Action action = GetPartialSaveAction(video.Id, UserS.PeshoUsername);
 
-            action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to medify does not belong to you!");
+            action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to modify does not belong to you!");
         }
 
         [Test]
@@ -102,13 +102,12 @@
             const int NewSeekTo = 20;
             const string NewName = "NewName";
             const string NewDescription = "NewDescription";
-            const string NewUrl = "NewUrl";
 
             UserS.SeedPeshoAndGosho(context);
             var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername, NewSeekTo, NewName, NewDescription, NewUrl);
+            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername, NewSeekTo, NewName, NewDescription);
             action.Invoke();
 
             video = context.Videos
@@ -117,11 +116,12 @@
             video.SeekTo.Should().Be(NewSeekTo);
             video.Name.Should().Be(NewName);
             video.Description.Should().Be(NewDescription);
-            video.Url.Should().Be(NewUrl);
         }
         #endregion
 
         #region PartialSaveChangesToExistingNote
+        ///Properties to track:
+        ///Deleted X; Content X; Formatting X; seekTo X; Type; BorderColor; BorderThickness
         [Test]///Checked
         public void AppliesContentChangesToExistingNotesCorrectly()
         {
@@ -234,9 +234,106 @@
             note1.SeekTo.Should().Be(Note1NewSeekTo);
             note2.SeekTo.Should().Be(Note2NewSeekTo);
         }
+
+        [Test]///Checked
+        public void Applies_Type_BorderThickness_BorderColor_ChangesToExistingNotesCorrectly()
+        {
+            const VideoNoteType note1NewType = VideoNoteType.TimeStamp;
+            const VideoNoteType note2NewType = VideoNoteType.Topic;
+            const string note1NewBorderColor = "red";
+            const string note2NewBorderColor = "purple";
+            const int note1NewBorderThickness = 15;
+            const int note2NewBorderThickness = 1;
+
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
+            var changes = new string[][]
+            {
+                new string[]{"1", "type", ((int)note1NewType).ToString() },
+                new string[]{"2", "type", ((int)note2NewType).ToString() },
+                new string[]{"1", "borderThickness", note1NewBorderThickness.ToString() },
+                new string[]{"2", "borderThickness", note2NewBorderThickness.ToString() },
+                new string[]{"1", "borderColor", note1NewBorderColor },
+                new string[]{"2", "borderColor", note2NewBorderColor },
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername, changes);
+            action.Invoke();
+
+            video = context.Videos
+                .Include(x => x.Notes)
+                .SingleOrDefault(x => x.Id == video.Id);
+
+            var note1 = video.Notes.SingleOrDefault(x => x.Id == 1);
+            var note2 = video.Notes.SingleOrDefault(x => x.Id == 2);
+
+            note1.Type.Should().Be(note1NewType);
+            note2.Type.Should().Be(note2NewType);
+            note1.BorderColor.Should().Be(note1NewBorderColor);
+            note2.BorderColor.Should().Be(note2NewBorderColor);
+            note1.BorderThickness.Should().Be(note1NewBorderThickness);
+            note2.BorderThickness.Should().Be(note2NewBorderThickness);
+        }
         #endregion
 
         #region PartialSaveNewNotes
+
+        [Test]///Checked
+        public void ShouldSaveAllFieldsOfANewNoteCorectly()
+        {
+            const string borderColor = "Some great color!";
+            const int borderThickness = 12;
+            const string content = "Some great content";
+            const Formatting formatting = Formatting.CSharp;
+            const int seekTo = 42;
+            const VideoNoteType type = VideoNoteType.TimeStamp;
+            const int level = 1;  
+
+            UserS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideosToUserWithNotes(context, UserS.GoshoId);
+
+            var newNote = new VideoNoteCreate
+            {
+                Id = 0,
+                BorderColor = borderColor,
+                BorderThickness = borderThickness,
+                Content = content,
+                Formatting = formatting,
+                SeekTo = seekTo,
+                Type = type,
+                Level = level,
+
+                ParentDbId = -1,
+                ///Not in use currently
+                TextColor = "",
+                Deleted = false,
+                BackgroundColor = "",
+                InPageId = 0,
+                InPageParentId = 0,
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername,new VideoNoteCreate[] { newNote });
+            action.Invoke();
+
+            video = context.Videos
+                .Include(x => x.Notes)
+                .SingleOrDefault(x => x.Id == video.Id);
+
+            var allNotes = video.Notes;
+
+            var note = video.Notes.SingleOrDefault(x=>x.Id != VideoS.preExistingNote1Id && x.Id != VideoS.preExistingNote2Id);
+
+            note.BorderColor.Should().Be(borderColor);
+            note.BorderThickness.Should().Be(borderThickness);
+            note.Content.Should().Be(content);
+            note.Formatting.Should().Be(formatting);
+            note.SeekTo.Should().Be(seekTo);
+            note.Type.Should().Be(type);
+            note.Level.Should().Be(level);
+        }
+
         [Test]///Checked
         public void ShoudCreate3nestedNotesStartingAtRootCorrectly()
         {
@@ -447,7 +544,6 @@
                 null,
                 null,
                 null,
-                null,
                 new string[][] { },
                 new VideoNoteCreate[] { },
                 false);
@@ -458,7 +554,6 @@
             return () => this.videoService.PartialSave(
                 videoId,
                 username,
-                null,
                 null,
                 null,
                 null,
@@ -475,7 +570,6 @@
                 null,
                 null,
                 null,
-                null,
                 new string[][] { },
                 newNotes,
                 false);
@@ -489,13 +583,12 @@
                 null,
                 null,
                 null,
-                null,
                 changes,
                 new VideoNoteCreate[] { },
                 false);
         }
 
-        private Action GetPartialSaveAction(int videoId, string username, int? seekTo, string name, string description, string url)
+        private Action GetPartialSaveAction(int videoId, string username, int? seekTo, string name, string description)
         {
             return () => this.videoService.PartialSave(
                 videoId,
@@ -503,7 +596,6 @@
                 seekTo,
                 name,
                 description,
-                url,
                 new string[][] { },
                 new VideoNoteCreate[] { },
                 false);
@@ -514,7 +606,6 @@
             return () => this.videoService.PartialSave(
                 videoId,
                 username,
-                null,
                 null,
                 null,
                 null,

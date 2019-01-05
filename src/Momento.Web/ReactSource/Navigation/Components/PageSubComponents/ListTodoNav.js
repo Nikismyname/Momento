@@ -1,4 +1,5 @@
 ﻿import React, { Component } from "react";
+import * as c from "../Helpers/Constants";
 
 class ListTodoNav extends Component {
     constructor(props) {
@@ -44,13 +45,15 @@ class ListTodoNav extends Component {
 
     render() {
         return (
-            <div data-tip="ToDo list" className="video" key={"listToDo" + this.props.list.id}>
-                <label>{this.props.list.name}</label>
-                <div className="d-flex">
+            <div data-tip="ToDo list" className="card mb-2" style={{ border: c.listToDoBorder }}>
+                <div className="card-body">
+                    <h6 className="card-title">{this.props.list.name}</h6>
+                    <p className="card-text">{this.props.list.description}</p>
                     <a href={"/ListToDo/Use/" + this.props.list.id}>Use</a>
                     <a href="#" className="ml-1" onClick={(e) => this.onClickDeletelist(e, this.props.list.id)}>Delete</a>
                 </div>
-            </div>);
+            </div>
+        );
     }
 }
 

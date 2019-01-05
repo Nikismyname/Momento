@@ -2,8 +2,6 @@
 import { linkSSRSafe } from '../Helpers/HelperFuncs';
 import * as c from '../Helpers/Constants';
 
-const borderString = "1px solid rgba(0, 0, 0, 0.6)";
-
 class ComparisonNav extends Component {
     constructor(props) {
         super(props);
@@ -47,14 +45,8 @@ class ComparisonNav extends Component {
     }
 
     render() {
-        //return (
-        //    <div className="video">
-        //        {linkSSRSafe(c.rootDir + "/compare/" + this.props.comp.id + "/0", this.props.comp.name + " " + this.props.comp.itemsCount, null)}
-        //        <a href="#" className="ml-1" onClick={(e) => this.onClickDeleteComp(e, this.props.comp.id)}>Delete</a>
-        //    </div>);
-
         return (
-            <div data-tip="Comparison" className="card mb-2" style={{ border: borderString }}>
+            <div data-tip="Comparison" className="card mb-2" style={{ border: c.comparisonBorder }}>
                 <div className="card-body">
                     <h6 className="card-title">{this.props.comp.name}</h6>
                     <p className="card-text">{this.props.comp.description}</p>

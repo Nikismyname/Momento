@@ -2,8 +2,6 @@
 import { linkSSRSafe } from '../Helpers/HelperFuncs';
 import * as c from '../Helpers/Constants';
 
-const borderString = "1px solid rgba(3, 91, 255, 0.6)";
-
 class VideoNav extends Component {
     constructor(props) {
         super(props);
@@ -48,7 +46,7 @@ class VideoNav extends Component {
 
     render() {
         return (
-            <div data-tip="Note" className="card mb-2" style={{ border: borderString}}>
+            <div data-tip="Note" className="card mb-2" style={{ border: c.noteBorder }}>
                 <div className="card-body">
                     <h6 className="card-title">{this.props.note.name}</h6>
                     <p className="card-text">{this.props.note.description}</p>

@@ -47,24 +47,14 @@
             return result;
         }
 
-        public class SaveData
-        {
-            public int VideoId { get; set; }
-            public int? SeekTo { get; set; }
-            public string  Name { get; set; }
-            public string  Description { get; set; }
-            public string  Url { get; set; }
-            public string[][] Changes { get; set; }
-            public VideoNoteCreate[] NewNotes { get; set; }
-            public bool FinalSave { get; set; }
-        }
-
         [HttpPost]
         [Route("[action]")]
-        public ActionResult<bool> Save([FromBody]SaveData data)
+        public ActionResult<bool> Save([FromBody]VideoSave data)
         {
             var username = this.User.Identity.Name;
-            var result = this.videoService.PartialSaveApi(data.VideoId, username, data.SeekTo, data.Name, data.Description, data.Url, data.Changes, data.NewNotes, data.FinalSave);
+            var result = this.videoService.PartialSaveApi(
+                data.VideoId, username, data.SeekTo, data.Name, data.Description,
+                data.Changes, data.NewNotes, data.FinalSave);
             return result;
         }
 

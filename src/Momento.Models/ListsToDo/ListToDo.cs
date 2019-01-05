@@ -3,15 +3,15 @@
     using Momento.Models.Contracts;
     using Momento.Models.Directories;
     using Momento.Models.Users;
-    using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
 
     public class ListToDo : SoftDeletableAndTrackable, IOrderable<int>
     {
         public ListToDo()
         {
             this.Items = new HashSet<ListToDoItem>();
-            this.Categories = "highPriority;active;backBurner;doneNeedsFixes;done;unassigned";
+            this.Categories = "HighPriority;Active;BackBurner;MostlyDone;Done;Unassigned";
         }
 
         public int  Id { get; set; }
@@ -24,6 +24,7 @@
         public int  DirectoryId { get; set; }
         public virtual Directory Directory { get; set; }
 
+        [StringLength(40,MinimumLength =3, ErrorMessage = "The Name of a ListToDo must be between 3 and 40 characters long!")]
         public string  Name { get; set; }
 
         public string  Description { get; set; }

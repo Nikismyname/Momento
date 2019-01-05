@@ -89,3 +89,60 @@ export function createBorder(color, thickness) {
     }
     return `${thickness}px solid ${color}`;
 }
+
+export function handeleValidationErrors(errors, _this) {
+    let newERRORS = _this.state.ERRORS;
+
+    for (let [propName, errorMesages] of Object.entries(errors)) {
+
+        let capitalPropName = propName.toUpperCase();
+        let existingError = newERRORS.filter(x => x.fieldName == capitalPropName);
+        if (existingError.length > 1) {
+            alert("Duplicated Error Names, FIX");
+        }
+        if (existingError.length == 1) {
+            existingError = existingError[0];
+            console.log();
+            for (var i = 0; i < errorMesages.length; i++) {
+                existingError.errorMessages.push(errorMesages[i]);
+            }
+        } else /*no Existing Error*/ {
+            newERRORS.push({
+                fieldName: capitalPropName,
+                errorMessages: errorMesages,
+            });
+        }
+    }
+
+    _this.setState({ ERRORS: newERRORS });
+}
+
+export function clientSideValidation(errorMessage, fieldName, _this) {
+
+    fieldName = fieldName.toUpperCase();
+
+    let newErrorState = _this.state.ERRORS; 
+
+    let existingErrors = newErrorState.filter(x => x.fieldName == fieldName);
+
+    if (existingErrors.length > 1) { alert("Duplicated field names - FIX"); return; }
+
+    if (existingErrors.length == 1) {
+        console.log("EXISTING Field Name");
+        let existingError = existingErrors[0];
+        if (existingError.errorMessages.includes(errorMessage)) {
+            _this.setState({ ERRORS: newErrorState });
+            return;
+        } else {
+            existingError.errorMessages.push(errorMessage);
+            _this.setState({ ERRORS: newErrorState });
+            return;
+        }
+    } else /*No existing Errors*/ {
+        newErrorState.push({
+            fieldName: fieldName,
+            errorMessages: [errorMessage],
+        });
+        _this.setState({ ERRORS: newErrorState });
+    }
+}

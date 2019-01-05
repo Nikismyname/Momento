@@ -35,7 +35,7 @@
                 return Redirect(Constants.ReactAppPath + "/" + model.DirectoryId);
             }
 
-            return Redirect("/Directory/IndexReact/" + model.DirectoryId);
+            return View(model);
         }
 
         [HttpGet]

@@ -15,6 +15,7 @@
 
         public int Id { get; set; }
 
+        ///Note used, should be removed
         public string  Name { get; set; }
 
         public string Content { get; set; }

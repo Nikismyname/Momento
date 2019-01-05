@@ -24,18 +24,12 @@
             return dir;
         }
 
-        public class DirCreateData
-        {
-            public string directoryName { get; set; }
-            public int parentDirId { get; set; }
-        }
-
         // POST: api/Navigation
         [HttpPost]
         [Route("[action]")]
-        public JsonResult CreateDirectory([FromBody]DirCreateData data)
+        public JsonResult CreateDirectory([FromBody]DirectoryCreate data)
         {
-            var result = directoryService.CreateApi(data.parentDirId, data.directoryName , User.Identity.Name);
+            var result = directoryService.CreateApi(data.ParentDirId, data.DirectoryName , User.Identity.Name);
             return new JsonResult(result);
         }
 

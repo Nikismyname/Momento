@@ -290,7 +290,7 @@ export default class Note extends Component {
 
     renderCodeLines() {
         if (this.state.PRLoaded == false || this.state.codePresent == false) {
-            return null;
+            return <div className="mt-5"></div>;
         } else {
             return (
                 <Fragment>
@@ -301,7 +301,7 @@ export default class Note extends Component {
                                 onDoubleClick={() => this.onDClickCodeLine(x)}
                                 dangerouslySetInnerHTML={{ __html: PR.prettyPrintOne(x.content) }} />
                         </Fragment>)}
-                    <div className="mb-2 mt-2 row">
+                    <div className="mb-2 mt-5 row">
                         <div className="col-sm-2">
                             <button className="btn btn-primary btn-block" onClick={this.onClickParseSource}>Render</button>
                         </div>
@@ -377,14 +377,18 @@ export default class Note extends Component {
         };
 
         if (this.state.mainNote.editorMode == true) {
-            return (<FroalaEditor
-                tag="textarea"
-                model={this.state.mainNote.content}
-                onModelChange={this.onChangeMainNote}
-                config={options} />)
+            return (
+                <div className="mb-5">
+                    <FroalaEditor
+                        tag="textarea"
+                        model={this.state.mainNote.content}
+                        onModelChange={this.onChangeMainNote}
+                        config={options} />
+                </div>
+            )
         } else {
             return (
-                <div onDoubleClick={this.onDClickMainNote}>
+                <div onDoubleClick={this.onDClickMainNote} className="mb-5">
                     <FroalaEditorView model={this.state.mainNote.content} />
                 </div>
             )

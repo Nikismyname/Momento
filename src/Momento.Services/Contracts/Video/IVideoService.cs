@@ -22,8 +22,8 @@
         VideoCreate GetVideoForEdit(int videoId, string username);
         VideoCreate GetVideoForEditApi(int videoId, string username);
 
-        int[][] PartialSave(int videoId,string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
-        bool PartialSaveApi(int videoId, string userName, int? seekTo, string name, string desctiption, string url, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
+        int[][] PartialSave(int videoId,string userName, int? seekTo, string name, string desctiption, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
+        bool PartialSaveApi(int videoId, string userName, int? seekTo, string name, string desctiption, string[][] changes, VideoNoteCreate[] newNotes, bool finalSave);
 
     }
 }

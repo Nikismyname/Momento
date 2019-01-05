@@ -217,10 +217,9 @@
         {
             ///Getting the ids if the items that exest in the database 
             validItemsIds = context.ListsTodo
-                .SingleOrDefault(x => x.Id == model.Id)
-                .Items
-                .Select(x => x.Id)
-                .ToArray();
+                .Where(x => x.Id == model.Id)
+                .Select(x => x.Items.Select(y => y.Id).ToArray())
+                .SingleOrDefault();
 
             ///If the user sends id for modification that is not 
             ///in existring items return an exception

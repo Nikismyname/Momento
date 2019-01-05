@@ -2,8 +2,6 @@
 import { linkSSRSafe } from '../Helpers/HelperFuncs';
 import * as c from '../Helpers/Constants';
 
-const borderString = "1px solid rgba(3, 91, 255, 0.6)";
-
 class VideoNav extends Component {
     constructor(props) {
         super(props);
@@ -48,13 +46,12 @@ class VideoNav extends Component {
 
     render() {
         return (
-            <div data-tip="Video Notes" className="card mb-2" style={{ border: borderString }}>
+            <div data-tip="Video Notes" className="card mb-2" style={{ border: c.videoNotesBorder }}>
                 <div className="card-body">
                     <h6 className="card-title">{this.props.video.name}</h6>
                     <p className="card-text">{this.props.video.description}</p>
                     {linkSSRSafe(c.rootDir + c.videoViewPath + "/" + this.props.video.id, "View", null, null)}
-                    {linkSSRSafe(c.rootDir + c.VideoNotesPath + "/" + this.props.video.id, "ViewTest", null, null)}
-                    <a className="ml-1" href={'/Video/Edit?id=' + this.props.video.id}>Edit</a>
+                    {linkSSRSafe(c.rootDir + c.videoNotesPath + "/" + this.props.video.id + "/" + this.props.parentState.currentDir.id, "Edit", null, "ml-1")}
                     <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteVideo(e, this.props.video.id)} >Delete</a>
                 </div>
             </div>
@@ -63,3 +60,13 @@ class VideoNav extends Component {
 }
 
 export default VideoNav;
+
+
+
+
+
+
+
+
+
+//<a className="ml-1" href={'/Video/Edit?id=' + this.props.video.id}>Edit</a>

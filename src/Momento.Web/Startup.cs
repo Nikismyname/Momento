@@ -105,6 +105,7 @@
             {
                 options.Filters.Add<AddDataToLayoutServiceActionFilter>();
                 options.Filters.Add<AddDataToLayoutServicePageFilter>();
+                //options.Filters.Add<ValidateModelStateAttribute>();
             })
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

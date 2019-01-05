@@ -22,6 +22,7 @@
 
         public int Id { get; set; }
 
+        [StringLength(50, MinimumLength = 3, ErrorMessage ="Folder Name must be between 3 and 50 characters long")]
         public string  Name { get; set; }
 
         /// <summary>
@@ -41,10 +42,10 @@
 
         public virtual ICollection<ListToDo> ListsToDo { get; set; }
 
-        public virtual ICollection<Directory> Subdirectories { get; set; }
-
         public virtual ICollection<Comparison> Comparisons { get; set; }
 
         public virtual ICollection<Note> Notes { get; set; }
+
+        public virtual ICollection<Directory> Subdirectories { get; set; }
     }
 }

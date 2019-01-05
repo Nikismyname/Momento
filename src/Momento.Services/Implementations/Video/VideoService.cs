@@ -294,12 +294,12 @@
         ///1 - Error
         ///Tested
         public int[][] PartialSave(int videoId, string userName, int? seekTo,
-            string name, string desctiption, string url, string[][] changes,
+            string name, string desctiption, string[][] changes,
             VideoNoteCreate[] newNotes, bool finalSave)
         {
             this.ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave);
             ///Appy changes to the video fields
-            this.PartialSaveVideoFields(videoId, url, name, desctiption, seekTo);
+            this.PartialSaveVideoFields(videoId, name, desctiption, seekTo);
             ///Appy changes to the existing Notes
             this.PartialSaveChangesToExistingNote(changes);
             ///Create the new notes and return their IDs
@@ -309,13 +309,13 @@
 
         /// I am not doing autosaves yet so I only need to know if save was successful 
         public bool PartialSaveApi(int videoId, string userName, int? seekTo,
-             string name, string desctiption, string url, string[][] changes,
+             string name, string desctiption, string[][] changes,
              VideoNoteCreate[] newNotes, bool finalSave)
         {
             try
             {
                 var result = this.PartialSave(videoId, userName, seekTo, 
-                    name, desctiption, url, changes, newNotes, finalSave);
+                    name, desctiption, changes, newNotes, finalSave);
 
                 return true;
             }
@@ -356,7 +356,7 @@
 
             if (!userVideoIds.Contains(videoId))
             {
-                throw new AccessDenied("The video you are trying to medify does not belong to you!");
+                throw new AccessDenied("The video you are trying to modify does not belong to you!");
             }
             ///check if all the notes being changed belong the video they are coming for;
             var videoNotesIds = context
@@ -380,13 +380,10 @@
         }
 
         ///Tested
-        private void PartialSaveVideoFields(int videoId, string url, string name, string description, int? seekTo)
+        private void PartialSaveVideoFields(int videoId, string name, string description, int? seekTo)
         {
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
-            if (url != null)
-            {
-                video.Url = url;
-            }
+            
             if (name != null)
             {
                 video.Name = name;

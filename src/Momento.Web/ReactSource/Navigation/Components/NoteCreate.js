@@ -1,6 +1,7 @@
 ﻿import React, { Component, Fragment } from 'react';
 import * as c from './Helpers/Constants';
-import { linkSSRSafe } from './Helpers/HelperFuncs';
+import { linkSSRSafe, handeleValidationErrors, clientSideValidation } from './Helpers/HelperFuncs';
+import ShowError from "./Helpers/ShowError"
 
 export default class NoteCreate extends Component {
     constructor(props) {
@@ -8,12 +9,18 @@ export default class NoteCreate extends Component {
         this.state = {
             name: "",
             description: "",
+
+            showErrors: true,
+            ERRORS: [],
         };
 
         this.onClickButtonCreate = this.onClickButtonCreate.bind(this);
     }
 
     onClickButtonCreate() {
+        ///Reset The error messages
+        this.setState({ ERRORS: [] });
+
         let data = {};
         data.description = this.state.description;
         data.name = this.state.name;
@@ -29,9 +36,15 @@ export default class NoteCreate extends Component {
         })
             .then(x=> x.json())
             .then((data) => {
+
+                if (data.hasOwnProperty("errors")) {
+                    handeleValidationErrors(data.errors, this);
+                    return;
+                }
+
                 if (data == true) {
                     this.props.history.push(c.rootDir + "/" + this.props.match.params.id);
-                } else {
+                } else if (data == false) {
                     alert("Note was not created!");
                 }
             });
@@ -46,6 +59,7 @@ export default class NoteCreate extends Component {
     render() {
         return (
             <Fragment>
+                <ShowError prop={"NAME"} ERRORS={this.state.ERRORS} showErrors={this.state.showErrors} />
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-right">Name</label>
                     <div className="col-sm-6">

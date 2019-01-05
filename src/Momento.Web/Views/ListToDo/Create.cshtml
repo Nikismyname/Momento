@@ -1,10 +1,11 @@
-﻿@model  ListToDoCreate
+﻿@model ListToDoCreate
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <form method="post">
+    <span asp-validation-for="Name" style="background-color: red; color:white"></span>
     <div class="form-group row">
         <lable for="nameInput" class="col-sm-2 col-form-label text-right">Name</lable>
         <div class="col-sm-6">
@@ -18,7 +19,7 @@
         </div>
     </div>
 
-    <input asp-for="DirectoryId" hidden="hidden"/>
+    <input asp-for="DirectoryId" hidden="hidden" />
 
     <button type="submit" class="btn btn-success">Create</button>
     <a class="btn btn-danger" href="@(Constants.ReactAppPath)/@(Model.DirectoryId)">Cancel</a>

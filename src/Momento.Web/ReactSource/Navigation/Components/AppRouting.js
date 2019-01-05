@@ -57,8 +57,8 @@ export default class AppRouting extends Component {
                             <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
                             <Route path={c.rootDir + c.comparisonCreatePath + "/:id"} component={ComparisonCreate} />
                             <Route path={c.rootDir + c.videoViewPath + "/:id"} component={VideoView} />
-                            <Route path={c.rootDir + c.VideoNotesPath + "/:id"} component={VideoNotes} />
-                            <Route path={c.rootDir + c.VideoNotesCreatePath + "/:id"} component={VideoNoteCreate} />
+                            <Route path={c.rootDir + c.videoNotesPath + "/:id/:dirId"} component={VideoNotes} />
+                            <Route path={c.rootDir + c.videoNotesCreatePath + "/:id"} component={VideoNoteCreate} />
 
                             <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
                             <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />

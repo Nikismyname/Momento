@@ -6,10 +6,11 @@ import ListTodoNav from './PageSubComponents/ListTodoNav';
 import SubDirNav from './PageSubComponents/SubDirNav';
 import NoteNav from './PageSubComponents/NoteNav';
 import LoadSvg from './Helpers/LoadSvg';
-import { linkSSRSafe } from './Helpers/HelperFuncs';
+import { linkSSRSafe, handeleValidationErrors, clientSideValidation } from './Helpers/HelperFuncs';
 import 'linqjs';
 import * as c from './Helpers/Constants';
 import ReactTooltip from 'react-tooltip';
+import ShowError from "./Helpers/ShowError"
 
 const borderString = "3px solid rgba(0, 0, 0, 0.6)"
 
@@ -20,6 +21,10 @@ export default class NavigationPage extends Component {
 
         if (typeof this.props.initialDir === "undefined") {
             this.state = {
+
+                showErrors: true,
+                ERRORS: [],
+
                 history: [],
                 currentDir: {
                     subdirectories: [],
@@ -121,13 +126,9 @@ export default class NavigationPage extends Component {
                     <div data-tip="Current folder and all things you can create in it." className="card-body">
                         <div data-tip="The name of the current folder."><h6 className="card-title">{data.name}</h6></div>
                         <div data-tip="Creates a Subfolder in the current folder."><a href="#" onClick={e => this.onClickCreateFolder(e)}>Create Folder</a></div>
-
-                        <div data-tip="Creates new Video Notes in the current folder."><a href={"/Video/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create Video Notes OLD</a></div>
-                        <div data-tip="Creates new Video Notes in the current folder.">{linkSSRSafe(`${c.rootDir + c.VideoNotesCreatePath}/${this.state.currentDir.id}`, "Create Video Notes", null)}</div>
-
+                        <div data-tip="Creates new Video Notes in the current folder.">{linkSSRSafe(`${c.rootDir + c.videoNotesCreatePath}/${this.state.currentDir.id}`, "Create Video Notes", null)}</div>
                         <div data-tip="Creates new Comparison in the current folder.">{linkSSRSafe(`${c.rootDir + c.comparisonCreatePath}/${this.state.currentDir.id}`, "Create Comparison", null)}</div>
                         <div data-tip="Creates new ToDo list in the current folder."><a href={"/ListToDo/Create/" + this.state.currentDir.id} onClick={(e) => this.onClickStopPropagation(e)} >Create List ToDo</a></div>
-                        <div data-tip="Test stuff.">{linkSSRSafe(c.rootDir + c.richTextNotePath, "Go To RTE", null)}</div>
                         <div data-tip="Creates new Note in the current folder.">{linkSSRSafe(`${c.rootDir + c.noteCreatePath}/${this.state.currentDir.id}`, "Create Note", null)}</div>
                     </div>
                 </div>
@@ -184,6 +185,9 @@ export default class NavigationPage extends Component {
         e.preventDefault();
         e.stopPropagation();
 
+        ///Reset The error messages
+        this.setState({ ERRORS: [] });
+
         let directoryName = prompt('Select directory name:');
         if (directoryName == null || directoryName == '' || directoryName.length == 0 || directoryName.toLowerCase() == 'root') {
             alert('You must enter name, can not be Root');
@@ -207,6 +211,11 @@ export default class NavigationPage extends Component {
                 return response.json();
             })
             .then((data) => {
+                if (data.hasOwnProperty("errors")) {
+                    handeleValidationErrors(data.errors, this);
+                    return;
+                }
+
                 let newSubDirArray = this.state.currentDir.subdirectories.slice();
                 newSubDirArray.push({
                     id: data,
@@ -273,37 +282,40 @@ export default class NavigationPage extends Component {
 
     render() {
         const app = (
-            <div className="row">
-                <div className="col-sm-3">
-                    <div>
-                        {this.renderRoot(this.state.currentDir)}
+            <Fragment>
+                <ShowError prop={"directoryName"} ERRORS={this.state.ERRORS} showErrors={this.state.showErrors} />
+                <div className="row">
+                    <div className="col-md-3 col-sm-6 col-xs-12">
+                        <div>
+                            {this.renderRoot(this.state.currentDir)}
+                        </div>
+                        {this.renderSubDirectories(this.state.currentDir.subdirectories)}
                     </div>
-                    {this.renderSubDirectories(this.state.currentDir.subdirectories)}
-                </div>
-                <div className="col-sm-3">
-                    {this.renderVideos(this.state.currentDir.videos)}
-                </div>
-                <div className="col-sm-3">
-                    {this.renderComparisons(this.state.currentDir.comparisons)}
-                </div>
-                <div className="col-sm-3">
-                    {this.renderListsToDo(this.state.currentDir.listsToDo)}
-                    {this.renderNotes(this.state.currentDir.notes)}
-                </div>
+                    <div className="col-md-3 col-sm-6 col-xs-12">
+                        {this.renderVideos(this.state.currentDir.videos)}
+                    </div>
+                    <div className="col-md-3 col-sm-6 col-xs-12">
+                        {this.renderNotes(this.state.currentDir.notes)}
+                    </div>
+                    <div className="col-md-3 col-sm-6 col-xs-12">
+                        {this.renderListsToDo(this.state.currentDir.listsToDo)}
+                        {this.renderComparisons(this.state.currentDir.comparisons)}
+                    </div>
 
-                <ContextMenu id="subDirectory">
-                    <div style={{ color: "white", backgroundColor: "black" }}>
-                        <MenuItem data={{ action: 'delete' }} onClick={this.onClickContexMenuItem}>
-                            Delete
+                    <ContextMenu id="subDirectory">
+                        <div style={{ color: "white", backgroundColor: "black" }}>
+                            <MenuItem data={{ action: 'delete' }} onClick={this.onClickContexMenuItem}>
+                                Delete
                             </MenuItem>
-                    </div>
-                </ContextMenu>
+                        </div>
+                    </ContextMenu>
 
-                <ReactTooltip
-                    place="bottom"
-                    effect="float" />
+                    <ReactTooltip
+                        place="bottom"
+                        effect="float" />
 
-            </div>
+                </div>
+            </Fragment >
         );
 
         if (!this.state.itemsLoaded) {

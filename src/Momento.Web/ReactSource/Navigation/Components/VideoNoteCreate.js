@@ -1,7 +1,8 @@
-﻿import React, { Component, Fragment } from 'react';
-import * as c from './Helpers/Constants';
-import { extractVideoToken } from "./Helpers/HelperFuncs";
-import YouTube from 'react-youtube';
+﻿import React, { Component, Fragment } from "react";
+import * as c from "./Helpers/Constants";
+import { extractVideoToken, handeleValidationErrors, clientSideValidation } from "./Helpers/HelperFuncs";
+import YouTube from "react-youtube";
+import ShowError from "./Helpers/ShowError"
 
 export default class VideoNoteCreate extends Component {
     constructor(props) {
@@ -17,6 +18,9 @@ export default class VideoNoteCreate extends Component {
 
             offset: 3,
             length: 6,
+
+            showErrors: true,
+            ERRORS: [/*{ fieldName: "", errorMessages: ["",""]}*/],
         };
         this.onClickPlay = this.onClickPlay.bind(this);
         this.onChangeInput = this.onChangeInput.bind(this);
@@ -39,15 +43,21 @@ export default class VideoNoteCreate extends Component {
     }
 
     onClickCreate() {
+        ///Reset The error messages
+        this.setState({ ERRORS: [] });
+
+        if (extractVideoToken(this.state.url).length == 0) {
+            clientSideValidation("Not a valid YouTube URL!","URL", this);
+            return;
+        }
+
         let videoCreate = {};
-        
         videoCreate.description = this.state.description;
         videoCreate.name = this.state.name;
         videoCreate.url = this.state.url;
 
         videoCreate.directoryId = this.props.match.params.id;
 
-        console.log(videoCreate);
         fetch("/api/Video/Create", {
             method: "POST",
             headers: {
@@ -58,11 +68,19 @@ export default class VideoNoteCreate extends Component {
         })
             .then(x => x.json())
             .then((data) => {
-                if (data == true) {
-                    this.props.history.push(c.rootDir + "/" + this.props.match.params.id);
-                } else {
-                    alert("VideoNotes were not created!");
+                console.log(data);
+
+                if (data.hasOwnProperty("errors")) {
+                    handeleValidationErrors(data.errors, this);
+                    return;
                 }
+
+                if (data)
+                    if (data == true) {
+                        this.props.history.push(c.rootDir + "/" + this.props.match.params.id);
+                    } else if (data == false) {
+                        alert("VideoNotes were not created!");
+                    }
             });
     }
 
@@ -89,20 +107,23 @@ export default class VideoNoteCreate extends Component {
     renderVideoProperties() {
         var props = ["url", "name", "description"];
         return props.map(x =>
-            <div className="row" key={"videoprop" + x}>
-                <div className={"col-sm-" + this.state.offset + " text-right"}>
-                    <label>{x}</label>
+            <Fragment>
+                <ShowError prop={x.toUpperCase()} ERRORS={this.state.ERRORS} showErrors={this.state.showErrors} />
+                <div className="row" key={"videoprop" + x}>
+                    <div className={"col-sm-" + this.state.offset + " text-right"}>
+                        <label>{x}</label>
+                    </div>
+                    <div className={"col-sm-" + this.state.length}>
+                        <input
+                            className="form-control-black mb-3"
+                            value={this.state[x]}
+                            onChange={(e) => this.onChangeInput(e, x)}
+                        >
+                        </input>
+                    </div>
+                    {this.renderPlayButton(x)}
                 </div>
-                <div className={"col-sm-" + this.state.length}>
-                    <input
-                        className="form-control-black mb-3"
-                        value={this.state[x]}
-                        onChange={(e) => this.onChangeInput(e, x)}
-                    >
-                    </input>
-                </div>
-                {this.renderPlayButton(x)}
-            </div>
+            </Fragment>
         )
     }
 
@@ -134,7 +155,7 @@ export default class VideoNoteCreate extends Component {
                     />
                 </div>
             </div>
-            )
+        )
     }
 
     render() {

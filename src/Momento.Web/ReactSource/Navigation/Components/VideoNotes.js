@@ -6,8 +6,9 @@ import { SketchPicker } from 'react-color';
 import ReactTooltip from 'react-tooltip';
 
 import * as c from "./Helpers/Constants";
-import { extractVideoToken, clone, cnvRGBToStr, createBorder } from "./Helpers/HelperFuncs";
+import { handeleValidationErrors, clientSideValidation, extractVideoToken, clone, cnvRGBToStr, createBorder } from "./Helpers/HelperFuncs";
 import LoadSvg from './Helpers/LoadSvg';
+import ShowError from "./Helpers/ShowError";
 
 export default class VideoNotes extends Component {
 
@@ -44,6 +45,9 @@ export default class VideoNotes extends Component {
             subNoteInfo: [null, null, null],
 
             thicknessInput: "",
+
+            showErrors: true,
+            ERRORS: [],
         }
         this.references = [];
         this.captureNewlyCreatedNoteRefs = this.captureNewlyCreatedNoteRefs.bind(this);
@@ -66,7 +70,6 @@ export default class VideoNotes extends Component {
         this.renderPlayPauseButton = this.renderPlayPauseButton.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
         this.renderVideoProperties = this.renderVideoProperties.bind(this);
-        this.renderPlayButton = this.renderPlayButton.bind(this);
         this.renderColorPicker = this.renderColorPicker.bind(this);
         this.renderSaveAndDoNotSave = this.renderSaveAndDoNotSave.bind(this);
 
@@ -359,7 +362,7 @@ export default class VideoNotes extends Component {
                         <div data-tip={c.createNewNoteButtonDataTip} className="col no-padding">
                             <button
                                 onClick={() => this.onClickAddNote(null, 0, "note", false)} c
-                                lassName="col btn btn-primary btn-block add-note">
+                                className="col btn btn-primary btn-block add-note">
                                 Add Note
                              </button>
                         </div>
@@ -416,6 +419,12 @@ export default class VideoNotes extends Component {
             player: player,
             playerReady: true,
         });
+
+        $("#iframeDiv").height($("#iframeDiv").width() * 9 / 16);
+
+        ///TODO: saving new time does not work if you just scrub the video in that state.
+        player.seekTo(this.state.videoData.seekTo);
+        player.pauseVideo();
     }
 
     getAllChildrenOfNote(note, allNotes) {
@@ -535,6 +544,9 @@ export default class VideoNotes extends Component {
             string[][] changes, VideoNoteCreate[] newNotes)
     */
     onClickSave() {
+        ///Reseting the errors from the previous submission
+        this.setState({ ERRORS: [] });
+
         ///Preparing new items - adding the parentDbId value id applicable
         let newElements = this.state.notes.filter(x => x.id == 0);
         for (var i = 0; i < newElements.length; i++) {
@@ -587,7 +599,6 @@ export default class VideoNotes extends Component {
         data.seekTo = Math.floor(this.state.player.getCurrentTime());
         data.name = this.state.videoData.name;
         data.desctiption = this.state.videoData.desctiption;
-        data.url = this.state.videoData.url;
         data.finalSave = true;
         data.newNotes = newElements;
         data.changes = changes;
@@ -601,13 +612,19 @@ export default class VideoNotes extends Component {
             body: JSON.stringify(data)
         })
             .then((response) => {
-                console.log(response);
                 return response.json();
             })
             .then((data) => {
+                console.log(data);
+
+                if (data.hasOwnProperty("errors")) {
+                    handeleValidationErrors(data.errors, this);
+                    return;
+                }
+
                 if (data == true) {
-                    window.history.back();
-                } else {
+                    this.props.history.push(c.rootDir + "/" + this.props.match.params.dirId);
+                } else if (data == false) {
                     alert("Save video did not work!");
                 }
             });
@@ -657,8 +674,8 @@ export default class VideoNotes extends Component {
             this.setState({ userHasCreatedNote: true });
         }
 
-        if (parentLevel >= c.MaxNoteNestingLevel) {
-            alert("you can not nest notes further than " + c.MaxNoteNestingLevel + " levels!")
+        if (parentLevel >= c.maxNoteNestingLevel) {
+            alert("you can not nest notes further than " + c.maxNoteNestingLevel + " levels!")
             return;
         }
 
@@ -742,37 +759,25 @@ export default class VideoNotes extends Component {
     }
 
     renderVideoProperties() {
-        var props = ["url", "name", "description"];
+        var props = ["name", "description"];
         return props.map(x =>
-            <div className="row" key={"videoprop" + x}>
-                <div className={"col-sm-" + this.state.offset + " text-right"}>
-                    <label>{x}</label>
+            <Fragment>
+                <ShowError prop={x.toUpperCase()} ERRORS={this.state.ERRORS} showErrors={this.showErrors} />
+                <div className="row" key={"videoprop" + x}>
+                    <div className={"col-sm-" + this.state.offset + " text-right"}>
+                        <label>{x}</label>
+                    </div>
+                    <div className={"col-sm-" + this.state.length}>
+                        <input
+                            className="form-control-black mb-3"
+                            value={this.state.videoData[x]}
+                            onChange={(e) => this.onChangeInput(e, x)}
+                        >
+                        </input>
+                    </div>
                 </div>
-                <div className={"col-sm-" + this.state.length}>
-                    <input
-                        className="form-control-black mb-3"
-                        value={this.state.videoData[x]}
-                        onChange={(e) => this.onChangeInput(e, x)}
-                    >
-                    </input>
-                </div>
-                {this.renderPlayButton(x)}
-            </div>
+            </Fragment>
         )
-    }
-
-    renderPlayButton(prop) {
-        if (prop == "url") {
-            return (
-                <div className="col-sm-2">
-                    <button
-                        onClick={this.onClickPlay}
-                        className="btn btn-primary">
-                        Play
-                    </button>
-                </div>
-            )
-        }
     }
 
     renderColorPicker() {
@@ -796,7 +801,7 @@ export default class VideoNotes extends Component {
         return (
             <Fragment>
                 <button onClick={this.onClickSave} className="btn btn-success">Save Notes</button>
-                <button onClick={() => window.history.back()} className="float-right btn btn-danger">Don't Save</button>
+                <button onClick={() => this.props.history.push(c.rootDir + "/" + this.props.match.params.dirId)} className="float-right btn btn-danger">Don't Save</button>
             </Fragment>
         )
     }

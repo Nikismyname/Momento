@@ -29,6 +29,7 @@
                 DirectoryId = directoryId,
                 UserId = userId,
                 Name = "TestVideo1",
+                Url = "No Sql Errors"
             };
 
             context.Videos.Add(video);
@@ -170,6 +171,22 @@
             }
 
             return notes.ToArray();
+        }
+
+        public const string initCreateDesctiption = "creative description";
+        //public const int initCreateDirectoryId = 11;
+        public const string initCreateName = "creative name";
+        public const string intiCreateUrl = "creatice url"
+;
+        public static VideoInitialCreate GetInitCreateModel(int directoryId)
+        {
+            return new VideoInitialCreate
+            {
+                Description = initCreateDesctiption,
+                DirectoryId = directoryId,
+                Name = initCreateName,
+                Url = intiCreateUrl,
+            };
         }
     }
 }
