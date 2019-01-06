@@ -8,14 +8,14 @@
     {
         public static string PeshoId = "PeshoPeshovId";
         public static string PeshoUsername = "PeshoPeshov";
-        public static string PeshoRootDir = "PeshoRoot";
+        public static string PeshoRootDirName = "PeshoRoot";
         public static int PeshoRootDirId = 1;
         public static string PeshoPassword = "PeshoPass";
         public static string PeshoEmail = "Pesho@Pesho.Pesho";
 
         public static string GoshoId = "GoshoGoshovId";
         public static string GoshoUsername = "GoshoGoshov";
-        public static string GoshoRootDir = "GoshoRoot";
+        public static string GoshoRootDirName = "GoshoRoot";
         public static int GoshoRootDirId = 2;
         public static string GoshoPassword = "GoshoPass";
         public static string GoshoEmail = "Gosho@Gosho.Gosho";
@@ -34,7 +34,7 @@
                     LastName = "Peshov",
                     UserName = PeshoUsername,
                     Email = "pesho@pesho.pesho",
-                    Directories = new Directory[]{ new Directory {Name = PeshoRootDir, Id = PeshoRootDirId  } }
+                    Directories = new Directory[]{ new Directory {Name = PeshoRootDirName, Id = PeshoRootDirId  } }
                 },
                 new User
                 {
@@ -43,7 +43,7 @@
                     LastName = "Goshov",
                     UserName = GoshoUsername,
                     Email = "gosho@gosho.gosho",
-                    Directories = new Directory[]{ new Directory {Name = GoshoRootDir, Id = GoshoRootDirId  } }
+                    Directories = new Directory[]{ new Directory {Name = GoshoRootDirName, Id = GoshoRootDirId  } }
                 },
             };
             context.Users.AddRange(users);

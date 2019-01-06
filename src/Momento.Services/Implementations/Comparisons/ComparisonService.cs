@@ -67,8 +67,8 @@
         #endregion
 
         #region Create
-
-        public void Create(ComparisonCreate data, string username)
+        ///Tested
+        public Comparison Create(ComparisonCreate data, string username)
         {
             var parentDirId = data.ParentDirId;
 
@@ -110,6 +110,8 @@
 
             context.Comparisons.Add(comparison);
             context.SaveChanges();
+
+            return comparison;
         } 
 
         public bool CreateApi(ComparisonCreate data, string username)
@@ -129,6 +131,7 @@
 
         #region Save
         ///validated
+        ///Tested?
         public void Save(ComparisonSave saveData, string username)
         {
             User user = null;
@@ -267,7 +270,7 @@
         #endregion
 
         #region Delete
-        public void Delete(int id, string username)
+        public Comparison Delete(int id, string username)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
             if(user == null)
@@ -300,6 +303,8 @@
             comp.IsDeleted = true;
 
             context.SaveChanges();
+
+            return comp;
         }
 
         public bool DeleteApi(int id, string username)

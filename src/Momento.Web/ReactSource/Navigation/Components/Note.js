@@ -114,29 +114,29 @@ export default class Note extends Component {
     }
 
     onClickSave() {
-        let s = this.state;
+        let state = this.state;
 
-        let dbLines = [];
-        for (var i = 0; i < s.code.lines.length; i++) {
-            let pl = s.code.lines[i];
-            dbLines.push({
+        let allLines = [];
+        for (var i = 0; i < state.code.lines.length; i++) {
+            let currentLine = state.code.lines[i];
+            allLines.push({
                 order: i,
-                id: pl.dbId,
-                sourceContent: pl.content,
-                inPageId: pl.id,
-                noteContent: pl.note.content,
-                editorMode: pl.note.editorMode,
-                visible: pl.note.visible,
+                id: currentLine.dbId,
+                sourceContent: currentLine.content,
+                inPageId: currentLine.id,
+                noteContent: currentLine.note.content,
+                editorMode: currentLine.note.editorMode,
+                visible: currentLine.note.visible,
             });
         }
 
         let data = {
             id: this.props.match.params.id,
-            mainNoteContent: s.mainNote.content,
-            editorMode: s.mainNote.editorMode,
-            source: s.code.source,
-            showSourceEditor: s.code.showSourceEditor,
-            lines: dbLines,
+            mainNoteContent: state.mainNote.content,
+            editorMode: state.mainNote.editorMode,
+            source: state.code.source,
+            showSourceEditor: state.code.showSourceEditor,
+            lines: allLines,
         }
 
         fetch("/api/Note/", {

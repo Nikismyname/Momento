@@ -8,10 +8,12 @@
 
     public class ListToDo : SoftDeletableAndTrackable, IOrderable<int>
     {
+        public const string InitialCategories = "HighPriority;Active;BackBurner;MostlyDone;Done;Unassigned";
+
         public ListToDo()
         {
             this.Items = new HashSet<ListToDoItem>();
-            this.Categories = "HighPriority;Active;BackBurner;MostlyDone;Done;Unassigned";
+            this.Categories = InitialCategories;
         }
 
         public int  Id { get; set; }

@@ -5,9 +5,7 @@
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
     using Momento.Models.ListsToDo;
-    using Momento.Services.Contracts.Directory;
     using Momento.Services.Contracts.ListToDo;
-    using Momento.Services.Contracts.Other;
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Exceptions;
     using Momento.Services.Models.ListToDoModels;
@@ -18,25 +16,21 @@
     {
         private readonly MomentoDbContext context;
         private readonly ITrackableService trackableService;
-        private readonly IUserService userService;
-        private readonly IReorderingService reorderingService;
 
         public ListToDoService(
             MomentoDbContext context,
-            ITrackableService trackableService,
-            IUserService userService,
-            IReorderingService reorderingService)
+            ITrackableService trackableService)
         {
             this.context = context;
             this.trackableService = trackableService;
-            this.userService = userService;
-            this.reorderingService =reorderingService;
         }
         #endregion
 
-        //Authenticated
-        //Registers user for the list
-        public void Create(ListToDoCreate pageListToDo, string username)
+        #region Create
+        ///Authenticated
+        ///Registers user for the list
+        ///Tested
+        public ListToDo Create(ListToDoCreate pageListToDo, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -44,7 +38,9 @@
                 throw new UserNotFound(username);
             }
 
-            var direcotory = context.Directories.SingleOrDefault(x => x.Id == pageListToDo.DirectoryId);
+            var direcotory = context.Directories
+                .Include(x=>x.ListsToDo)
+                .SingleOrDefault(x => x.Id == pageListToDo.DirectoryId);
             if(direcotory == null)
             {
                 throw new ItemNotFound("The directory for this List does not exists");
@@ -67,43 +63,64 @@
             newListToDo.UserId = user.Id;
             context.ListsTodo.Add(newListToDo);
             context.SaveChanges();
-        }
 
-        //Authorizes 
-        //Registers View 
+            return newListToDo;
+        }
+        #endregion
+
+        #region GetUseModel 
+        ///AuthorizesR2 
+        ///Registers View 
+        ///Tested
         public ListToDoUse GetUseModel(int id, string username)
         {
-            var model = context.ListsTodo
+            var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
+
+            if(user == null)
+            {
+                throw new UserNotFound(username);
+            }
+
+            var listToDo = context.ListsTodo
                 .Include(x=>x.Items)
                 .SingleOrDefault(x=>x.Id == id);
 
-            var userId = userService.GetUserId(username);
-            if(userId != model.UserId)
+            if(listToDo == null)
             {
-                throw new AccessDenied("The list you are trying to access dos not belong to you!");
+                throw new ItemNotFound("The ListToDo you are trying to get does not exist in the database!");
             }
 
-            trackableService.RegisterViewing(model, DateTime.Now, true);
+            if(user.Id != listToDo.UserId)
+            {
+                throw new AccessDenied("The ListToDo you are trying get does not belong to you");
+            }
 
-            var returnModel = Mapper.Instance.Map<ListToDoUse>(model);
-            return returnModel;
+            trackableService.RegisterViewing(listToDo, DateTime.Now, true);
+
+            var listToDoUseModel = Mapper.Instance.Map<ListToDoUse>(listToDo);
+            return listToDoUseModel;
         }
+        #endregion
 
-        //Soft Deletes
-        //authorizes
-        public void Delete(int id, string username)
+        #region Delete
+        ///Soft Deletes
+        ///Authorized
+        ///Tested Could TODO: add tests to see if the time of deletion is set correctly
+        public ListToDo Delete(int id, string username)
         {
-            var listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == id);
-            if (listToDo == null)
-            {
-                ///trowing that so people can not find valid ids through sending delete requests 
-                throw new ItemNotFound("The list you are trying to delete does not exist!");
-            }
-
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
             {
                 throw new UserNotFound(username);
+            }
+
+            var listToDo = context.ListsTodo
+                .Include(x=>x.Items)
+                .SingleOrDefault(x => x.Id == id);
+            if (listToDo == null)
+            {
+                ///trowing that so people can not find valid ids through sending delete requests 
+                throw new ItemNotFound("The list you are trying to delete does not exist!");
             }
 
             if (listToDo.UserId != user.Id)
@@ -118,6 +135,8 @@
             trackableService.Delete(listToDo, now, false);
 
             context.SaveChanges();
+
+            return listToDo;
         }
 
         public bool DeleteApi(int id, string username)
@@ -132,17 +151,21 @@
                 return false;
             }
         }
+        #endregion
 
         #region SAVE
         //Verified 
         //Regesters Deletion
         //Registers Modifications
+        //Tested
         public void Save(ListToDoUse model, string username)
         {
             ListToDo listToDo;
             int[] validItemIds;
 
             this.VerifyListToSaveBelongsToUser(model, username, out listToDo);
+
+            this.UpdateListToDoProperties(model, listToDo);
 
             this.ChangeExistingItems(model, out validItemIds);
 
@@ -157,22 +180,38 @@
 
         private void VerifyListToSaveBelongsToUser(ListToDoUse model, string username, out ListToDo listToDo)
         {
-            listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == model.Id);
-            if (listToDo == null)
-            {
-                throw new ItemNotFound("The list you are trying to modify does not exist!");
-            }
-
             var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
             if (userId == null)
             {
                 throw new UserNotFound(username);
             }
 
+            listToDo = context.ListsTodo.SingleOrDefault(x => x.Id == model.Id);
+            if (listToDo == null)
+            {
+                throw new ItemNotFound("The list you are trying to modify does not exist!");
+            }
+
             if (listToDo.UserId != userId)
             {
                 throw new AccessDenied("The list you are trying to modify does not beling to you!");
             }
+
+            ///Checking that the user did not somehow delete Unassigned Tab 
+            var categories = model.Categories.Split(";", StringSplitOptions.RemoveEmptyEntries);
+            if (!categories.Contains("Unassigned"))
+            {
+                throw new Exception("The user somehow deleted the Unassigned tab, this is not Right!");
+            }
+            ///cleaning up the categories if something funky happened client side
+            model.Categories = string.Join(";",categories);
+        }
+
+        private void UpdateListToDoProperties(ListToDoUse model, ListToDo list)
+        {
+            list.Categories = model.Categories;
+            list.Description = model.Description;
+            list.Name = model.Name;
         }
 
         private void ChangeExistingItems(ListToDoUse model, out int[] validItemIds)

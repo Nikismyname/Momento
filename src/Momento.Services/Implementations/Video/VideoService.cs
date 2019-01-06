@@ -182,21 +182,21 @@
         #endregion
 
         #region Create
-        ///Tested///Not any more
-        public void Create(VideoInitialCreate videoCreate, string username)
+        ///Tested///Not any more///Tested again
+        public Video Create(VideoInitialCreate videoCreate, string username)
         {
             var dirId = videoCreate.DirectoryId;
-
-            var directory = context.Directories.SingleOrDefault(x => x.Id == dirId);
-            if (directory == null)
-            {
-                throw new ItemNotFound("The Directory you selected for creating the new video notes in, does not exist!");
-            }
 
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
             {
                 throw new UserNotFound(username);
+            }
+
+            var directory = context.Directories.SingleOrDefault(x => x.Id == dirId);
+            if (directory == null)
+            {
+                throw new ItemNotFound("The Directory you selected for creating the new video notes in, does not exist!");
             }
 
             if (user.Id != directory.UserId)
@@ -222,6 +222,8 @@
 
             context.Videos.Add(video);
             context.SaveChanges();
+
+            return video;
         }
 
         public bool CreateApi(VideoInitialCreate videoCreate, string username)
@@ -569,38 +571,39 @@
         #endregion
 
         #region Helpers
-        private List<VideoNote> MakeNotesFromPageNotes(List<VideoNoteCreate> pageNotes)
-        {
-            pageNotes = pageNotes.OrderBy(x => x.InPageId).ToList();
-            var map = new Dictionary<int, int>();
-            var finalNotes = new List<VideoNote>();
-            for (int i = 0; i < pageNotes.Count; i++)
-            {
-                var pageNote = pageNotes[i];
-                VideoNote dbNote;
+        ///Depricated
+        //private List<VideoNote> MakeNotesFromPageNotes(List<VideoNoteCreate> pageNotes)
+        //{
+        //    pageNotes = pageNotes.OrderBy(x => x.InPageId).ToList();
+        //    var map = new Dictionary<int, int>();
+        //    var finalNotes = new List<VideoNote>();
+        //    for (int i = 0; i < pageNotes.Count; i++)
+        //    {
+        //        var pageNote = pageNotes[i];
+        //        VideoNote dbNote;
 
-                dbNote = new VideoNote
-                {
-                    Content = pageNote.Content,
-                    Formatting = pageNote.Formatting,
-                    Name = "PlaceHolder",
-                    SeekTo = pageNote.SeekTo,
-                    Level = pageNote.Level,
-                    Order = pageNote.InPageId,
-                    Type = pageNote.Type,
-                };
+        //        dbNote = new VideoNote
+        //        {
+        //            Content = pageNote.Content,
+        //            Formatting = pageNote.Formatting,
+        //            Name = "PlaceHolder",
+        //            SeekTo = pageNote.SeekTo,
+        //            Level = pageNote.Level,
+        //            Order = pageNote.InPageId,
+        //            Type = pageNote.Type,
+        //        };
 
-                if (pageNote.InPageParentId != null)
-                {
-                    dbNote.Note = finalNotes[map[(int)pageNote.InPageParentId]];
-                }
+        //        if (pageNote.InPageParentId != null)
+        //        {
+        //            dbNote.Note = finalNotes[map[(int)pageNote.InPageParentId]];
+        //        }
 
-                map.Add(pageNote.InPageId, i);
-                finalNotes.Add(dbNote);
-            }
+        //        map.Add(pageNote.InPageId, i);
+        //        finalNotes.Add(dbNote);
+        //    }
 
-            return finalNotes;
-        }
+        //    return finalNotes;
+        //}
 
         private int Level(VideoNote note)
         {

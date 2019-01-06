@@ -1,5 +1,6 @@
 ﻿namespace Momento.Services.Implementations.Notes
 {
+    #region Initialization
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
     using Momento.Data;
@@ -29,7 +30,9 @@
             this.utilService = utilService;
             this.trackableService = trackableService;
         }
+        #endregion
 
+        #region Create
         public Note Create(NoteCreate note, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -78,7 +81,9 @@
                 return false;
             }
         }
+        #endregion
 
+        #region GetForEdit
         public NoteEdit GetForEdit(int id, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -88,14 +93,14 @@
             }
 
             var note = context.Notes
-                .Include(x=>x.Lines)
+                .Include(x => x.Lines)
                 .SingleOrDefault(x => x.Id == id);
             if (note == null)
             {
                 throw new ItemNotFound("The note you are trying to get does not exist!");
             }
 
-            if(note.UserId != user.Id)
+            if (note.UserId != user.Id)
             {
                 throw new UserNotFound("The note you are trying to get does not belong to you!");
             }
@@ -115,7 +120,9 @@
                 return null;
             }
         }
+        #endregion
 
+        #region Save
         public Note Save(NoteEdit editInput, string username)
         {
             User user = null;
@@ -130,59 +137,98 @@
             return dbNote;
         }
 
+        public bool SaveApi(NoteEdit model, string username)
+        {
+            try
+            {
+                this.Save(model, username);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         private void CheckSaveForAuthorization(ref User user, ref Note pageNote, string username, int noteId)
         {
             user = context.Users.SingleOrDefault(x => x.UserName == username);
-            if(user == null)
+            if (user == null)
             {
                 throw new UserNotFound(username);
             }
 
             pageNote = context.Notes.SingleOrDefault(x => x.Id == noteId);
-            if(pageNote == null)
+            if (pageNote == null)
             {
                 throw new ItemNotFound("The note you are trying to edit does not exist!");
             }
 
-            if(pageNote.UserId != user.Id)
+            if (pageNote.UserId != user.Id)
             {
                 throw new AccessDenied("The note you are trying to edit does not belong to you!");
             }
         }
 
-        private void UpdateExistingNotes(Note note, NoteEdit editInput)
+        private void UpdateExistingNotes(Note dbNote, NoteEdit editInput)
         {
-            var validIds = note.Lines.Select(x => x.Id);
-            var existingLinesIds = editInput.Lines.Where(x => x.Id > 0).Select(x=>x.Id);
+            //var validIds = dbNote.Lines.Select(x => x.Id);
+
+            var validIds = context.Notes
+                .Where(x=>x.Id == dbNote.Id)
+                .Select(x=>x.Lines.Select(y=> y.Id).ToArray())
+                .SingleOrDefault();
+
+            var existingLinesIds = editInput.Lines.Where(x => x.Id > 0).Select(x => x.Id);
 
             if (existingLinesIds.Any(x => !validIds.Contains(x)))
             {
                 throw new AccessDenied("The Lines you are trying to edit do not belong the Note you are editing!");
             }
 
-            var dbLinesToUpdate = note.Lines.Where(x=> existingLinesIds.Contains(x.Id)).OrderBy(x=>x.Id).ToArray();
+            //var dbLinesToUpdate = dbNote.Lines.Where(x => existingLinesIds.Contains(x.Id)).OrderBy(x => x.Id).ToArray();
+            var dbLinesToUpdate = this.context.Notes
+                .Where(x => x.Id == dbNote.Id)
+                .Select(x=>x.Lines
+                    .Where(y=> existingLinesIds.Contains(y.Id))
+                    .OrderBy(y=>y.Id)
+                    .ToArray())
+                .SingleOrDefault();
+
             var pageLines = editInput.Lines.Where(x => x.Id > 0).OrderBy(x => x.Id).ToArray();
+
+            if (dbLinesToUpdate.Length != pageLines.Length) throw new Exception("Lines To update from page does not match lines to update from db!");
 
             for (int i = 0; i < dbLinesToUpdate.Length; i++)
             {
-                var dbNote = dbLinesToUpdate[i];
+                var currentDbNote = dbLinesToUpdate[i];
                 var pageLine = pageLines[i];
 
-                if(dbNote.Id != pageLine.Id)
-                {
-                    throw new Exception("You done goofed");
-                }
+                if (currentDbNote.Id != pageLine.Id) throw new Exception("Line To update from page does not match line to update from db [ID]!");
 
-                this.utilService.UpdatePropertiesReflection(pageLine,dbNote,new string[] {"Id" });
+                this.utilService.UpdatePropertiesReflection(pageLine, currentDbNote, new string[] { "Id" });
             }
         }
 
         public void DeleteRemovedLines(NoteEdit editInput, Note dbNote)
         {
-            var currentDbIds = dbNote.Lines.Select(x => x.Id).ToArray();
+            var currentDbIds = context.Notes
+                .Where(x => x.Id == dbNote.Id)
+                .Select(x => x.Lines
+                    .Select(y => y.Id)
+                    .ToArray())
+                .SingleOrDefault();
+
             var currentPageIds = editInput.Lines.Where(x => x.Id > 0).Select(x => x.Id).ToArray();
             var removedIds = currentDbIds.Where(x => !currentPageIds.Contains(x));
-            var codeLinesToRemove = dbNote.Lines.Where(x => removedIds.Contains(x.Id));
+
+            var codeLinesToRemove = context.Notes
+                .Where(x => x.Id == dbNote.Id)
+                .Select(x=>x.Lines
+                    .Where(y=>removedIds.Contains(y.Id))
+                    .ToArray())
+                .SingleOrDefault();
+
             var now = DateTime.UtcNow;
             foreach (var item in codeLinesToRemove)
             {
@@ -202,34 +248,24 @@
             context.CodeLines.AddRange(newDbNotes);
         }
 
-        public bool SaveApi(NoteEdit model, string username)
-        {
-            try
-            {
-                this.Save(model, username);
-                return true;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
+        #endregion
 
+        #region Delete
         public void Delete(int id, string username)
         {
             var userId = this.context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
-            if(userId == null)
+            if (userId == null)
             {
                 throw new UserNotFound(username);
             }
 
-            var note = this.context.Notes.SingleOrDefault(x=>x.Id == id);
-            if(note == null)
+            var note = this.context.Notes.SingleOrDefault(x => x.Id == id);
+            if (note == null)
             {
                 throw new ItemNotFound("The note you are trying to delete does not exist!");
             }
 
-            if(userId != note.UserId)
+            if (userId != note.UserId)
             {
                 throw new AccessDenied("The note you are trying to delete does not belong to you!");
             }
@@ -260,5 +296,6 @@
                 return false;
             }
         }
+        #endregion
     }
 }

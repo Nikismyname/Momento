@@ -104,19 +104,6 @@
         #endregion
 
         #region Create
-        //A little iffy how to test that it returns the right index
-        [Test]///Checked
-        public void CreateThrowsIfDirectoryDoesNotExist()
-        {
-            const int NonExistantDirectoryId = 13;
-            const string NonExistantUsername = "NonExistantUsername";
-
-            ChangeTrackerOperations.DetachAll(this.context);
-            Action action = () => this.videoService.Create(new VideoInitialCreate, NonExistantUsername);
-
-            action.Should().Throw<ItemNotFound>().WithMessage("The Directory you selected for creating the new video notes in, does not exist!");
-        }
-
         [Test]///Checked
         public void CreateThrowsIfUserDoesNotExist()
         {
@@ -125,9 +112,40 @@
             int ExistingDirecotryId = UserS.GoshoRootDirId;
             const string NonExistantUsername = "NonExistantUsername";
 
+            ///This data does not matter for this test
+            var initCreate = new VideoInitialCreate
+            {
+                Description = "",
+                DirectoryId = 42,
+                Name = "",
+                Url = "",
+            };
+
             ChangeTrackerOperations.DetachAll(this.context);
-            Action action = () => this.videoService.Create(ExistingDirecotryId, NonExistantUsername);
+            Action action = () => this.videoService.Create(initCreate, NonExistantUsername);
             action.Should().Throw<UserNotFound>();
+        }
+
+        [Test]///Checked
+        public void CreateThrowsIfDirectoryDoesNotExist()
+        {
+            const int nonExistantDirectoryId = 42;
+            const string NonExistantUsername = "NonExistantUsername";
+
+            UserS.SeedPeshoAndGosho(this.context);
+
+            var initCreate = new VideoInitialCreate
+            {
+                 Description = "",
+                 DirectoryId = nonExistantDirectoryId,
+                 Name = "",
+                 Url = "",
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Action action = () => this.videoService.Create(initCreate, UserS.PeshoUsername);
+
+            action.Should().Throw<ItemNotFound>().WithMessage("The Directory you selected for creating the new video notes in, does not exist!");
         }
 
         [Test]///Checked
@@ -135,54 +153,48 @@
         {
             UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = UserS.GoshoRootDirId;
-            string ExistingUsername = UserS.PeshoUsername;
+            var initCreate = new VideoInitialCreate
+            {
+                Description = "",
+                DirectoryId = UserS.GoshoRootDirId,
+                Name = "",
+                Url = "",
+            };
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Action action = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
+            Action action = () => this.videoService.Create(initCreate, UserS.PeshoUsername);
             action.Should().Throw<AccessDenied>().WithMessage("The directory you are trying to create a video on does note belong to you!");
         }
 
         [Test]///Checked
         public void CreateCreatsVideo()
         {
+            const string initialDescription = "best description ever!";
+            const string initialName = "best name ever";
+            const string initialUrl = "definitely a valid url, who is asking?";
+
             ///Also seeds their root directories
             UserS.SeedPeshoAndGosho(context);
 
-            int ExistingDirecotryId = UserS.GoshoRootDirId;
-            string ExistingUsername = UserS.GoshoUsername;
+            var initCreate = new VideoInitialCreate
+            {
+                DirectoryId = UserS.GoshoRootDirId,
+
+                Description = initialDescription,
+                Name = initialName,
+                Url = initialUrl,
+            };
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Action action = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
-            action.Invoke();
+            Func<Video> action = () => this.videoService.Create(initCreate, UserS.GoshoUsername);
+            var video = action.Invoke();
 
-            var video = context.Directories
-                .SingleOrDefault(x => x.Id == ExistingDirecotryId)
-                .Videos
-                .SingleOrDefault();
-
-            video.DirectoryId.Should().Be(ExistingDirecotryId);
+            video.DirectoryId.Should().Be(UserS.GoshoRootDirId);
             video.UserId.Should().Be(UserS.GoshoId);
-        }
 
-        [Test]///Checked
-        public void CreateReturnsTheVideosId()
-        {
-            ///Also seeds their root directories
-            UserS.SeedPeshoAndGosho(context);
-
-            int ExistingDirecotryId = UserS.GoshoRootDirId;
-            string ExistingUsername = UserS.GoshoUsername;
-
-            Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
-            var videoId = funk.Invoke();
-
-            var video = context.Directories
-                .SingleOrDefault(x => x.Id == ExistingDirecotryId)
-                .Videos
-                .SingleOrDefault();
-
-            videoId.Should().Be(video.Id);
+            video.Description.Should().Be(initialDescription);
+            video.Name.Should().Be(initialName);
+            video.Url.Should().Be(initialUrl);
         }
 
         [Test]///Checked
@@ -190,31 +202,44 @@
         {
             ///Also seeds their root directories
             UserS.SeedPeshoAndGosho(context);
-            int ExistingDirecotryId = UserS.GoshoRootDirId;
-            string ExistingUsername = UserS.GoshoUsername;
 
-            Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
-            var videoId = funk.Invoke();
+            var initCreate = new VideoInitialCreate
+            {
+                DirectoryId = UserS.GoshoRootDirId,
 
-            var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
+                Description = "",
+                Name = "",
+                Url = "",
+            };
+
+            Func<Video> funk = () => this.videoService.Create(initCreate, UserS.GoshoUsername);
+            var video = funk.Invoke();
+
             video.Order.Should().Be(0);
         }
 
         [Test]///Checked
         public void CreateSetNewVidosOrderToTheCountOfVideosMinusOne()
         {
+            ///Also seeds their root directories
             UserS.SeedPeshoAndGosho(context);
-            int ExistingDirecotryId = UserS.GoshoRootDirId;
-            string ExistingUsername = UserS.GoshoUsername;
 
-            Func<int> funk = () => this.videoService.Create(ExistingDirecotryId, ExistingUsername);
-            funk.Invoke();
-            funk.Invoke();
-            funk.Invoke();
-            funk.Invoke();
-            var videoId = funk.Invoke();
+            var initCreate = new VideoInitialCreate
+            {
+                DirectoryId = UserS.GoshoRootDirId,
 
-            var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
+                Description = "",
+                Name = "",
+                Url = "",
+            };
+
+            Func<Video> funk = () => this.videoService.Create(initCreate, UserS.GoshoUsername);
+            funk.Invoke();
+            funk.Invoke();
+            funk.Invoke();
+            funk.Invoke();
+            var video = funk.Invoke();
+
             video.Order.Should().Be(4);
         }
         #endregion

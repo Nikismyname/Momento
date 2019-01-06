@@ -59,7 +59,7 @@ function ToDoList(tabCounts, itemsCount) {
         });
     });
 
-    ///New TAB 
+    ///create New TAB 
     $('#btn-new-tab').click(function () {
 
         let newTabName = prompt("Select name for the new Tab!", "NameHere");
@@ -69,10 +69,10 @@ function ToDoList(tabCounts, itemsCount) {
             return;
         }
         let existingTabNames = [];
-        for (let key in tabCounts) {
-            existingTabNames.push(key);
+        for (let value in tabCounts) {
+            existingTabNames.push(value.toUpperCase());
         }
-        if (existingTabNames.includes(newTabName)) {
+        if (existingTabNames.includes(newTabName.toUpperCase())) {
             alert('You can not have tabs with the same name');
             return;
         }
@@ -80,7 +80,7 @@ function ToDoList(tabCounts, itemsCount) {
         let tabUl = $('#tab-ul');
         let contentParent = $('#newTabContentHere')
 
-        let headerLi = $('<li class="nav-item"></li>');
+        let headerLi = $('<li class="nav-item nav-item-tab"></li>');
         let headerA = $('<a id="heading-' + newTabName + '" class="nav-link nav-link-tab" data-toggle="tab" href="#' + newTabName + '">' + newTabName + '</a>');
         $(headerLi).append(headerA);
         $(tabUl).append(headerLi);
@@ -89,6 +89,41 @@ function ToDoList(tabCounts, itemsCount) {
         let contentUl = $(' <ul class="sortableList non-list" style="display:inline-block" type="' + newTabName + '"></ul>');
         $(contentDiv).append(contentUl);
         $(contentDiv).insertBefore(contentParent);
+
+        ///Applying the sortability to new TabContents 
+        $(contentUl).sortable({
+            update: function (event, ui) {
+                let parentUl = $(ui.item)[0].parentElement;
+                var lis = $('li', parentUl);
+
+                let counter = 0;
+
+                lis.each(function (ind, li) {
+                    let pText = $('p', li).text();
+                    let order = $('.order-input', li);
+                    $(order).attr('value', counter);
+                    counter++;
+                });
+            },
+
+            start: function (event, ui) {
+                dragInProgress = true;
+            },
+
+            helper: function (event, ui) {
+                let toReturn = $(ui).clone().css("pointer-events", "none").appendTo("body").show();
+                let div = $(".todo-item", toReturn);
+                $(div).css({ 'opacity': 0.5 });
+                return toReturn;
+            },
+
+            stop: function (event, ui) {
+                if (shouldRelocate) {
+                    dragListItemTo(newTab, oldTab, ui.item);
+                    shouldRelocate = false;
+                }
+            },
+        });
 
         tabCounts[newTabName] = 0;
 
@@ -104,8 +139,8 @@ function ToDoList(tabCounts, itemsCount) {
     $('#btn-delete-tab').click(function () {
 
         let tabName = getActiveTabName();
-        if (tabName == 'unassigned') {
-            alert("You can not delete the unassigned categorie!");
+        if (tabName.toUpperCase() == 'UNASSIGNED') {
+            alert("You can not delete the Unassigned categorie!");
             return;
         }
 
@@ -121,23 +156,32 @@ function ToDoList(tabCounts, itemsCount) {
         $(headingToDelete).attr('id', 'deleted')
 
         let categories = $('#todo-list-categories').attr("value");
-        categories = categories.replace(';' + tabName, '');
+        let individualCategeries = categories.split(";");
+        individualCategeries = individualCategeries.filter(x => x != tabName);
+        categories = individualCategeries.join(";");
         $('#todo-list-categories').attr("value", categories);
 
         ///Move all the deleted items to unassigned 
         let bodyToDelete = $('#' + tabName);
         let lisInBodyToDel = $('li', bodyToDelete);
-        let unassignedUl = $('#unassigned ul');
+        let unassignedUl = $('#Unassigned ul');
         $(unassignedUl).append(lisInBodyToDel);
 
         ///switch focus to unassigned 
-        let unassigned = $('#heading-unassigned');
+        let unassigned = $('#heading-Unassigned');
         $(unassigned)[0].click();
     });
 
     ///Rename Button
     $('#btn-rename').click(function () {
         let newTabName = prompt("Select name for the new Tab!", "NameHere");
+
+        let tabName = getActiveTabName();
+
+        if (tabName.toUpperCase == "UNASSIGNED") {
+            alert("You can not delete the Unassigned tab!")
+            return;
+        }
 
         if (newTabName == null) {
             return;
@@ -149,12 +193,17 @@ function ToDoList(tabCounts, itemsCount) {
             return;
         }
 
-        let existingTabNames = [];
-        for (let key in tabCounts) {
-            existingTabNames.push(key);
+        if (newTabName.toUpperCase() == "UNASSIGNED") {
+            alert("You can not call the tab 'Unassigned'");
+            return;
         }
 
-        if (existingTabNames.includes(newTabName)) {
+        let existingTabNames = [];
+        for (let key in tabCounts) {
+            existingTabNames.push(key.toUpperCase());
+        }
+
+        if (existingTabNames.includes(newTabName.toUpperCase())) {
             alert('You can not have tabs with the same name!');
             return;
         }
@@ -375,6 +424,7 @@ function ToDoList(tabCounts, itemsCount) {
         $(document.body).append(relocationDiv);
     }
 
+    ///Old move item logic?
     function moveListItemTo(relocationDiv, newLocation, oldTabName) {
         let bodyUl = $('#' + newLocation + ' ul');
 
@@ -435,6 +485,7 @@ $('.box').mousedown(function () {
 let dragInProgress = false;
 let liBeingDragged = null;
 
+///Items Sortable
 $(".sortableList").sortable({
     ///Updating the ordering
     update: function (event, ui) {
@@ -447,7 +498,12 @@ $(".sortableList").sortable({
             let pText = $('p', li).text();
             let order = $('.order-input', li);
             $(order).attr('value', counter);
+
+            let changed = $('.change-input', li);
+            $(changed).attr('value', 'true');
+
             counter++;
+            console.log(pText + " " + $(order).attr('value'));
         });
     },
 
@@ -470,6 +526,7 @@ $(".sortableList").sortable({
     },
 });
 
+///Sorting the Tabs ///WORKS
 $(".sortableListTabs").sortable({
     update: function (event, ui) {
         let parentUl = $('#tab-ul');
@@ -483,10 +540,10 @@ $(".sortableListTabs").sortable({
     }
 });
 
+///Checking if a drag item to new tab has been made
 let shouldRelocate = false;
 let oldTab = null;
 let newTab = null;
-
 $(document).mouseup(function () {
     if (dragInProgress == true) {
         dragInProgress = false;
@@ -498,8 +555,8 @@ $(document).mouseup(function () {
     }
 });
 
+///The dragging items to new tabs Function
 function dragListItemTo(newLocation, oldLocation, element) {
-
     let query = '#' + newLocation + ' ul';
     let bodyUl = $(query);
 
@@ -514,11 +571,11 @@ function dragListItemTo(newLocation, oldLocation, element) {
     console.log($(changed).attr('value'));
 }
 
+///Draging items to new tabs
 let tabLiMouseIsOver = null;
 let backgroundColor = null;
 let isBackgroundChanged = false;
-
-$('.nav-item-tab').mouseover(function () {
+$(document).on('mouseover', '.nav-item-tab', function () {
     if (dragInProgress) {
         let element = $(this);
         let name = $('a', element)[0].innerHTML;
@@ -528,8 +585,7 @@ $('.nav-item-tab').mouseover(function () {
         isBackgroundChanged = true;
     }
 });
-
-$('.nav-item-tab').mouseleave(function () {
+$(document).on('mouseleave', '.nav-item-tab', function () {
     if (dragInProgress || isBackgroundChanged) {
         let element = $(this);
         tabLiMouseIsOver = null;
@@ -537,7 +593,7 @@ $('.nav-item-tab').mouseleave(function () {
         isBackgroundChanged = false;
     }
 });
-
+///...
 
 ///Making boxes responsive
 $(document).ready(function () {

@@ -6,9 +6,9 @@
     {
         ListToDoUse GetUseModel(int id, string username);
 
-        void Create(ListToDoCreate model, string username);
+        Momento.Models.ListsToDo.ListToDo Create(ListToDoCreate model, string username);
 
-        void Delete(int id, string username);
+        Momento.Models.ListsToDo.ListToDo Delete(int id, string username);
 
         bool DeleteApi(int id, string username);
 

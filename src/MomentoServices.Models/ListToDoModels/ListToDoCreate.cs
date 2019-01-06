@@ -11,6 +11,6 @@
         [StringLength(40, MinimumLength = 3, ErrorMessage = "The Name of a ListToDo must be between 3 and 40 characters long!")]
         public string Name { get; set; }
 
-        public string Desctiption { get; set; }
+        public string Description { get; set; }
     }
 }

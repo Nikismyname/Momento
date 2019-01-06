@@ -61,36 +61,3 @@
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//[HttpPost]
-//[Authorize]
-//public IActionResult Delete(int id, int dirId)
-//{
-//    toDoService.Delete(id, this.User.Identity.Name);
-//    return RedirectToAction("Index","Directory", new {id = dirId});
-//}

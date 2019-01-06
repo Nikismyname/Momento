@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Tests\ListToDoTests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Momento.Web\Momento.Web.csproj" />
   </ItemGroup>
 

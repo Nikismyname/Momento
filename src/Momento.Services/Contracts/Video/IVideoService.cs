@@ -5,7 +5,7 @@
 
     public interface IVideoService
     {
-        void Create(VideoInitialCreate videoCreate, string username);
+        Momento.Models.Videos.Video Create(VideoInitialCreate videoCreate, string username);
 
         bool CreateApi(VideoInitialCreate videoCreate, string username);
 
@@ -15,7 +15,7 @@
 
         VideoView GetView(int videoId, string username);
         /// <summary>
-        /// Returns null is there is a problem;
+        /// Returns null if there is a problem;
         /// </summary>
         VideoView GetViewApi(int videoId, string username);
 
