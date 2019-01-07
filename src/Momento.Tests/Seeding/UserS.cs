@@ -3,6 +3,7 @@
     using Momento.Data;
     using Momento.Models.Directories;
     using Momento.Models.Users;
+    using System.Collections.Generic;
 
     public static class UserS
     {
@@ -34,7 +35,7 @@
                     LastName = "Peshov",
                     UserName = PeshoUsername,
                     Email = "pesho@pesho.pesho",
-                    Directories = new Directory[]{ new Directory {Name = PeshoRootDirName, Id = PeshoRootDirId  } }
+                    Directories = new HashSet<Directory>() { new Directory {Name = PeshoRootDirName, Id = PeshoRootDirId  } }
                 },
                 new User
                 {
@@ -43,7 +44,7 @@
                     LastName = "Goshov",
                     UserName = GoshoUsername,
                     Email = "gosho@gosho.gosho",
-                    Directories = new Directory[]{ new Directory {Name = GoshoRootDirName, Id = GoshoRootDirId  } }
+                    Directories = new HashSet<Directory>() { new Directory {Name = GoshoRootDirName, Id = GoshoRootDirId  } }
                 },
             };
             context.Users.AddRange(users);

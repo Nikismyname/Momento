@@ -101,10 +101,10 @@
             return RedirectToAction(nameof(Index), new { id = returnDirId });
         }
 
-        [HttpPost]
-        public void Reorder(string type, int parentDir, int[] values)
-        {
-            reorderService.SaveItemsForOneDir(parentDir, type, values);
-        }
+        //[HttpPost]
+        //public void Reorder(string type, int parentDir, int[] values)
+        //{
+        //    reorderService.SaveItemsForOneDir(parentDir, type, values);
+        //}
     }
 }

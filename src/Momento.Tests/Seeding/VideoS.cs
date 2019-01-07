@@ -46,15 +46,20 @@
         public const int preExistingNote2Id = 2;
         public const int preExistingNote3Id = 3;
 
-        public static Video SeedVideosToUserWithNotes(MomentoDbContext context, string userId, bool nestedNote = false)
+        public static Video SeedVideoToUserWithNotes(MomentoDbContext context, string userId, bool nestedNote = false, int? dirId = null)
         {
             var user = context.Users.SingleOrDefault(x => x.Id == userId);
-            var rootDirectoryId = user.Directories.FirstOrDefault(x => x.Name.Contains("Root")).Id;
+
+            var directory = dirId == null ?
+                user.Directories.Single(x => x.ParentDirectoryId == null) :
+                context.Directories.Single(x => x.Id == dirId);
+
+            var rootDirectoryId = directory.Id;
 
             var note1 = new VideoNote
             {
                 Order = 0,
-                Id = preExistingNote1Id,
+                Id = dirId == null ? preExistingNote1Id : 0,
                 Content = preExistingNote1Content,
                 Formatting = DefaultNoteFormatting,
                 SeekTo = DefaultNoteSeekTo,
@@ -63,7 +68,7 @@
             var note2 = new VideoNote
             {
                 Order = 2,
-                Id = preExistingNote2Id,
+                Id = dirId == null ? preExistingNote2Id : 0,
                 Content = preExistingNote2Content,
                 Formatting = DefaultNoteFormatting,
                 SeekTo = DefaultNoteSeekTo,
@@ -89,7 +94,7 @@
                 var note3 = new VideoNote
                 {
                     Order = 1,
-                    Id = preExistingNote3Id,
+                    Id = dirId == null ? preExistingNote3Id : 0,
                     Content = preExistingNote3Content,
                     Formatting = DefaultNoteFormatting,
                     SeekTo = DefaultNoteSeekTo,
@@ -176,8 +181,8 @@
         public const string initCreateDesctiption = "creative description";
         //public const int initCreateDirectoryId = 11;
         public const string initCreateName = "creative name";
-        public const string intiCreateUrl = "creatice url"
-;
+        public const string intiCreateUrl = "creatice url";
+
         public static VideoInitialCreate GetInitCreateModel(int directoryId)
         {
             return new VideoInitialCreate

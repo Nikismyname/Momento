@@ -285,6 +285,52 @@
         }
 
         [Test]///Checked 
+        public void SaveShouldDeleteTheItemsMarkedForDeltion()
+        {
+
+            UserS.SeedPeshoAndGosho(context);
+            var comps = CompS.SeedTwoCompsToUser(context, UserS.GoshoId);
+            var usedComp = comps[0];
+            var items = CompS.SeedThreeItemsToComp(this.context, usedComp);
+
+            var compSave = new ComparisonSave
+            {
+                Id = usedComp.Id,
+                Description = null,
+                Name = null,
+                TargetLanguage = null,
+                SourceLanguage = null,
+                AlteredItems = new HashSet<ComparisonItemChange>
+                {
+                    new ComparisonItemChange
+                    {
+                        Id = CompS.Item1Id,
+                        NewValue = "true",
+                        PropertyChanged = "deleted"
+                    },
+
+                    new ComparisonItemChange
+                    {
+                        Id = CompS.Item2Id,
+                        NewValue = "true",
+                        PropertyChanged = "deleted"
+                    },
+                }
+            };
+
+            Action action = () => this.comparisonService.Save(compSave, UserS.GoshoUsername);
+            action.Invoke();
+
+            var item1 = items.Single(x => x.Id == CompS.Item1Id);
+            var item2 = items.Single(x => x.Id == CompS.Item2Id);
+            var item3 = items.Single(x => x.Id == CompS.Item3Id);
+
+            item1.IsDeleted.Should().Be(true);
+            item2.IsDeleted.Should().Be(true);
+            item3.IsDeleted.Should().Be(false);
+        }
+
+        [Test]///Checked 
         public void SaveShouldSaveNewItems()
         {
             const string item1Comment = "Comment1";

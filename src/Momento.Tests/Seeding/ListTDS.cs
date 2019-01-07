@@ -13,17 +13,21 @@
         public const string name = "magnificent name";
         public const int order = 0;
 
-        public static ListToDo SeedListToUser(MomentoDbContext context, string username)
+        public static ListToDo SeedListToUser(MomentoDbContext context, string username, int? dirId = null)
         {
             var user = context.Users
                 .Include(x => x.Directories)
                 .SingleOrDefault(x => x.UserName == username);
 
+            var directory = dirId == null ?
+                user.Directories.Single(x => x.ParentDirectoryId == null) :
+                context.Directories.Single(x => x.Id == dirId);
+
             var list = new ListToDo
             {
                 Categories = categories,
                 Description = desctiption,
-                DirectoryId = user.Directories.Single().Id,
+                DirectoryId = directory.Id,
                 Name = name,
                 UserId = user.Id,
                 Items = new HashSet<ListToDoItem>(),

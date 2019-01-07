@@ -2,12 +2,20 @@
 {
     using Data;
     using Contracts.Directory;
-    using Microsoft.EntityFrameworkCore;
     using System.Linq;
     using Momento.Models.Contracts;
+    using System.Collections.Generic;
+    using Momento.Services.Exceptions;
+    using Microsoft.EntityFrameworkCore;
 
     public class ReorderingService : IReorderingService
     {
+        const string ComparisonType = "comparison";
+        const string ListToDoType = "listToDo";
+        const string NoteType = "note";
+        const string VideoType = "video";
+        const string DirectoryType = "directory"; 
+
         private readonly MomentoDbContext context;
 
         public ReorderingService(MomentoDbContext context)
@@ -15,45 +23,76 @@
             this.context = context;
         }
 
-        public void SaveItemsForOneDir(int parentDir, string cntOrDir, int[] orderings)
+        public void Reorder(string type, int dir, int[][] ItemIdNewOrderKVP, string username)
         {
-            if (cntOrDir == "dir")
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
+            if (user == null)
             {
-                var directories = context.Directories
-                    .Include(x => x.Subdirectories)
-                    .SingleOrDefault(x => x.Id == parentDir)
-                    .Subdirectories
-                    .ToArray();
-
-                for (int i = 0; i < orderings.Length; i++)
-                {
-                    var directoryId = orderings[i];
-                    var dir = directories.SingleOrDefault(x => x.Id == directoryId);
-
-                    if (dir.Order != i)
-                    {
-                        dir.Order = i;
-                    }
-                }
+                throw new UserNotFound(username);
             }
-            else if(cntOrDir == "cnt")
+
+            var query = this.context.Directories
+                .Where(x => x.Id == dir);
+
+            if (query.Count() != 1)
             {
-                var contents = context.Directories
-                   .Include(x => x.Videos)
-                   .SingleOrDefault(x => x.Id == parentDir)
-                   .Videos
-                   .ToArray();
+                throw new ItemNotFound("the directorie in witch you want to reorder items does not exist!");
+            }
 
-                for (int i = 0; i < orderings.Length; i++)
+            if (query.Select(x => x.UserId).Single() != user.Id)
+            {
+                throw new AccessDenied("The directory you are trying to reorder things in does not belong to you!");
+            }
+
+            var dirWithItems = new Momento.Models.Directories.Directory();
+
+            var itemsToBeRoorderd = new List<IOrderable<int>>();
+            switch (type)
+            {
+                case ComparisonType:
+                    dirWithItems = query.Include(x => x.Comparisons).Single();
+                    itemsToBeRoorderd = dirWithItems.Comparisons.Select(x => x as IOrderable<int>).ToList();
+                    break;
+                case ListToDoType:
+                    dirWithItems = query.Include(x => x.ListsToDo).Single();
+                    itemsToBeRoorderd = dirWithItems.ListsToDo.Select(x => x as IOrderable<int>).ToList();
+                    break;
+                case NoteType:
+                    dirWithItems = query.Include(x => x.Notes).Single();
+                    itemsToBeRoorderd = dirWithItems.Notes.Select(x => x as IOrderable<int>).ToList();
+                    break;
+                case VideoType:
+                    dirWithItems = query.Include(x => x.Videos).Single();
+                    itemsToBeRoorderd = dirWithItems.Videos.Select(x => x as IOrderable<int>).ToList();
+                    break;
+                case DirectoryType:
+                    dirWithItems = query.Include(x => x.Subdirectories).Single();
+                    itemsToBeRoorderd = dirWithItems.Subdirectories.Select(x => x as IOrderable<int>).ToList();
+                    break;
+            }
+
+            var idsFromDb = itemsToBeRoorderd.Select(x => x.Id).OrderBy(x => x).ToArray();
+            var idsFromReorderRequest = ItemIdNewOrderKVP.Select(x => x[0]).OrderBy(x => x).ToArray();
+
+            ///Making sure all the data sent is correct and coresponds to dbData
+            if (idsFromDb.Length != idsFromReorderRequest.Length) throw new BadRequestError("The send ids do not match the length of the ids found in the database!");
+            if (idsFromReorderRequest.Distinct().ToArray().Length != idsFromReorderRequest.Length) throw new BadRequestError("There were repeating ids in the reorder requent!");
+            for (int i = 0; i < idsFromDb.Length; i++)
+            {
+                if (idsFromDb[i] != idsFromReorderRequest[i])
                 {
-                    var contentId = orderings[i];
-                    var cnt = contents.SingleOrDefault(x => x.Id == contentId);
+                    throw new BadRequestError("the ids send in the reorder request do not match the ids in the database!");
+                };
+            };
+            ///...
 
-                    if (cnt.Order != i)
-                    {
-                        cnt.Order = i;
-                    }
-                }
+            for (int i = 0; i < idsFromDb.Length; i++)
+            {
+                var id = idsFromDb[i];
+                var itemToBeReordered = itemsToBeRoorderd.Single(x => x.Id == id);
+                var newValue = ItemIdNewOrderKVP.Single(x => x[0] == id)[1];
+
+                itemToBeReordered.Order = newValue;
             }
 
             context.SaveChanges();

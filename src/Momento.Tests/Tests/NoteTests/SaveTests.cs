@@ -9,6 +9,7 @@
     using Momento.Services.Models.NoteModels;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
+    using Momento.Tests.Utilities;
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
@@ -33,6 +34,8 @@
             UserS.SeedPeshoAndGosho(this.context);
 
             var note = NoteS.SeedNoteToUser(UserS.PeshoId, this.context);
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(new NoteEdit(), NonExistantUsername);
 
             action.Should().Throw<UserNotFound>();
@@ -44,6 +47,8 @@
             const int nonExistantNoteId = 42;
             UserS.SeedPeshoAndGosho(this.context);
             var note = NoteS.SeedNoteToUser(UserS.PeshoId, this.context);
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(new NoteEdit { Id = nonExistantNoteId }, UserS.GoshoUsername);
             action.Should().Throw<ItemNotFound>().WithMessage("The note you are trying to edit does not exist!");
         }
@@ -54,6 +59,8 @@
             UserS.SeedPeshoAndGosho(this.context);
             var note = NoteS.SeedNoteToUser(UserS.PeshoId, this.context);
             var noteId = note.Id;
+
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(new NoteEdit { Id = noteId }, UserS.GoshoUsername);
             action.Should().Throw<AccessDenied>().WithMessage("The note you are trying to edit does not belong to you!");
         }
@@ -79,8 +86,12 @@
                 Source = newSource,
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(editInput, UserS.PeshoUsername);
             action.Invoke();
+
+            ///reattaching the note
+            note = context.Notes.Single(x => x.Id == note.Id);
 
             note.EditorMode.Should().Be(newEditorMode);
             note.Source.Should().Be(newSource);
@@ -113,6 +124,7 @@
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(editInput, UserS.PeshoUsername);
 
             action.Should().Throw<AccessDenied>().WithMessage("The Lines you are trying to edit do not belong the Note you are editing!");
@@ -164,22 +176,27 @@
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(editInput, UserS.PeshoUsername);
             action.Invoke();
 
-            codeLines[0].EditorMode.Should().Be(newEditorMode);
-            codeLines[0].InPageId.Should().Be(line1newInpageId);
-            codeLines[0].NoteContent.Should().Be(line1NewNoteContent);
-            codeLines[0].Order.Should().Be(line1newOrder);
-            codeLines[0].SourceContent.Should().Be(line1NewSourceContent);
-            codeLines[0].Visible.Should().Be(newVisible);
+            ///Reattaching the code line
+            var codeLine1 = this.context.CodeLines.SingleOrDefault(x => x.Id == codeLines[0].Id);
+            var codeLine2 = this.context.CodeLines.SingleOrDefault(x => x.Id == codeLines[1].Id);
 
-            //codeLines[1].EditorMode.Should().Be(newEditorMode);
-            //codeLines[1].InPageId.Should().Be(line2newInpageId);
-            //codeLines[1].NoteContent.Should().Be(line2NewNoteContent);
-            //codeLines[1].Order.Should().Be(line2newOrder);
-            //codeLines[1].SourceContent.Should().Be(line2NewSourceContent);
-            //codeLines[1].Visible.Should().Be(newVisible);
+            codeLine1.EditorMode.Should().Be(newEditorMode);
+            codeLine1.InPageId.Should().Be(line1newInpageId);
+            codeLine1.NoteContent.Should().Be(line1NewNoteContent);
+            codeLine1.Order.Should().Be(line1newOrder);
+            codeLine1.SourceContent.Should().Be(line1NewSourceContent);
+            codeLine1.Visible.Should().Be(newVisible);
+
+            codeLine2.EditorMode.Should().Be(newEditorMode);
+            codeLine2.InPageId.Should().Be(line2newInpageId);
+            codeLine2.NoteContent.Should().Be(line2NewNoteContent);
+            codeLine2.Order.Should().Be(line2newOrder);
+            codeLine2.SourceContent.Should().Be(line2NewSourceContent);
+            codeLine2.Visible.Should().Be(newVisible);
         }
 
         [Test]
@@ -213,9 +230,12 @@
                 }
             };
 
+            ChangeTrackerOperations.DetachAll(this.context);
             Action action = () => this.noteService.Save(editInput, UserS.PeshoUsername);
             action.Invoke();
 
+            ///Reattaching the note
+            note = context.Notes.Single(x => x.Id == note.Id);
             var codeLine = note.Lines.SingleOrDefault();
 
             codeLine.EditorMode.Should().Be(newEditorMode);

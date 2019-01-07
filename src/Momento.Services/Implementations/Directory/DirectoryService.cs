@@ -10,18 +10,17 @@
     using Momento.Services.Models.DirectoryModels;
     using Momento.Services.Mapping;
     using Momento.Services.Exceptions;
+    using Momento.Services.Utilities;
 
     public class DirectoryService : IDirectoryService
     {
         private readonly MomentoDbContext context;
-        private readonly IMapper mapper;
-
-        public DirectoryService(MomentoDbContext context, IMapper mapper)
+        public DirectoryService(MomentoDbContext context)
         {
             this.context = context;
-            this.mapper = mapper;
         }
 
+        #region Create
         //Verified
         public int Create(int parentDirId, string dirName, string username)
         {
@@ -81,23 +80,7 @@
                 return 0;
             }
         }
-
-        ///TODO: rewrite with new mapping
-        public DirectoryIndex GetIndex(string username)
-        {
-            ///TODO: do the smarter IQueriable mapping might save some time 
-            var dirs = context.Directories
-                    .Include(x => x.Videos)
-                        .ThenInclude(x => x.Notes)
-                    .Include(x => x.ListsToDo)
-                .Where(x => x.User.UserName == username)
-                .ToArray();
-
-            var dir = dirs.SingleOrDefault(x => x.ParentDirectoryId == null);
-
-            var indexDir = mapper.Map<DirectoryIndex>(dir);
-            return indexDir;
-        }
+        #endregion
 
         public DirectoryIndexSingle GetIndexSingle(int? directoryId, string username)
         {
@@ -159,7 +142,7 @@
             var userId = context.Users.SingleOrDefault(x => x.UserName == username).Id;
             var dir = new Directory
             {
-                Name = "Root",
+                Name = Constants.RootDorectoryName,
                 UserId = userId,
             };
 
@@ -169,9 +152,10 @@
 
         /// <summary>
         /// Soft delete
-        /// Deletes: Videos, ListToDo
+        /// Deletes: Videos, ListToDo, notes, comparisons
         /// </summary>
         /// Validated
+        /// T
         public void Delete(int id, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -192,8 +176,13 @@
                 throw new AccessDenied("The directory you are trying to delete does not belong to you!");
             }
 
+            if(dirToDelete.Name == Constants.RootDorectoryName)
+            {
+                throw new AccessDenied("Can not delete Root directory!");
+            }
+
             var now = DateTime.UtcNow;
-            this.SoftDeleteDirectory(dirToDelete, now);
+            this.SoftDeleteDirectoryRec(dirToDelete, now);
             context.SaveChanges();
         }
 
@@ -201,7 +190,7 @@
         {
             try
             {
-                Delete(id, username);
+                this.Delete(id, username);
                 return true;
             }
             catch
@@ -210,13 +199,26 @@
             }
         }
 
-        private void SoftDeleteDirectory(Directory dir, DateTime now)
+        private void SoftDeleteDirectoryRec(Directory dir, DateTime now)
         {
+            dir = this.context.Directories
+                .Include(x => x.Notes)
+                    .ThenInclude(x => x.Lines)
+                .Include(x => x.ListsToDo)
+                    .ThenInclude(x => x.Items)
+                .Include(x=>x.Videos)
+                    .ThenInclude(x=>x.Notes)
+                .Include(x=>x.Comparisons)
+                    .ThenInclude(x=>x.Items)
+                .Include(x=>x.Subdirectories)
+                .Single(x => x.Id == dir.Id);
+
+            ///Videos
             var videos = dir.Videos;
             foreach (var vid in videos)
             {
-                var notes = vid.Notes;
-                foreach (var note in notes)
+                var videoNotes = vid.Notes;
+                foreach (var note in videoNotes)
                 {
                     note.DeletedOn = now;
                     note.IsDeleted = true;
@@ -225,7 +227,9 @@
                 vid.DeletedOn = now;
                 vid.IsDeleted = true;
             }
+            ///...
 
+            ///ListsToDo
             var listsToDo = dir.ListsToDo;
             foreach (var todo in listsToDo)
             {
@@ -239,18 +243,69 @@
                 todo.DeletedOn = now;
                 todo.IsDeleted = true;
             }
+            ///...
+            
+            ///Comparisons
+            var comparisons = dir.Comparisons;
+            foreach (var comp in comparisons)
+            {
+                var items = comp.Items;
+                foreach (var item in items)
+                {
+                    item.DeletedOn = now;
+                    item.IsDeleted = true;
+                }
 
+                comp.DeletedOn = now;
+                comp.IsDeleted = true;
+            }
+            ///...
+            
+            ///Notes
+            var notes = dir.Notes;
+            foreach (var note in notes)
+            {
+                var lines = note.Lines;
+                foreach (var line in lines)
+                {
+                    line.DeletedOn = now;
+                    line.IsDeleted = true;
+                }
+
+                note.DeletedOn = now;
+                note.IsDeleted = true;
+            }
+            ///...
+
+
+            ///SubDirectories Recursion here
             var subdirs = dir.Subdirectories;
             foreach (var subdir in subdirs)
             {
-                SoftDeleteDirectory(subdir, now);
+                SoftDeleteDirectoryRec(subdir, now);
             }
+            ///...
 
             dir.DeletedOn = now;
             dir.IsDeleted = true;
         }
 
-        #region Hard Delete
+        #region Deprecated
+        ///Deprecated
+        public DirectoryIndex GetIndex(string username)
+        {
+            var dirs = context.Directories
+                    .Include(x => x.Videos)
+                        .ThenInclude(x => x.Notes)
+                    .Include(x => x.ListsToDo)
+                .Where(x => x.User.UserName == username)
+                .ToArray();
+
+            var dir = dirs.SingleOrDefault(x => x.ParentDirectoryId == null);
+
+            var indexDir = Mapper.Instance.Map<DirectoryIndex>(dir);
+            return indexDir;
+        }
 
         private void HardDelete(int id)
         {

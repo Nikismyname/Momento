@@ -1,5 +1,8 @@
 ﻿import { Component, Fragment } from 'react';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
+import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
+import ReactTooltip from 'react-tooltip';
+
 import VideoNav from './PageSubComponents/VideoNav';
 import ComparisonNav from './PageSubComponents/ComparisonNav';
 import ListTodoNav from './PageSubComponents/ListTodoNav';
@@ -7,9 +10,7 @@ import SubDirNav from './PageSubComponents/SubDirNav';
 import NoteNav from './PageSubComponents/NoteNav';
 import LoadSvg from './Helpers/LoadSvg';
 import { linkSSRSafe, handeleValidationErrors, clientSideValidation } from './Helpers/HelperFuncs';
-import 'linqjs';
 import * as c from './Helpers/Constants';
-import ReactTooltip from 'react-tooltip';
 import ShowError from "./Helpers/ShowError"
 
 const borderString = "3px solid rgba(0, 0, 0, 0.6)"
@@ -36,9 +37,12 @@ export default class NavigationPage extends Component {
                 itemsLoaded: false,
             };
         } else {
+
+            let data = this.setOrder(this.props.initialDir);
+
             this.state = {
-                history: [this.props.initialDir],
-                currentDir: this.props.initialDir,
+                history: [data],
+                currentDir: data,
                 itemsLoaded: true,
             };
         }
@@ -51,6 +55,9 @@ export default class NavigationPage extends Component {
             this.state.isSeverSide = false;
         }
 
+        ///Orders all the collections in dorectory acording to their order property.
+        this.setOrder = this.setOrder.bind(this);
+
         this.fetch = this.fetch.bind(this);
         this.navigateToDirectory = this.navigateToDirectory.bind(this);
         this.onClickCreateFolder = this.onClickCreateFolder.bind(this);
@@ -59,11 +66,19 @@ export default class NavigationPage extends Component {
         this.setStateFunc = this.setStateFunc.bind(this);
         this.onClickContexMenuItem = this.onClickContexMenuItem.bind(this);
         this.renderListsToDo = this.renderListsToDo.bind(this);
+
+        this.onSortEndDir = this.onSortEndDir.bind(this);
+        this.onSortEndComp = this.onSortEndComp.bind(this);
+        this.onSortEndListTD = this.onSortEndListTD.bind(this);
+        this.onSortEndNote = this.onSortEndNote.bind(this);
+        this.onSortEndVideo = this.onSortEndVideo.bind(this);
+
+        this.onReorderUpdateDb = this.onReorderUpdateDb.bind(this);
     }
 
-    //componentDidUpdate() {
-    //    ReactTooltip.rebuild();
-    //}
+    componentDidUpdate() {
+        ReactTooltip.rebuild();
+    }
 
     componentDidMount() {
         if (this.state.itemsLoaded == false) {
@@ -82,18 +97,32 @@ export default class NavigationPage extends Component {
     fetch(id) {
         console.log("Fetching: " + id);
         fetch('/api/Navigation/GetDirSingle/' + id)
-            .then(data => data.json())
-            .then(json => {
+            .then(x => x.json())
+            .then(data => {
                 history.pushState(null, null, c.rootDir + "/" + id);
+
+                this.setOrder(data);
+
                 this.setState({
-                    currentDir: json,
-                    history: this.state.history.concat(json),
+                    currentDir: data,
+                    history: this.state.history.concat(data),
                     itemsLoaded: true
                 })
             });
     };
 
+    setOrder(data) {
+        data.subdirectories = data.subdirectories.sort((a, b) => a.order - b.order);
+        data.videos = data.videos.sort((a, b) => a.order - b.order);
+        data.comparisons = data.comparisons.sort((a, b) => a.order - b.order);
+        data.listsToDo = data.listsToDo.sort((a, b) => a.order - b.order);
+        data.notes = data.notes.sort((a, b) => a.order - b.order);
+
+        return data;
+    }
+
     navigateToDirectory(id) {
+        console.log(id);
         if (id == null) {
             return;
         }
@@ -280,6 +309,147 @@ export default class NavigationPage extends Component {
         this.onClickDeleteDir(null, id);
     }
 
+    ///ON SORT END
+    onSortEndDir({ oldIndex, newIndex }) {
+        let newCurrentDir = this.state.currentDir;
+        newCurrentDir.subdirectories = arrayMove(newCurrentDir.subdirectories, oldIndex, newIndex);
+
+        let newHistory = this.state.history;
+        let archivedCurrentDir = newHistory.filter(x => x.id == newCurrentDir.id)[0];
+        archivedCurrentDir = newCurrentDir;
+
+        this.setState({
+            history: newHistory,
+            currentDir: newCurrentDir,
+        });
+
+        var data = [];
+
+        for (var i = 0; i < this.state.currentDir.subdirectories.length; i++) {
+            let dir = this.state.currentDir.subdirectories[i];
+            console.log([dir.id, i]);
+            data.push([dir.id,i]);
+        }
+
+        this.onReorderUpdateDb(c.DirectoryType, data);
+    }
+
+    onSortEndComp({ oldIndex, newIndex }) {
+        let newCurrentDir = this.state.currentDir;
+        newCurrentDir.comparisons = arrayMove(newCurrentDir.comparisons, oldIndex, newIndex);
+
+        let newHistory = this.state.history;
+        let archivedCurrentDir = newHistory.filter(x => x.id == newCurrentDir.id)[0];
+        archivedCurrentDir = newCurrentDir;
+
+        this.setState({
+            history: newHistory,
+            currentDir: newCurrentDir,
+        });
+
+        var data = [];
+
+        for (var i = 0; i < this.state.currentDir.comparisons.length; i++) {
+            let dir = this.state.currentDir.comparisons[i];
+            console.log([dir.id, i]);
+            data.push([dir.id, i]);
+        }
+
+        this.onReorderUpdateDb(c.ComparisonType, data);
+    }
+
+    onSortEndListTD({ oldIndex, newIndex }) {
+        let newCurrentDir = this.state.currentDir;
+        newCurrentDir.listsToDo = arrayMove(newCurrentDir.listsToDo, oldIndex, newIndex);
+
+        let newHistory = this.state.history;
+        let archivedCurrentDir = newHistory.filter(x => x.id == newCurrentDir.id)[0];
+        archivedCurrentDir = newCurrentDir;
+
+        this.setState({
+            history: newHistory,
+            currentDir: newCurrentDir,
+        });
+
+        var data = [];
+
+        for (var i = 0; i < this.state.currentDir.listsToDo.length; i++) {
+            let dir = this.state.currentDir.listsToDo[i];
+            console.log([dir.id, i]);
+            data.push([dir.id, i]);
+        }
+
+        this.onReorderUpdateDb(c.ListToDoType, data);
+    }
+
+    onSortEndNote({ oldIndex, newIndex }) {
+        let newCurrentDir = this.state.currentDir;
+        newCurrentDir.notes = arrayMove(newCurrentDir.notes, oldIndex, newIndex);
+
+        let newHistory = this.state.history;
+        let archivedCurrentDir = newHistory.filter(x => x.id == newCurrentDir.id)[0];
+        archivedCurrentDir = newCurrentDir;
+
+        this.setState({
+            history: newHistory,
+            currentDir: newCurrentDir,
+        });
+
+        var data = [];
+
+        for (var i = 0; i < this.state.currentDir.notes.length; i++) {
+            let dir = this.state.currentDir.notes[i];
+            console.log([dir.id, i]);
+            data.push([dir.id, i]);
+        }
+        console.log(data);
+
+        this.onReorderUpdateDb(c.NoteType, data);
+    }
+
+    onSortEndVideo({ oldIndex, newIndex }) {
+        let newCurrentDir = this.state.currentDir;
+        newCurrentDir.videos = arrayMove(newCurrentDir.videos, oldIndex, newIndex);
+
+        let newHistory = this.state.history;
+        let archivedCurrentDir = newHistory.filter(x => x.id == newCurrentDir.id)[0];
+        archivedCurrentDir = newCurrentDir;
+
+        this.setState({
+            history: newHistory,
+            currentDir: newCurrentDir,
+        });
+
+        var data = [];
+
+        for (var i = 0; i < this.state.currentDir.videos.length; i++) {
+            let dir = this.state.currentDir.videos[i];
+            console.log([dir.id, i]);
+            data.push([dir.id, i]);
+        }
+
+        this.onReorderUpdateDb(c.VideoType, data);
+    }
+    ///...
+
+    onReorderUpdateDb(type, orders) {
+
+        let data = {
+            type: type,
+            directory: this.state.currentDir.id,
+            newOrders: orders,
+        }
+
+        fetch("/api/Reorder/Reorder", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+    }
+
     render() {
         const app = (
             <Fragment>
@@ -289,17 +459,17 @@ export default class NavigationPage extends Component {
                         <div>
                             {this.renderRoot(this.state.currentDir)}
                         </div>
-                        {this.renderSubDirectories(this.state.currentDir.subdirectories)}
+                        <SortableDirectories onSortEnd={this.onSortEndDir} items={this.state.currentDir.subdirectories} _this={this} distance={10} />
                     </div>
                     <div className="col-md-3 col-sm-6 col-xs-12">
-                        {this.renderVideos(this.state.currentDir.videos)}
+                        <SortableVideos onSortEnd={this.onSortEndVideo} items={this.state.currentDir.videos} _this={this} distance={10}/>
                     </div>
                     <div className="col-md-3 col-sm-6 col-xs-12">
-                        {this.renderNotes(this.state.currentDir.notes)}
+                        <SortableNotes onSortEnd={this.onSortEndNote} items={this.state.currentDir.notes} _this={this} distance={10}/>
                     </div>
                     <div className="col-md-3 col-sm-6 col-xs-12">
-                        {this.renderListsToDo(this.state.currentDir.listsToDo)}
-                        {this.renderComparisons(this.state.currentDir.comparisons)}
+                        <SortableListsToDo onSortEnd={this.onSortEndListTD} items={this.state.currentDir.listsToDo} _this={this} distance={10}/>
+                        <SortableComparisons onSortEnd={this.onSortEndComp} items={this.state.currentDir.comparisons} _this={this} distance={10}/>
                     </div>
 
                     <ContextMenu id="subDirectory">
@@ -325,4 +495,93 @@ export default class NavigationPage extends Component {
         }
     }
 }
+
+///SORTABLE ELEMENTS
+const SortableVideo = SortableElement(({ value, _this }) => {
+    return <VideoNav setStateFunc={_this.setStateFunc} parentState={_this.state} video={value} />
+});
+
+const SortableComparison = SortableElement(({ value, _this }) => {
+    return <ComparisonNav comp={value} setStateFunc={_this.setStateFunc} parentState={_this.state} />
+});
+
+const SortableNote = SortableElement(({ value, _this }) => {
+    return <NoteNav note={value} setStateFunc={_this.setStateFunc} parentState={_this.state} />
+});
+
+const SortableListToDo = SortableElement(({ value, _this }) => {
+    return <ListTodoNav list={value} setStateFunc={_this.setStateFunc} parentState={_this.state} />
+});
+
+const SortableDirectory = SortableElement(({ value, _this }) => {
+    //console.log("this coming through the element");
+    //console.log(_this);
+    return (
+        <div>
+            <ContextMenuTrigger id="subDirectory" attributes={{ id: value.id }}>
+                <SubDirNav dir={value} _this={_this} navigateToDirectory={_this.navigateToDirectory} />
+            </ContextMenuTrigger>
+        </div>
+    )
+});
+///...
+
+///SORTABLE COLLECTIONS
+const SortableVideos = SortableContainer(({ items, _this }) => {
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableVideo key={`vid-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
+
+const SortableComparisons = SortableContainer(({ items, _this }) => {
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableComparison key={`comp-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
+
+const SortableNotes = SortableContainer(({ items, _this }) => {
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableNote key={`note-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
+
+const SortableListsToDo = SortableContainer(({ items, _this }) => {
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableListToDo key={`listToDo-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
+
+const SortableDirectories = SortableContainer(({ items, _this }) => {
+    //console.log("this coming throught the contained");
+    //console.log(_this);
+    return (
+        <ul className="pl-0">
+            {items.map((value, index) => {
+                return (<SortableDirectory key={`dir-${index}`} index={index} ind={index} value={value} _this={_this} />)
+            }
+            )}
+        </ul>
+    );
+});
+///......
 

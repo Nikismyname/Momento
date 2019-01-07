@@ -14,6 +14,7 @@
     using System;
     using System.Linq;
 
+    ///TestedR1
     public class NoteService : INoteService
     {
         private readonly MomentoDbContext context;
@@ -33,6 +34,7 @@
         #endregion
 
         #region Create
+        ///Tested
         public Note Create(NoteCreate note, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -49,7 +51,7 @@
 
             if (user.Id != directory.UserId)
             {
-                throw new AccessDenied("The directory you are trying to add a note to des not exist!");
+                throw new AccessDenied("The directory you are trying to add a note to does not beling to you!");
             }
 
             var order = directory.Notes.Count == 0 ? 0 : directory.Notes.Select(x => x.Order).Max() + 1;
@@ -84,6 +86,7 @@
         #endregion
 
         #region GetForEdit
+        ///Tested
         public NoteEdit GetForEdit(int id, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -102,7 +105,7 @@
 
             if (note.UserId != user.Id)
             {
-                throw new UserNotFound("The note you are trying to get does not belong to you!");
+                throw new AccessDenied("The note you are trying to get does not belong to you!");
             }
 
             var resultNote = Mapper.Instance.Map<NoteEdit>(note);
@@ -123,6 +126,7 @@
         #endregion
 
         #region Save
+        ///Tested
         public Note Save(NoteEdit editInput, string username)
         {
             User user = null;
@@ -251,7 +255,8 @@
         #endregion
 
         #region Delete
-        public void Delete(int id, string username)
+        ///Tested
+        public Note Delete(int id, string username)
         {
             var userId = this.context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
             if (userId == null)
@@ -259,7 +264,10 @@
                 throw new UserNotFound(username);
             }
 
-            var note = this.context.Notes.SingleOrDefault(x => x.Id == id);
+            var note = this.context.Notes
+                .Include(x=>x.Lines)
+                .SingleOrDefault(x => x.Id == id);
+
             if (note == null)
             {
                 throw new ItemNotFound("The note you are trying to delete does not exist!");
@@ -282,6 +290,8 @@
             note.IsDeleted = true;
 
             context.SaveChanges();
+
+            return note;
         }
 
         public bool DeleteApi(int id, string username)

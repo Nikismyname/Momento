@@ -26,6 +26,7 @@
         #endregion
 
         #region GetForEdit
+        ///Tested
         public ComparisonEdit GetForEdit(int compId, string username)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
@@ -131,7 +132,7 @@
 
         #region Save
         ///validated
-        ///Tested?
+        ///Tested
         public void Save(ComparisonSave saveData, string username)
         {
             User user = null;
@@ -270,6 +271,7 @@
         #endregion
 
         #region Delete
+        ///Tested
         public Comparison Delete(int id, string username)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);

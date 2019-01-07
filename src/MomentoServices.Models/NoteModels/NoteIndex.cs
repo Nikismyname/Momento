@@ -12,5 +12,7 @@
         public string Description { get; set; }
 
         public int LinesCount { get; set; }
+
+        public int Order { get; set; }
     }
 }

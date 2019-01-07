@@ -483,10 +483,10 @@ export default class Compare extends Component {
         }
 
         let newCurrentState = this.state.currentState;
-        newCurrentState.items = arrayMove(newCurrentState.items, oldIndex, newIndex),
-            this.setState({
-                currentState: newCurrentState,
-            });
+        newCurrentState.items = arrayMove(newCurrentState.items, oldIndex, newIndex);
+        this.setState({
+            currentState: newCurrentState,
+        });
     };
 
     onClickContexMenuItem(e, data, target) {

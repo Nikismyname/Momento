@@ -30,3 +30,11 @@ export const listToDoBorder = "1px solid rgba(253, 194, 2, 0.6)";
 export const noteBorder = "1px solid rgba(35, 255, 145, 0.6)";
 const purple = "rgba(225, 0, 255, 0.6)";
 export const comparisonBorder = "1px solid rgba(225, 0, 255, 0.4)";
+
+///Matching Backend Constants
+export const ComparisonType = "comparison";
+export const ListToDoType = "listToDo";
+export const NoteType = "note";
+export const VideoType = "video";
+export const DirectoryType = "directory"; 
+///...
