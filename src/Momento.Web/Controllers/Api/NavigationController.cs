@@ -1,8 +1,10 @@
-﻿namespace Momento.Web.Controllers.Api
+﻿using Microsoft.AspNetCore.Routing.Constraints;
+
+namespace Momento.Web.Controllers.Api
 {
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Momento.Services.Contracts.Directory;
+    using Services.Contracts.Directory;
     using Momento.Services.Models.DirectoryModels;
 
     [Route("api/[controller]")]
@@ -20,7 +22,8 @@
         [HttpGet("GetDirSingle/{id:int}")]
         public ActionResult<DirectoryIndexSingle> GetDirSingle(int id)
         {
-            var dir = directoryService.GetIndexSingle(id,this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var dir = directoryService.GetIndexSingleApi(id,this.User.Identity.Name, isAdmin);
             return dir;
         }
 
@@ -29,7 +32,8 @@
         [Route("[action]")]
         public JsonResult CreateDirectory([FromBody]DirectoryCreate data)
         {
-            var result = directoryService.CreateApi(data.ParentDirId, data.DirectoryName , User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = directoryService.CreateApi(data.ParentDirId, data.DirectoryName , User.Identity.Name, isAdmin);
             return new JsonResult(result);
         }
 
@@ -37,7 +41,8 @@
         [Route("[action]")]
         public JsonResult Delete([FromBody] int id)
         {
-            var result = this.directoryService.DeleteApi(id, User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.directoryService.DeleteApi(id, User.Identity.Name, isAdmin);
             return new JsonResult(result);
         }
     }

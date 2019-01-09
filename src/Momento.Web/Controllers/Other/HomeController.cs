@@ -1,16 +1,17 @@
 ﻿namespace Momento.Web.Controllers.Other
 {
-    using System;
     using System.Diagnostics;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Momento.Web.Models;
+    using Models;
 
     public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            Response.Cookies.Append("test", "test", new CookieOptions { Expires = DateTime.Now.AddDays(10) });
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("IndexReact", "Directory");
+            }
 
             return View();
         }

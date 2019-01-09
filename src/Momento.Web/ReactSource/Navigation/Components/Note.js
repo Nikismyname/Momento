@@ -1,12 +1,12 @@
-﻿import React, { Component, Fragment } from 'react';
-import Textarea from 'react-expanding-textarea';
-import * as c from './Helpers/Constants';
-import LoadSvg from './Helpers/LoadSvg';
+﻿import React, { Component, Fragment } from "react";
+import Textarea from "react-expanding-textarea";
+import * as c from "./Helpers/Constants";
+import LoadSvg from "./Helpers/LoadSvg";
 
-import 'froala-editor/css/froala_style.min.css';
-import 'froala-editor/css/froala_editor.pkgd.darkTheme.css';
-import './../../../wwwroot/css/google-prettify/desert.css';
-import '../../../wwwroot/css/froala.css';
+import "froala-editor/css/froala_style.min.css";
+import "froala-editor/css/froala_editor.pkgd.darkTheme.css";
+import "./../../../wwwroot/css/google-prettify/desert.css";
+import "../../../wwwroot/css/froala.css";
 
 ///Have to change the dark theme too.
 //import 'froala-editor/css/themes/dark.min.css';
@@ -29,6 +29,7 @@ export default class Note extends Component {
 
         this.state = {
             PRLoaded: false,
+            dataFetched: false,
             codePresent: false,
             currentlyTyping: false,
             mainNote: { content: initialNoteContent, editorMode: false, visible: true },
@@ -45,6 +46,7 @@ export default class Note extends Component {
         this.onClickShowSource = this.onClickShowSource.bind(this);
         this.onCLickAddCode = this.onCLickAddCode.bind(this);
         this.onCLickRemoveCode = this.onCLickRemoveCode.bind(this);
+        this.onClickBack = this.onClickBack.bind(this);
 
         this.onDClickCodeLine = this.onDClickCodeLine.bind(this);
         this.onDClickMainNote = this.onDClickMainNote.bind(this);
@@ -107,6 +109,7 @@ export default class Note extends Component {
                 }
 
                 this.setState({
+                    dataFetched: true,
                     mainNote: mNote,
                     code: newCode,
                 });
@@ -185,11 +188,14 @@ export default class Note extends Component {
         }
 
         var newLines = this.state.code.lines;
+
+        ///Closing down all open editor notes.
         if (newLines.some(x => x.note.editorMode == true)) {
             newLines = newLines.map(x => {
                 x.note.editorMode = false;
                 return x;
             });
+
         } else if (newLines.some(x => x.note.visible == true)) {
             newLines = newLines.map(x => {
                 x.note.visible = false;
@@ -197,7 +203,9 @@ export default class Note extends Component {
             });
         } else {
             newLines = newLines.map(x => {
-                x.note.visible = true;
+                if (x.note.content !== initialNoteContent) {
+                    x.note.visible = true;
+                }
                 return x;
             });
         }
@@ -468,6 +476,10 @@ export default class Note extends Component {
         this.setState({ codePresent: false, code: newCode });
     }
 
+    onClickBack() {
+        this.props.history.push(c.rootDir + "/" + this.props.match.params.dirId);
+    }
+
     onBlurFroalaEditor() {
         this.setState({ currentlyTyping: false });
     }
@@ -488,14 +500,17 @@ export default class Note extends Component {
                 <div className="col-sm-2">
                     {this.renderAddRemoveCodeButton()}
                 </div>
+                <div className="col-sm-2">
+                    <button onClick={this.onClickBack} className="btn btn-warning btn-block">Back</button>
+                </div>
             </div>
         </Fragment>);
 
         if (this.FroalaEditor) {
-            if (this.state.PRLoaded) {
+            if (this.state.PRLoaded && this.state.dataFetched) {
                 return app;
             } else {
-                return <LoadSvg />
+                return <LoadSvg />;
             }
         } else {
             return null;

@@ -3,13 +3,13 @@
     #region Initialization
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Momento.Models.Comparisons;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Comparisons;
-    using Momento.Services.Exceptions;
-    using Momento.Services.Models.Attributes;
-    using Momento.Services.Models.ComparisonModels;
+    using Exceptions;
+    using Models.Attributes;
+    using Models.ComparisonModels;
     using System;
     using System.ComponentModel;
     using System.Linq;
@@ -27,7 +27,7 @@
 
         #region GetForEdit
         ///Tested
-        public ComparisonEdit GetForEdit(int compId, string username)
+        public ComparisonEdit GetForEdit(int compId, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -44,7 +44,7 @@
                 throw new ItemNotFound("The comparison you are looking for does not exist!");
             }
 
-            if (exstComp.UserId != user.Id)
+            if (exstComp.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("This comparison does not belong to you!");
             }
@@ -53,11 +53,11 @@
             return result;
         }
 
-        public ComparisonEdit GetForEditApi(int compId, string username)
+        public ComparisonEdit GetForEditApi(int compId, string username, bool isAdmin = false)
         {
             try
             {
-                var result = GetForEdit(compId, username);
+                var result = GetForEdit(compId, username, isAdmin);
                 return result;
             }
             catch
@@ -69,7 +69,7 @@
 
         #region Create
         ///Tested
-        public Comparison Create(ComparisonCreate data, string username)
+        public Comparison Create(ComparisonCreate data, string username, bool isAdmin = false)
         {
             var parentDirId = data.ParentDirId;
 
@@ -87,7 +87,7 @@
             }
 
             ///Check the Dir belongs to the user
-            if(parentDir.UserId != user.Id)
+            if(parentDir.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The directory you are trying to put the comparison in does not belong to you!");
             }
@@ -115,11 +115,11 @@
             return comparison;
         } 
 
-        public bool CreateApi(ComparisonCreate data, string username)
+        public bool CreateApi(ComparisonCreate data, string username, bool isAdmin = false)
         {
             try
             {
-                this.Create(data, username);
+                this.Create(data, username, isAdmin);
                 return true;
             }
             catch
@@ -133,18 +133,31 @@
         #region Save
         ///validated
         ///Tested
-        public void Save(ComparisonSave saveData, string username)
+        public void Save(ComparisonSave saveData, string username, bool isAdmin = false)
         {
             User user = null;
             Comparison comp = null;
-            this.ValidateSave(saveData, username, ref user, ref comp);
-            this.SetCompatisonFields(saveData, comp);
+            this.ValidateSave(saveData, username, ref user, ref comp, isAdmin);
+            this.SetComparisonFields(saveData, comp);
             this.AlterExistingItems(saveData, comp);
             this.SaveNewItems(saveData, comp);
             context.SaveChanges();
         }
 
-        private void ValidateSave(ComparisonSave saveData, string username,ref User user, ref Comparison comp)
+        public bool SaveApi(ComparisonSave saveData, string username, bool isAdmin = false)
+        {
+            try
+            {
+                this.Save(saveData, username, isAdmin);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        private void ValidateSave(ComparisonSave saveData, string username,ref User user, ref Comparison comp, bool isAdmin)
         {
             user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -158,28 +171,28 @@
                 throw new ItemNotFound("The comparison you are trying to modify does not exist!");
             }
 
-            if (comp.UserId != user.Id)
+            if (comp.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The comparison does not belong to you!");
             }
         }
 
         ///Sets the new value if the recieved argument is not null
-        private void SetCompatisonFields(ComparisonSave saveData, Comparison comp)
+        private void SetComparisonFields(ComparisonSave saveData, Comparison comp)
         {
-            var comparisonPropertis = saveData
+            var comparisonProperties = saveData
                 .GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-            comparisonPropertis = comparisonPropertis
+            comparisonProperties = comparisonProperties
                 .Where(x => x.GetCustomAttributes<ComparisonPropertyAttribute>().Count() > 0)
                 .ToArray();
 
-            comparisonPropertis = comparisonPropertis
+            comparisonProperties = comparisonProperties
                 .Where(x => x.GetValue(saveData) != null)
                 .ToArray();
 
-            foreach (var compProp in comparisonPropertis)
+            foreach (var compProp in comparisonProperties)
             {
                 var matchingPropInDbModel = comp
                     .GetType()
@@ -255,24 +268,11 @@
 
             this.context.ComparisonItems.AddRange(newItems);
         }
-
-        public bool SaveApi(ComparisonSave saveData, string username)
-        {
-            try
-            {
-                this.Save(saveData, username);
-                return true;
-            }
-            catch(Exception e)
-            {
-                return false;
-            }
-        }
         #endregion
 
         #region Delete
         ///Tested
-        public Comparison Delete(int id, string username)
+        public Comparison Delete(int id, string username, bool isAdmin = false)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
             if(user == null)
@@ -288,7 +288,7 @@
                 throw new ItemNotFound("The comparison you are trying to delete does not exist!");
             }
 
-            if(comp.UserId != user.Id)
+            if(comp.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The comparison you are trying to delete does not belong to you!");
             }
@@ -309,11 +309,11 @@
             return comp;
         }
 
-        public bool DeleteApi(int id, string username)
+        public bool DeleteApi(int id, string username, bool isAdmin = false)
         {
             try
             {
-                this.Delete(id, username);
+                this.Delete(id, username, isAdmin);
                 return true;
             }
             catch

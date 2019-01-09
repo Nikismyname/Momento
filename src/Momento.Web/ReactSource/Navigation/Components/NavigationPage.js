@@ -1,16 +1,16 @@
-﻿import { Component, Fragment } from 'react';
+﻿import { Component, Fragment } from "react";
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
-import ReactTooltip from 'react-tooltip';
+import ReactTooltip from "react-tooltip";
 
-import VideoNav from './PageSubComponents/VideoNav';
-import ComparisonNav from './PageSubComponents/ComparisonNav';
-import ListTodoNav from './PageSubComponents/ListTodoNav';
-import SubDirNav from './PageSubComponents/SubDirNav';
-import NoteNav from './PageSubComponents/NoteNav';
-import LoadSvg from './Helpers/LoadSvg';
-import { linkSSRSafe, handeleValidationErrors, clientSideValidation } from './Helpers/HelperFuncs';
-import * as c from './Helpers/Constants';
+import VideoNav from "./PageSubComponents/VideoNav";
+import ComparisonNav from "./PageSubComponents/ComparisonNav";
+import ListTodoNav from "./PageSubComponents/ListTodoNav";
+import SubDirNav from "./PageSubComponents/SubDirNav";
+import NoteNav from "./PageSubComponents/NoteNav";
+import LoadSvg from "./Helpers/LoadSvg";
+import { linkSSRSafe, handeleValidationErrors, clientSideValidation } from "./Helpers/HelperFuncs";
+import * as c from "./Helpers/Constants";
 import ShowError from "./Helpers/ShowError"
 
 const borderString = "3px solid rgba(0, 0, 0, 0.6)"
@@ -311,6 +311,9 @@ export default class NavigationPage extends Component {
 
     ///ON SORT END
     onSortEndDir({ oldIndex, newIndex }) {
+        if (oldIndex == newIndex) {
+            return;
+        }
         let newCurrentDir = this.state.currentDir;
         newCurrentDir.subdirectories = arrayMove(newCurrentDir.subdirectories, oldIndex, newIndex);
 
@@ -335,6 +338,9 @@ export default class NavigationPage extends Component {
     }
 
     onSortEndComp({ oldIndex, newIndex }) {
+        if (oldIndex == newIndex) {
+            return;
+        }
         let newCurrentDir = this.state.currentDir;
         newCurrentDir.comparisons = arrayMove(newCurrentDir.comparisons, oldIndex, newIndex);
 
@@ -359,6 +365,9 @@ export default class NavigationPage extends Component {
     }
 
     onSortEndListTD({ oldIndex, newIndex }) {
+        if (oldIndex == newIndex) {
+            return;
+        }
         let newCurrentDir = this.state.currentDir;
         newCurrentDir.listsToDo = arrayMove(newCurrentDir.listsToDo, oldIndex, newIndex);
 
@@ -383,6 +392,9 @@ export default class NavigationPage extends Component {
     }
 
     onSortEndNote({ oldIndex, newIndex }) {
+        if (oldIndex == newIndex) {
+            return;
+        }
         let newCurrentDir = this.state.currentDir;
         newCurrentDir.notes = arrayMove(newCurrentDir.notes, oldIndex, newIndex);
 
@@ -408,6 +420,9 @@ export default class NavigationPage extends Component {
     }
 
     onSortEndVideo({ oldIndex, newIndex }) {
+        if (oldIndex == newIndex) {
+            return;
+        }
         let newCurrentDir = this.state.currentDir;
         newCurrentDir.videos = arrayMove(newCurrentDir.videos, oldIndex, newIndex);
 
@@ -562,7 +577,7 @@ const SortableNotes = SortableContainer(({ items, _this }) => {
 
 const SortableListsToDo = SortableContainer(({ items, _this }) => {
     return (
-        <ul className="pl-0">
+        <ul className="pl-0 mb-0">
             {items.map((value, index) => {
                 return (<SortableListToDo key={`listToDo-${index}`} index={index} ind={index} value={value} _this={_this} />)
             }

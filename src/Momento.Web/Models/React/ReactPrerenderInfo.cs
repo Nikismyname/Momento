@@ -8,7 +8,10 @@
         {
             this.WantedComponent = ReactComponent.index;
             this.WantedIndex = 0;
+            this.ShouldPrerender = false; 
         }
+
+        public bool  ShouldPrerender { get; set; }
 
         public ReactComponent  WantedComponent { get; set; }
         /// <summary>

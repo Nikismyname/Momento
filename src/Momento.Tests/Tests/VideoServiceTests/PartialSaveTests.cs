@@ -63,7 +63,7 @@
         public void ShouldThrowIfIdsToChangeDoNotBelongToVideo()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "some prop", "some val" },
@@ -84,7 +84,7 @@
         public void ShouldNotChangeVideoFieldsIfTheyAreAllNull()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             ChangeTrackerOperations.DetachAll(this.context);
             Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername);
@@ -104,7 +104,7 @@
             const string NewDescription = "NewDescription";
 
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             ChangeTrackerOperations.DetachAll(this.context);
             Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername, NewSeekTo, NewName, NewDescription);
@@ -129,7 +129,7 @@
             const string Note2NewContent = "newContentForNote2";
 
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Content", Note1NewContent },
@@ -155,7 +155,7 @@
         public void AppliesDeletedChangeToExistingNotesShouldSoftDeleteThem()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Deleted", "Not Used"},
@@ -184,7 +184,7 @@
             const Formatting Note2NewFormatting = Formatting.None;
 
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "Formatting", ((int)Note1NewFormatting).ToString() },
@@ -213,7 +213,7 @@
             const int Note2NewSeekTo = 16;
 
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "SeekTo", Note1NewSeekTo.ToString() },
@@ -246,7 +246,7 @@
             const int note2NewBorderThickness = 1;
 
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var changes = new string[][]
             {
                 new string[]{"1", "type", ((int)note1NewType).ToString() },
@@ -291,7 +291,7 @@
             const int level = 1;  
 
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             var newNote = new VideoNoteCreate
             {
@@ -338,7 +338,7 @@
         public void ShoudCreate3nestedNotesStartingAtRootCorrectly()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var newNotes = VideoS.GenerateNoteCreateSimpleNested(null);
 
             ChangeTrackerOperations.DetachAll(this.context);
@@ -368,7 +368,7 @@
         public void ShoudCreate3nestedNotesStartingAtExistingNote()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id);
 
             ChangeTrackerOperations.DetachAll(this.context);
@@ -401,7 +401,7 @@
         public void IfTheNestingLevelIsGreaterThan4Throw()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id, 4);
 
             ChangeTrackerOperations.DetachAll(this.context);
@@ -414,7 +414,7 @@
         public void CreateNewItemsReturnsTheRightIdsToUpdateThePageEntries()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             var newNotes = VideoS.GenerateNoteCreateSimpleNested(VideoS.preExistingNote1Id);
 
             ChangeTrackerOperations.DetachAll(this.context);
@@ -453,7 +453,7 @@
         public void PartialSaveRegisterModificationOfVideoIfItIsFinalSave()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             var videoLastModifiedOn = video.LastModifiedOn;
             var videoMidificationCount = video.TimesModified;
@@ -478,7 +478,7 @@
         public void PartialSaveDoesNotRegisterModificationOfVideoIfItIsNotFinalSave()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             var videoLastModifiedOn = video.LastModifiedOn;
             var videoMidificationCount = video.TimesModified;
@@ -501,7 +501,7 @@
             const Formatting Note1NewFormatting = Formatting.SQL;
             const Formatting Note2NewFormatting = Formatting.None;
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
 
             var note1 = video.Notes.SingleOrDefault(x => x.Id == VideoS.preExistingNote1Id);
             var note2 = video.Notes.SingleOrDefault(x => x.Id == VideoS.preExistingNote2Id);

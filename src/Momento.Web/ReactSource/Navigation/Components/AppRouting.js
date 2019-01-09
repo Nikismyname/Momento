@@ -9,6 +9,7 @@ import ComparisonCreate from './ComparisonCreate';
 import VideoView from "./VideoView";
 import VideoNotes from './VideoNotes';
 import VideoNoteCreate from './VideoNoteCreate';
+import AdminView from './AdminView';
 
 export default class AppRouting extends Component {
     constructor(props) {
@@ -19,6 +20,7 @@ export default class AppRouting extends Component {
         };
 
         this.setComparisonId = this.setComparisonId.bind(this);
+        this.renderPrerenderedServerSide = this.renderPrerenderedServerSide.bind(this);
     }
 
     setComparisonId(compId, compDirId) {
@@ -28,8 +30,8 @@ export default class AppRouting extends Component {
         });
     }
 
-    render() {
-        if (typeof window === 'undefined') {
+    renderPrerenderedServerSide() {
+        if (this.props.prerender == true) {
             if (this.props.comp == "index") {
                 return (
                     <div className="pageContent">
@@ -47,28 +49,38 @@ export default class AppRouting extends Component {
                     </div>)
             }
         } else {
-            if (typeof this.props.comp !== "udefined") {
-                console.log("We got server data gov!");
-            }
-            return (<Fragment>
-                <BrowserRouter>
-                    <div className="pageContent">
-                        <Switch>
-                            <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
-                            <Route path={c.rootDir + c.comparisonCreatePath + "/:id"} component={ComparisonCreate} />
-                            <Route path={c.rootDir + c.videoViewPath + "/:id"} component={VideoView} />
-                            <Route path={c.rootDir + c.videoNotesPath + "/:id/:dirId"} component={VideoNotes} />
-                            <Route path={c.rootDir + c.videoNotesCreatePath + "/:id"} component={VideoNoteCreate} />
+            return <Fragment></Fragment>
+        }
+    }
 
-                            <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
-                            <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />
-                            <Route path={c.rootDir + "/:id"} component={NavigationPage} />
-                            <Route path={c.rootDir + c.comparePath} render={() => <Compare initialComp={this.props.initialComp} />} />
-                            <Route path={c.rootDir} render={() => <NavigationPage initialDir={this.props.initialDir} />} />
-                        </Switch>
-                    </div>
-                </BrowserRouter>
-            </Fragment>)
+    render() {
+        const runTimeRouting = (
+            <BrowserRouter>
+                <div className="pageContent">
+                    <Switch>
+                        <Route path={c.rootDir + "/adminView"} component={AdminView} />
+
+                        <Route path={c.rootDir + c.noteCreatePath + "/:id"} component={NoteCreate} />
+                        <Route path={c.rootDir + c.comparisonCreatePath + "/:id"} component={ComparisonCreate} />
+                        <Route path={c.rootDir + c.videoViewPath + "/:id"} component={VideoView} />
+                        <Route path={c.rootDir + c.videoNotesPath + "/:id/:dirId"} component={VideoNotes} />
+                        <Route path={c.rootDir + c.videoNotesCreatePath + "/:id"} component={VideoNoteCreate} />
+
+                        <Route path={c.rootDir + c.richTextNotePath + "/:id/:dirId"} component={Note} />
+                        <Route path={c.rootDir + c.comparePath + "/:id/:dirId"} component={Compare} />
+                        <Route path={c.rootDir + "/:id"} component={NavigationPage} />
+                        <Route path={c.rootDir + c.comparePath} render={() => <Compare initialComp={this.props.initialComp} />} />
+                        <Route path={c.rootDir} render={() => <NavigationPage initialDir={this.props.initialDir} />} />
+                    </Switch>
+                </div>
+            </BrowserRouter>
+        )
+
+        if (typeof window === "undefined") {
+            return this.renderPrerenderedServerSide();
+        }
+        else {
+            return runTimeRouting;
         }
     }
 }

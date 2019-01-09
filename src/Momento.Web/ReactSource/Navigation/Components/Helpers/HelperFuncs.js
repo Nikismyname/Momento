@@ -123,6 +123,9 @@ export function clientSideValidation(errorMessage, fieldName, _this) {
 
     let newErrorState = _this.state.ERRORS; 
 
+    console.log("The data the CS error handler has");
+    console.log(newErrorState);
+
     let existingErrors = newErrorState.filter(x => x.fieldName == fieldName);
 
     if (existingErrors.length > 1) { alert("Duplicated field names - FIX"); return; }

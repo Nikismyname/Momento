@@ -30,27 +30,27 @@
         [Test]
         public void GetForEditShouldThrowIfUserNotFound()
         {
-            const string NonExistantUserName = "clearly not pesho";
+            const string NonExistentUserName = "clearly not pesho";
             ///Does not matter for this test
-            const int NonExistantId = 42;
+            const int NonExistentId = 42;
 
             UserS.SeedPeshoAndGosho(this.context);
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Func<ComparisonEdit> action = () => this.comparisonService.GetForEdit(NonExistantId, NonExistantUserName);
+            Func<ComparisonEdit> action = () => this.comparisonService.GetForEdit(NonExistentId, NonExistentUserName);
             action.Should().Throw<UserNotFound>();
         }
 
         [Test]
         public void GetForEditShouldThrowIfItemNotFound()
         {
-            const int NonExistantId = 42;
+            const int NonExistentId = 42;
 
             UserS.SeedPeshoAndGosho(this.context);
             CompS.SeedTwoCompsToUser(this.context, UserS.GoshoId);
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Func<ComparisonEdit> action = () => this.comparisonService.GetForEdit(NonExistantId, UserS.GoshoUsername);
+            Func<ComparisonEdit> action = () => this.comparisonService.GetForEdit(NonExistentId, UserS.GoshoUsername);
             action.Should().Throw<ItemNotFound>().WithMessage("The comparison you are looking for does not exist!");
         }
 

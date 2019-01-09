@@ -15,30 +15,12 @@ namespace Momento.Web.Controllers.Api
             this.listToDoService = listToDoService;
         }
 
-        // GET: api/ListToDo
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // POST: api/ListToDo
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/ListToDo/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
         // DELETE: api/ListToDo/5
         [HttpDelete(/*"{id}"*/)]
         public ActionResult<bool> Delete([FromBody]int id)
         {
-            var result = this.listToDoService.DeleteApi(id, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.listToDoService.DeleteApi(id, this.User.Identity.Name, isAdmin);
             return result;
         }
     }

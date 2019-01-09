@@ -2,7 +2,7 @@
 {
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Momento.Services.Contracts.Directory;
+    using Services.Contracts.Directory;
     using Momento.Services.Models.DirectoryModels;
     using Momento.Web.Models.React;
     using Momento.Web.Models.React.Enums;
@@ -35,44 +35,32 @@
         public IActionResult IndexReact(int id)
         {
             var path = this.Request.Path;
+            // /Directory/IndexReact            -> index with root         |prerender
+            // /Directory/IndexReact/:id        -> index with specific Dir |prerender
+            // /Directory/IndexReact/adminView  ->                         |do note prerederd
+
             var reactPrerenderInfo = new ReactPrerenderInfo();
 
             var urlTokens = path.ToString().Split("/", StringSplitOptions.RemoveEmptyEntries);
             var lastPart = urlTokens.Last();
-
-            if (urlTokens[0] != "Directory" || urlTokens[1] != "IndexReact")
-                throw new Exception("Wrong Spa Fallback");
-
-            if(int.TryParse(urlTokens[urlTokens.Length-1], out int index))
+            if (int.TryParse(lastPart, out int index))
             {
-                reactPrerenderInfo.WantedIndex = index;
                 if (urlTokens.Length == 3)
                 {
+                    reactPrerenderInfo.ShouldPrerender = true;
                     reactPrerenderInfo.WantedComponent = ReactComponent.index;
+                    reactPrerenderInfo.WantedIndex = index;
                 }
-                else
-                {
-                    if(urlTokens[2] == "compare" && urlTokens.Length == 4)
-                    {
-                        reactPrerenderInfo.WantedComponent = ReactComponent.compare;
-                    }
-                }
+            }
+            else if (urlTokens.Length == 2)
+            {
+                reactPrerenderInfo.ShouldPrerender = true;
+                reactPrerenderInfo.WantedComponent = ReactComponent.index;
+                reactPrerenderInfo.WantedIndex = 0;
             }
             else
             {
-                reactPrerenderInfo.WantedIndex = 0;
-
-                if (urlTokens.Length == 2)
-                {
-                    reactPrerenderInfo.WantedComponent = ReactComponent.index;
-                }
-                else
-                {
-                    if (urlTokens[2] == "compare" && urlTokens.Length == 3)
-                    {
-                        reactPrerenderInfo.WantedComponent = ReactComponent.compare;
-                    }
-                }
+                reactPrerenderInfo.ShouldPrerender = false;
             }
 
             return View(reactPrerenderInfo);
@@ -100,11 +88,5 @@
             directoryService.Delete(id, this.User.Identity.Name);
             return RedirectToAction(nameof(Index), new { id = returnDirId });
         }
-
-        //[HttpPost]
-        //public void Reorder(string type, int parentDir, int[] values)
-        //{
-        //    reorderService.SaveItemsForOneDir(parentDir, type, values);
-        //}
     }
 }

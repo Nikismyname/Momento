@@ -3,14 +3,14 @@
     #region Initialization
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Momento.Models.Notes;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Notes;
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Utilities;
-    using Momento.Services.Exceptions;
-    using Momento.Services.Models.NoteModels;
+    using Exceptions;
+    using Models.NoteModels;
     using System;
     using System.Linq;
 
@@ -35,7 +35,7 @@
 
         #region Create
         ///Tested
-        public Note Create(NoteCreate note, string username)
+        public Note Create(NoteCreate note, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -49,7 +49,7 @@
                 throw new ItemNotFound("The directory you are trying to add a note to does not exist!");
             }
 
-            if (user.Id != directory.UserId)
+            if (user.Id != directory.UserId && isAdmin == false)
             {
                 throw new AccessDenied("The directory you are trying to add a note to does not beling to you!");
             }
@@ -71,11 +71,11 @@
             return resultNote;
         }
 
-        public bool CreateApi(NoteCreate note, string username)
+        public bool CreateApi(NoteCreate note, string username, bool isAdmin = false)
         {
             try
             {
-                Create(note, username);
+                Create(note, username,isAdmin);
                 return true;
             }
             catch
@@ -87,7 +87,7 @@
 
         #region GetForEdit
         ///Tested
-        public NoteEdit GetForEdit(int id, string username)
+        public NoteEdit GetForEdit(int id, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -103,7 +103,7 @@
                 throw new ItemNotFound("The note you are trying to get does not exist!");
             }
 
-            if (note.UserId != user.Id)
+            if (note.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The note you are trying to get does not belong to you!");
             }
@@ -112,11 +112,11 @@
             return resultNote;
         }
 
-        public NoteEdit GetForEditApi(int id, string username)
+        public NoteEdit GetForEditApi(int id, string username, bool isAdmin = false)
         {
             try
             {
-                return this.GetForEdit(id, username);
+                return this.GetForEdit(id, username,isAdmin);
             }
             catch
             {
@@ -127,11 +127,11 @@
 
         #region Save
         ///Tested
-        public Note Save(NoteEdit editInput, string username)
+        public Note Save(NoteEdit editInput, string username, bool isAdmin = false)
         {
             User user = null;
             Note dbNote = null;
-            this.CheckSaveForAuthorization(ref user, ref dbNote, username, editInput.Id);
+            this.CheckSaveForAuthorization(ref user, ref dbNote, username, editInput.Id, isAdmin);
             this.utilService.UpdatePropertiesReflection(editInput, dbNote, new string[] { "Lines", "Id", "Name", "Description" });
             this.UpdateExistingNotes(dbNote, editInput);
             this.DeleteRemovedLines(editInput, dbNote);
@@ -141,11 +141,11 @@
             return dbNote;
         }
 
-        public bool SaveApi(NoteEdit model, string username)
+        public bool SaveApi(NoteEdit model, string username, bool isAdmin = false)
         {
             try
             {
-                this.Save(model, username);
+                this.Save(model, username, isAdmin);
                 return true;
             }
             catch (Exception e)
@@ -154,7 +154,7 @@
             }
         }
 
-        private void CheckSaveForAuthorization(ref User user, ref Note pageNote, string username, int noteId)
+        private void CheckSaveForAuthorization(ref User user, ref Note pageNote, string username, int noteId, bool isAdmin)
         {
             user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -168,7 +168,7 @@
                 throw new ItemNotFound("The note you are trying to edit does not exist!");
             }
 
-            if (pageNote.UserId != user.Id)
+            if (pageNote.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The note you are trying to edit does not belong to you!");
             }
@@ -256,7 +256,7 @@
 
         #region Delete
         ///Tested
-        public Note Delete(int id, string username)
+        public Note Delete(int id, string username, bool isAdmin = false)
         {
             var userId = this.context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
             if (userId == null)
@@ -273,7 +273,7 @@
                 throw new ItemNotFound("The note you are trying to delete does not exist!");
             }
 
-            if (userId != note.UserId)
+            if (userId != note.UserId && isAdmin == false)
             {
                 throw new AccessDenied("The note you are trying to delete does not belong to you!");
             }
@@ -294,11 +294,11 @@
             return note;
         }
 
-        public bool DeleteApi(int id, string username)
+        public bool DeleteApi(int id, string username, bool isAdmin = false)
         {
             try
             {
-                this.Delete(id, username);
+                this.Delete(id, username, isAdmin);
                 return true;
             }
             catch

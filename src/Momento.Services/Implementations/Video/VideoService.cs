@@ -6,13 +6,13 @@
     using System.Linq;
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Momento.Models.Enums;
     using Momento.Models.Videos;
     using Momento.Services.Contracts.Shared;
     using Momento.Services.Contracts.Video;
-    using Momento.Services.Exceptions;
-    using Momento.Services.Models.VideoModels;
+    using Exceptions;
+    using Models.VideoModels;
 
     public class VideoService : IVideoService
     {
@@ -31,7 +31,7 @@
         #region Get
         ///This is where you can press buttons to move around the video.
         ///Tested basics
-        public VideoView GetView(int videoId, string username)
+        public VideoView GetView(int videoId, string username, bool isAdmin = false)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -48,7 +48,7 @@
                 throw new ItemNotFound("Video you are trying to view does not exist in the database!");
             }
 
-            if (video.UserId != user.Id)
+            if (video.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The video you are trying to view does not belong to you");
             }
@@ -63,11 +63,11 @@
         /// <summary>
         /// Returns null if there is a problem
         /// </summary>
-        public VideoView GetViewApi(int videoId, string username)
+        public VideoView GetViewApi(int videoId, string username, bool isAdmin = false)
         {
             try
             {
-                var result = this.GetView(videoId, username);
+                var result = this.GetView(videoId, username, isAdmin);
                 return result;
             }
             catch
@@ -91,7 +91,7 @@
         ///         if there is a parent note.
         /// </summary>
         /// Tested
-        public VideoCreate GetVideoForEdit(int videoId, string username)
+        public VideoCreate GetVideoForEdit(int videoId, string username, bool isAdmin = false)
         {
             var video = context.Videos
                 .Include(x => x.Notes)
@@ -112,7 +112,7 @@
             ///TODO: Videos should have users, remove when they do.
             if (video.UserId != null)
             {
-                if (video.UserId != userId)
+                if (video.UserId != userId && isAdmin == false)
                 {
                     throw new AccessDenied("You can note edit video that does not belong to you!");
                 }
@@ -166,11 +166,11 @@
             return result;
         }
 
-        public VideoCreate GetVideoForEditApi(int videoId, string username)
+        public VideoCreate GetVideoForEditApi(int videoId, string username, bool isAdmin = false)
         {
             try
             {
-                var result = this.GetVideoForEdit(videoId, username);
+                var result = this.GetVideoForEdit(videoId, username, isAdmin);
                 return result;
             }
             catch
@@ -183,7 +183,7 @@
 
         #region Create
         ///Tested///Not any more///Tested again
-        public Video Create(VideoInitialCreate videoCreate, string username)
+        public Video Create(VideoInitialCreate videoCreate, string username, bool isAdmin = false)
         {
             var dirId = videoCreate.DirectoryId;
 
@@ -199,7 +199,7 @@
                 throw new ItemNotFound("The Directory you selected for creating the new video notes in, does not exist!");
             }
 
-            if (user.Id != directory.UserId)
+            if (user.Id != directory.UserId && isAdmin == false)
             {
                 throw new AccessDenied("The directory you are trying to create a video on does note belong to you!");
             }
@@ -226,11 +226,11 @@
             return video;
         }
 
-        public bool CreateApi(VideoInitialCreate videoCreate, string username)
+        public bool CreateApi(VideoInitialCreate videoCreate, string username, bool isAdmin = false)
         {
             try
             {
-                this.Create(videoCreate, username);
+                this.Create(videoCreate, username, isAdmin);
                 return true;
             }
             catch
@@ -244,7 +244,7 @@
         #region Delete
         ///Soft Delete
         ///Tested
-        public void Delete(int id, string username, DateTime now)
+        public void Delete(int id, string username, DateTime now, bool isAdmin = false)
         {
             var video = context.Videos.SingleOrDefault(x => x.Id == id);
             if (video == null)
@@ -258,7 +258,7 @@
                 throw new UserNotFound(username);
             }
 
-            if (video.UserId != null && video.UserId != user.Id)
+            if (video.UserId != null && video.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The video you are trying to delete does not belong to you!");
             }
@@ -275,12 +275,12 @@
             context.SaveChanges();
         }
 
-        public bool DeleteApi(int id, string username)
+        public bool DeleteApi(int id, string username, bool isAdmin = false)
         {
             var now = DateTime.UtcNow;
             try
             {
-                this.Delete(id, username, now);
+                this.Delete(id, username, now, isAdmin);
                 return true;
             }
             catch
@@ -297,9 +297,9 @@
         ///Tested
         public int[][] PartialSave(int videoId, string userName, int? seekTo,
             string name, string desctiption, string[][] changes,
-            VideoNoteCreate[] newNotes, bool finalSave)
+            VideoNoteCreate[] newNotes, bool finalSave, bool isAdmin = false)
         {
-            this.ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave);
+            this.ValidateSaveAndRegisterModification(videoId, changes, userName, finalSave, isAdmin);
             ///Appy changes to the video fields
             this.PartialSaveVideoFields(videoId, name, desctiption, seekTo);
             ///Appy changes to the existing Notes
@@ -311,13 +311,13 @@
 
         /// I am not doing autosaves yet so I only need to know if save was successful 
         public bool PartialSaveApi(int videoId, string userName, int? seekTo,
-             string name, string desctiption, string[][] changes,
-             VideoNoteCreate[] newNotes, bool finalSave)
+             string name, string description, string[][] changes,
+             VideoNoteCreate[] newNotes, bool finalSave, bool isAdmin = false)
         {
             try
             {
-                var result = this.PartialSave(videoId, userName, seekTo, 
-                    name, desctiption, changes, newNotes, finalSave);
+                var result = this.PartialSave(videoId, userName, seekTo,
+                    name, description, changes, newNotes, finalSave, isAdmin);
 
                 return true;
             }
@@ -327,8 +327,8 @@
             }
         }
 
-        ///Tested exept the integration with the trackable service
-        private void ValidateSaveAndRegisterModification(int videoId, string[][] changes, string username, bool finalSave)
+        ///Tested except the integration with the trackable service
+        private void ValidateSaveAndRegisterModification(int videoId, string[][] changes, string username, bool finalSave, bool isAdmin)
         {
             ///chech if video exists 
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
@@ -346,26 +346,32 @@
                 throw new UserNotFound(username);
             }
 
-            ///check if the video belongs to the user 
-            var userVideoIds = context.Users
-                .Select(x => new
-                {
-                    username = x.UserName,
-                    videoIds = x.Directories.SelectMany(y => y.Videos.Select(z => z.Id)).ToArray()
-                })
-                .SingleOrDefault(x => x.username == username)
-                .videoIds;
+            //Check if the video belongs to the user 
+            //var userVideoIds = context.Users
+            //    .Select(x => new
+            //    {
+            //        username = x.UserName,
+            //        videoIds = x.Directories.SelectMany(y => y.Videos.Select(z => z.Id)).ToArray()
+            //    })
+            //    .SingleOrDefault(x => x.username == username)
+            //    .videoIds;
 
-            if (!userVideoIds.Contains(videoId))
+            //if (!userVideoIds.Contains(videoId))
+            //{
+            //    throw new AccessDenied("The video you are trying to modify does not belong to you!");
+            //}
+
+            ///First check is beacause some legacy vidoes do not have user id
+            if (video.UserId != null && video.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The video you are trying to modify does not belong to you!");
             }
             ///check if all the notes being changed belong the video they are coming for;
             var videoNotesIds = context
-                .Videos
-                .Include(x => x.Notes)
-                .SingleOrDefault(x => x.Id == videoId)
-                .Notes.Select(x => x.Id).ToArray();
+            .Videos
+            .Include(x => x.Notes)
+            .SingleOrDefault(x => x.Id == videoId)
+            .Notes.Select(x => x.Id).ToArray();
             var sentVideoNoteIds = changes.Select(x => int.Parse(x[0])).ToArray();
 
             if (sentVideoNoteIds.Any(x => !videoNotesIds.Contains(x)))
@@ -385,7 +391,7 @@
         private void PartialSaveVideoFields(int videoId, string name, string description, int? seekTo)
         {
             var video = context.Videos.SingleOrDefault(x => x.Id == videoId);
-            
+
             if (name != null)
             {
                 video.Name = name;

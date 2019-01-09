@@ -3,13 +3,13 @@
     using System.Linq;
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Momento.Services.Contracts.Directory;
     using Momento.Models.Directories;
     using System;
-    using Momento.Services.Models.DirectoryModels;
-    using Momento.Services.Mapping;
-    using Momento.Services.Exceptions;
+    using Models.DirectoryModels;
+    using Mapping;
+    using Exceptions;
     using Momento.Services.Utilities;
 
     public class DirectoryService : IDirectoryService
@@ -20,17 +20,11 @@
             this.context = context;
         }
 
-        #region Create
-        //Verified
-        public int Create(int parentDirId, string dirName, string username)
+        #region Create ///T
+        ///Verified
+        ///Tested
+        public int Create(int parentDirId, string dirName, string username, bool isAdmin = false)
         {
-            var parentDir = context.Directories.SingleOrDefault(x => x.Id == parentDirId);
-
-            if (parentDir == null)
-            {
-                throw new ItemNotFound("The parent directory of the directory you are trying to create does not exist!");
-            }
-
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
 
             if (user == null)
@@ -38,7 +32,14 @@
                 throw new UserNotFound(username);
             }
 
-            if (parentDir.UserId != user.Id)
+            var parentDir = context.Directories.SingleOrDefault(x => x.Id == parentDirId);
+
+            if (parentDir == null)
+            {
+                throw new ItemNotFound("The parent directory of the directory you are trying to create does not exist!");
+            }
+
+            if (parentDir.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The parent directory does not belong to you!");
             }
@@ -68,11 +69,11 @@
             return dir.Id;
         }
 
-        public int CreateApi(int parentDirId, string dirName, string username)
+        public int CreateApi(int parentDirId, string dirName, string username , bool isAdmin = false)
         {
             try
             {
-                var id = Create(parentDirId, dirName, username);
+                var id = Create(parentDirId, dirName, username, isAdmin);
                 return id;
             }
             catch
@@ -82,52 +83,60 @@
         }
         #endregion
 
-        public DirectoryIndexSingle GetIndexSingle(int? directoryId, string username)
+        #region GetIndexSingle ///TM
+        ///Tested Mostly
+        public DirectoryIndexSingle GetIndexSingle(int? directoryId, string username, bool isAdmin = false)
         {
             var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
 
             if (userId == null)
             {
-                //throw new UserNotFound(username);
-                return null;
+                throw new UserNotFound(username);
             }
 
             DirectoryIndexSingle dir = null;
 
-            IQueryable<DirectoryIndexSingle> baseQuery = context.Directories.Where(x => x.UserId == userId).To<DirectoryIndexSingle>();
-
             ///if that, find root
             if (directoryId == null || directoryId == 0)
             {
-                dir = baseQuery
-                    .SingleOrDefault(x => x.ParentDirectoryId == null);
+                dir = context.Directories
+                    .Where(x => x.UserId == userId)
+                    .To<DirectoryIndexSingle>()
+                    .FirstOrDefault(x => x.Name == Constants.RootDorectoryName);
 
                 if (dir == null)
                 {
-                    //throw new InternalServerError("Could not find root dir for user " + username);
-                    return null;
+                    throw new InternalServerError("Could not find root dir for user " + username);
                 }
             }
             else
             {
-                dir = baseQuery
+                var dbDir = this.context.Directories
                     .SingleOrDefault(x => x.Id == directoryId);
 
-                if (dir == null)
+                if (dbDir == null)
                 {
-                    // new BadRequestError("The directory you are trying to access eather does not exist or is not yours!");
-                    return null;
+                    throw new BadRequestError("The directory you are trying to access eather does not exist or is not yours!");
                 }
+
+                if (dbDir.UserId != userId && isAdmin == false)
+                {
+                    throw new BadRequestError("The directory you are trying to access eather does not exist or is not yours!");
+                }
+
+                dir = this.context.Directories
+                    .To<DirectoryIndexSingle>()
+                    .SingleOrDefault(x => x.Id == directoryId);
             }
 
             return dir;
         }
 
-        public DirectoryIndexSingle GetIndexSingleApi(int? directoryId, string username)
+        public DirectoryIndexSingle GetIndexSingleApi(int? directoryId, string username, bool isAdmin = false)
         {
             try
             {
-                var result = GetIndexSingle(directoryId, username);
+                var result = GetIndexSingle(directoryId, username, isAdmin);
                 return result;
             }
             catch
@@ -135,8 +144,9 @@
                 return null;
             }
         }
+        #endregion
 
-
+        #region CreaterRoot ///Tested Needs Some validation maybe, even though it is internal function 
         public void CreateRoot(string username)
         {
             var userId = context.Users.SingleOrDefault(x => x.UserName == username).Id;
@@ -149,14 +159,16 @@
             context.Directories.Add(dir);
             context.SaveChanges();
         }
+        #endregion
 
+        #region Delete ///T
         /// <summary>
         /// Soft delete
         /// Deletes: Videos, ListToDo, notes, comparisons
         /// </summary>
         /// Validated
-        /// T
-        public void Delete(int id, string username)
+        /// Tested
+        public Directory Delete(int id, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -171,12 +183,12 @@
                 throw new ItemNotFound("The directory you are trying to delete does not exist!");
             }
 
-            if (dirToDelete.UserId != user.Id)
+            if (dirToDelete.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The directory you are trying to delete does not belong to you!");
             }
 
-            if(dirToDelete.Name == Constants.RootDorectoryName)
+            if (dirToDelete.Name == Constants.RootDorectoryName)
             {
                 throw new AccessDenied("Can not delete Root directory!");
             }
@@ -184,13 +196,15 @@
             var now = DateTime.UtcNow;
             this.SoftDeleteDirectoryRec(dirToDelete, now);
             context.SaveChanges();
+
+            return dirToDelete;
         }
 
-        public bool DeleteApi(int id, string username)
+        public bool DeleteApi(int id, string username, bool isAdmin = false)
         {
             try
             {
-                this.Delete(id, username);
+                this.Delete(id, username, isAdmin);
                 return true;
             }
             catch
@@ -206,11 +220,11 @@
                     .ThenInclude(x => x.Lines)
                 .Include(x => x.ListsToDo)
                     .ThenInclude(x => x.Items)
-                .Include(x=>x.Videos)
-                    .ThenInclude(x=>x.Notes)
-                .Include(x=>x.Comparisons)
-                    .ThenInclude(x=>x.Items)
-                .Include(x=>x.Subdirectories)
+                .Include(x => x.Videos)
+                    .ThenInclude(x => x.Notes)
+                .Include(x => x.Comparisons)
+                    .ThenInclude(x => x.Items)
+                .Include(x => x.Subdirectories)
                 .Single(x => x.Id == dir.Id);
 
             ///Videos
@@ -244,7 +258,7 @@
                 todo.IsDeleted = true;
             }
             ///...
-            
+
             ///Comparisons
             var comparisons = dir.Comparisons;
             foreach (var comp in comparisons)
@@ -260,7 +274,7 @@
                 comp.IsDeleted = true;
             }
             ///...
-            
+
             ///Notes
             var notes = dir.Notes;
             foreach (var note in notes)
@@ -289,6 +303,7 @@
             dir.DeletedOn = now;
             dir.IsDeleted = true;
         }
+        #endregion
 
         #region Deprecated
         ///Deprecated

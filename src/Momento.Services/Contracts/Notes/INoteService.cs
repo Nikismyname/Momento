@@ -5,20 +5,20 @@
 
     public interface INoteService
     {
-        Note Create(NoteCreate note, string username);
+        Note Create(NoteCreate note, string username, bool isAdmin = false);
 
-        bool CreateApi(NoteCreate note, string username);
+        bool CreateApi(NoteCreate note, string username, bool isAdmin = false);
 
-        NoteEdit GetForEdit(int id, string username);
+        NoteEdit GetForEdit(int id, string username, bool isAdmin = false);
 
-        NoteEdit GetForEditApi(int id, string username);
+        NoteEdit GetForEditApi(int id, string username, bool isAdmin = false);
 
-        Note Save(NoteEdit model, string username);
+        Note Save(NoteEdit model, string username, bool isAdmin = false);
 
-        bool SaveApi(NoteEdit model, string username);
+        bool SaveApi(NoteEdit model, string username, bool isAdmin = false);
 
-        Note Delete(int id, string username);
+        Note Delete(int id, string username, bool isAdmin = false);
 
-        bool DeleteApi(int id, string username);
+        bool DeleteApi(int id, string username, bool isAdmin = false);
     }
 }

@@ -22,7 +22,7 @@
 
         public int Id { get; set; }
 
-        [StringLength(40, MinimumLength =3, ErrorMessage ="Note Name must be between 3 and 40 characters long!")]
+        [StringLength(40, MinimumLength = 3, ErrorMessage = "Note Name must be between 3 and 40 characters long!")]
         public string  Name { get; set; }
 
         public string  Description { get; set; }

@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Other;
-    using Momento.Services.Contracts.Video;
+    using Services.Contracts.Video;
     using Momento.Services.Models.VideoModels;
 
     [Route("api/[controller]")]
@@ -25,7 +25,8 @@
         [Route("[action]")]
         public ActionResult<bool> Create(VideoInitialCreate videoCreate)
         {
-            var result = this.videoService.CreateApi(videoCreate, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.videoService.CreateApi(videoCreate, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -34,7 +35,8 @@
         [Route("[action]")]
         public ActionResult<bool> Delete([FromBody] int id)
         {
-            var result = this.videoService.DeleteApi(id, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.videoService.DeleteApi(id, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -43,7 +45,8 @@
         [Route("[action]")]
         public ActionResult<VideoView> GetView([FromBody] int videoId)
         {
-            var result = this.videoService.GetViewApi(videoId, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.videoService.GetViewApi(videoId, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -51,10 +54,11 @@
         [Route("[action]")]
         public ActionResult<bool> Save([FromBody]VideoSave data)
         {
+            var isAdmin = this.User.IsInRole("Admin");
             var username = this.User.Identity.Name;
             var result = this.videoService.PartialSaveApi(
                 data.VideoId, username, data.SeekTo, data.Name, data.Description,
-                data.Changes, data.NewNotes, data.FinalSave);
+                data.Changes, data.NewNotes, data.FinalSave, isAdmin);
             return result;
         }
 
@@ -62,7 +66,8 @@
         [Route("[action]")]
         public ActionResult<VideoCreateWithSettings> GetForEdit([FromBody] int videoId)
         {
-            var videoCreate = videoService.GetVideoForEditApi(videoId, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var videoCreate = videoService.GetVideoForEditApi(videoId, this.User.Identity.Name, isAdmin);
             if (videoCreate == null)
             {
                 return null;

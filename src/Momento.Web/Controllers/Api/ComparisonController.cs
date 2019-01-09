@@ -2,7 +2,7 @@
 {
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Momento.Services.Contracts.Comparisons;
+    using Services.Contracts.Comparisons;
     using Momento.Services.Models.ComparisonModels;
 
     [Route("api/[controller]")]
@@ -21,7 +21,9 @@
         [Route("[action]")]
         public ActionResult<bool> Create([FromBody] ComparisonCreate data)
         {
-            var result = this.comparisonService.CreateApi(data, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.comparisonService.CreateApi(
+                data, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -29,7 +31,9 @@
         [Route("[action]")]
         public ActionResult<ComparisonEdit> Get([FromBody] int comparisonId)
         {
-            var comp = this.comparisonService.GetForEditApi(comparisonId, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var comp = this.comparisonService.GetForEditApi(
+                comparisonId, this.User.Identity.Name,isAdmin);
             return comp;
         }
 
@@ -37,7 +41,9 @@
         [Route("[action]")]
         public ActionResult<bool> Save([FromBody] ComparisonSave data)
         {
-            var result = this.comparisonService.SaveApi(data, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.comparisonService.SaveApi(
+                data, this.User.Identity.Name,isAdmin);
             return result;
         }
 
@@ -46,7 +52,9 @@
         [Route("[action]")]
         public ActionResult<bool> Delete([FromBody] int id)
         {
-            var result = this.comparisonService.DeleteApi(id, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = this.comparisonService.DeleteApi(
+                id, this.User.Identity.Name,isAdmin);
             return result;
         }
     }

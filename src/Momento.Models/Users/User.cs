@@ -8,6 +8,7 @@
     using Momento.Models.Videos;
     using Momento.Models.Directories;
     using Momento.Models.Contracts;
+    using Momento.Models.Notes;
 
     public class User : IdentityUser, ISoftDeletableAndTrackable
     {
@@ -16,9 +17,9 @@
             this.Directories = new HashSet<Directory>();
             this.ListsToDo = new HashSet<ListToDo>();
             this.ListsRemind = new HashSet<ListRemind>();
-            this.ListsToDo = new HashSet<ListToDo>();
             this.Videos = new HashSet<Video>();
             this.Comparisons = new HashSet<Comparisons.Comparison>();
+            this.Notes = new HashSet<Note>();
 
             this.IsDeleted = false;
             var now = DateTime.UtcNow;
@@ -34,19 +35,21 @@
 
         public string LastName { get; set; }
 
-        public virtual UserSettings UserSettings { get; set; }
+        public UserSettings UserSettings { get; set; }
 
         //public virtual Directory Root { get; set; }
 
-        public virtual ICollection<Directory> Directories { get; set; }
+        public ICollection<Directory> Directories { get; set; }
 
-        public virtual ICollection<Video> Videos { get; set; }
+        public ICollection<Video> Videos { get; set; }
 
-        public virtual ICollection<ListRemind> ListsRemind { get; set; }
+        public ICollection<ListRemind> ListsRemind { get; set; }
 
-        public virtual ICollection<ListToDo> ListsToDo { get; set; }
+        public ICollection<ListToDo> ListsToDo { get; set; }
 
-        public virtual ICollection<Comparisons.Comparison> Comparisons { get; set; }
+        public ICollection<Comparisons.Comparison> Comparisons { get; set; }
+
+        public ICollection<Note> Notes { get; set; }
 
         public bool IsDeleted { get; set; }
         public DateTime? CreatedOn { get; set; }

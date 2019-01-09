@@ -15,7 +15,7 @@ namespace Momento.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -43,10 +43,27 @@ namespace Momento.Data.Migrations
                     b.ToTable("AspNetRoles");
 
                     b.HasData(
-                        new { Id = "1b347d74-8167-4f4c-a4cc-2566c4344954", ConcurrencyStamp = "0def96c5-94f2-40c1-86ce-2de584e2ba12", Name = "Admin", NormalizedName = "ADMIN" },
-                        new { Id = "c3d5acca-0173-4ece-a256-8ba17d1e3be6", ConcurrencyStamp = "e6888ecc-9260-4d71-8789-76cf301dc507", Name = "Moderator", NormalizedName = "MODERATOR" },
-                        new { Id = "a2c367c1-7aeb-4ffd-b2cf-67f247b9efb7", ConcurrencyStamp = "4c8be457-b2ff-4951-a847-cd1768652ed8", Name = "User", NormalizedName = "USER" }
-                    );
+                        new
+                        {
+                            Id = "c868d00d-faab-464d-a583-8eabeb245150",
+                            ConcurrencyStamp = "53e2a628-ba6f-4c76-bbaf-a13b4e8bd102",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "a1f17130-620a-4f39-a339-f27d78271f75",
+                            ConcurrencyStamp = "faf2a001-45ad-488e-8f12-84e418790bd6",
+                            Name = "Moderator",
+                            NormalizedName = "MODERATOR"
+                        },
+                        new
+                        {
+                            Id = "15e7046d-5bd7-4955-8e7e-5f648808f8c0",
+                            ConcurrencyStamp = "795a5927-89d3-410e-b6ae-1c55d380335d",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -133,82 +150,6 @@ namespace Momento.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("Momento.Models.Codes.Code", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content");
-
-                    b.Property<DateTime?>("CreatedOn");
-
-                    b.Property<DateTime?>("DeletedOn");
-
-                    b.Property<int>("DirectoryId");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime?>("LastModifiedOn");
-
-                    b.Property<DateTime?>("LastViewdOn");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("Order");
-
-                    b.Property<int>("TimesModified");
-
-                    b.Property<int>("TimesViewd");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Code");
-                });
-
-            modelBuilder.Entity("Momento.Models.Codes.CodeNote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CodeSnippetId");
-
-                    b.Property<string>("Content");
-
-                    b.Property<DateTime?>("CreatedOn");
-
-                    b.Property<DateTime?>("DeletedOn");
-
-                    b.Property<int>("Formatting");
-
-                    b.Property<string>("Hashtags");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime?>("LastModifiedOn");
-
-                    b.Property<DateTime?>("LastViewdOn");
-
-                    b.Property<int>("Order");
-
-                    b.Property<int>("TimesModified");
-
-                    b.Property<int>("TimesViewd");
-
-                    b.Property<int>("WordId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CodeSnippetId");
-
-                    b.ToTable("CodeNotes");
                 });
 
             modelBuilder.Entity("Momento.Models.Comparisons.Comparison", b =>
@@ -328,49 +269,6 @@ namespace Momento.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Directories");
-                });
-
-            modelBuilder.Entity("Momento.Models.Hashtags.Hashtag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
-
-                    b.ToTable("Hashtags");
-                });
-
-            modelBuilder.Entity("Momento.Models.Hashtags.MappingTables.CodeHashtag", b =>
-                {
-                    b.Property<int>("CodeId");
-
-                    b.Property<int>("HashtagId");
-
-                    b.HasKey("CodeId", "HashtagId");
-
-                    b.HasIndex("HashtagId");
-
-                    b.ToTable("CodesHashtags");
-                });
-
-            modelBuilder.Entity("Momento.Models.Hashtags.MappingTables.CodeNoteHashtag", b =>
-                {
-                    b.Property<int>("CodeNoteId");
-
-                    b.Property<int>("HashtagId");
-
-                    b.HasKey("CodeNoteId", "HashtagId");
-
-                    b.HasIndex("HashtagId");
-
-                    b.ToTable("CodeNotesHashtags");
                 });
 
             modelBuilder.Entity("Momento.Models.ListsRemind.ListRemind", b =>
@@ -879,21 +777,6 @@ namespace Momento.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Momento.Models.Codes.Code", b =>
-                {
-                    b.HasOne("Momento.Models.Users.User")
-                        .WithMany("CodeSnippets")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("Momento.Models.Codes.CodeNote", b =>
-                {
-                    b.HasOne("Momento.Models.Codes.Code", "CodeSnippet")
-                        .WithMany("Notes")
-                        .HasForeignKey("CodeSnippetId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("Momento.Models.Comparisons.Comparison", b =>
                 {
                     b.HasOne("Momento.Models.Directories.Directory", "Directory")
@@ -924,32 +807,6 @@ namespace Momento.Data.Migrations
                     b.HasOne("Momento.Models.Users.User", "User")
                         .WithMany("Directories")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Momento.Models.Hashtags.MappingTables.CodeHashtag", b =>
-                {
-                    b.HasOne("Momento.Models.Codes.Code", "Code")
-                        .WithMany("CodeHashtags")
-                        .HasForeignKey("CodeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Momento.Models.Hashtags.Hashtag", "Hashtag")
-                        .WithMany("CodeHashtags")
-                        .HasForeignKey("HashtagId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Momento.Models.Hashtags.MappingTables.CodeNoteHashtag", b =>
-                {
-                    b.HasOne("Momento.Models.Codes.CodeNote", "CodeNote")
-                        .WithMany("CodeNoteHashtags")
-                        .HasForeignKey("CodeNoteId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Momento.Models.Hashtags.Hashtag", "Hashtag")
-                        .WithMany("CodeNoteHashtags")
-                        .HasForeignKey("HashtagId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1005,7 +862,7 @@ namespace Momento.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Momento.Models.Users.User", "User")
-                        .WithMany()
+                        .WithMany("Notes")
                         .HasForeignKey("UserId");
                 });
 

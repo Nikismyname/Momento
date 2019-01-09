@@ -49,13 +49,13 @@
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="IndexReact" asp-route-id="">DirectoryReact</a></li>
+                            @*<li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="Index" asp-route-id="">Directory</a></li>*@
+                            @*<li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Directory" asp-action="IndexReact" asp-route-id="">DirectoryReact</a></li>*@
                         }
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>
+                        @*<li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Test" asp-action="Test">Test</a></li>*@
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="AdminView">Admin View</a></li>
+                            <li class="nav-item"><a class="nav-link" href=@($"{Constants.ReactAppPath}/adminView") >Admin View</a></li>
                         }
                     </ul>
                     <ul class="navbar-nav ml-auto">

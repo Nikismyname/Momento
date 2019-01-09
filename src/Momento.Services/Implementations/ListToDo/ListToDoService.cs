@@ -1,14 +1,16 @@
-﻿namespace Momento.Services.Implementations.ListToDo
+﻿using System.Runtime.Serialization;
+
+namespace Momento.Services.Implementations.ListToDo
 {
     #region Initialization 
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Momento.Models.ListsToDo;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Contracts.Shared;
-    using Momento.Services.Exceptions;
-    using Momento.Services.Models.ListToDoModels;
+    using Exceptions;
+    using Models.ListToDoModels;
     using System;
     using System.Linq;
 
@@ -30,7 +32,7 @@
         ///Authenticated
         ///Registers user for the list
         ///Tested
-        public ListToDo Create(ListToDoCreate pageListToDo, string username)
+        public ListToDo Create(ListToDoCreate pageListToDo, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -46,7 +48,7 @@
                 throw new ItemNotFound("The directory for this List does not exists");
             }
 
-            if(direcotory.UserId != user.Id)
+            if (direcotory.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The directory you are trying to create you List does not belong to you!");
             }
@@ -72,7 +74,7 @@
         ///AuthorizesR2 
         ///Registers View 
         ///Tested
-        public ListToDoUse GetUseModel(int id, string username)
+        public ListToDoUse GetUseModel(int id, string username, bool isAdmin = false)
         {
             var user = this.context.Users.SingleOrDefault(x => x.UserName == username);
 
@@ -90,7 +92,7 @@
                 throw new ItemNotFound("The ListToDo you are trying to get does not exist in the database!");
             }
 
-            if(user.Id != listToDo.UserId)
+            if(user.Id != listToDo.UserId && isAdmin == false)
             {
                 throw new AccessDenied("The ListToDo you are trying get does not belong to you");
             }
@@ -106,7 +108,7 @@
         ///Soft Deletes
         ///Authorized
         ///Tested Could TODO: add tests to see if the time of deletion is set correctly
-        public ListToDo Delete(int id, string username)
+        public ListToDo Delete(int id, string username, bool isAdmin = false)
         {
             var user = context.Users.SingleOrDefault(x => x.UserName == username);
             if (user == null)
@@ -123,7 +125,7 @@
                 throw new ItemNotFound("The list you are trying to delete does not exist!");
             }
 
-            if (listToDo.UserId != user.Id)
+            if (listToDo.UserId != user.Id && isAdmin == false)
             {
                 throw new AccessDenied("The list you are trying to delete does not belong to you!");
             }
@@ -139,11 +141,11 @@
             return listToDo;
         }
 
-        public bool DeleteApi(int id, string username)
+        public bool DeleteApi(int id, string username, bool isAdmin = false)
         {
             try
             {
-                this.Delete(id, username);
+                this.Delete(id, username, isAdmin);
                 return true;
             }
             catch
@@ -158,12 +160,12 @@
         //Regesters Deletion
         //Registers Modifications
         //Tested
-        public void Save(ListToDoUse model, string username)
+        public void Save(ListToDoUse model, string username, bool isAdmin = false)
         {
             ListToDo listToDo;
             int[] validItemIds;
 
-            this.VerifyListToSaveBelongsToUser(model, username, out listToDo);
+            this.VerifyListToSaveBelongsToUser(model, username, out listToDo, isAdmin);
 
             this.UpdateListToDoProperties(model, listToDo);
 
@@ -178,7 +180,7 @@
             context.SaveChanges();
         }
 
-        private void VerifyListToSaveBelongsToUser(ListToDoUse model, string username, out ListToDo listToDo)
+        private void VerifyListToSaveBelongsToUser(ListToDoUse model, string username, out ListToDo listToDo, bool isAdmin)
         {
             var userId = context.Users.SingleOrDefault(x => x.UserName == username)?.Id;
             if (userId == null)
@@ -192,7 +194,7 @@
                 throw new ItemNotFound("The list you are trying to modify does not exist!");
             }
 
-            if (listToDo.UserId != userId)
+            if (listToDo.UserId != userId && isAdmin == false)
             {
                 throw new AccessDenied("The list you are trying to modify does not beling to you!");
             }

@@ -19,7 +19,9 @@
         [Route("[action]")]
         public ActionResult<bool> Create([FromBody] NoteCreate note)
         {
-            var result = noteService.CreateApi(note, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = noteService.CreateApi(
+                note, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -27,7 +29,9 @@
         [HttpGet("{id}", Name = "Get")]
         public ActionResult<NoteEdit> Get(int id)
         {
-            var result = noteService.GetForEditApi(id, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = noteService.GetForEditApi(
+                id, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -35,7 +39,9 @@
         [HttpPost]
         public ActionResult<bool> Post([FromBody] NoteEdit model)
         {
-            var result = noteService.SaveApi(model, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var result = noteService.SaveApi(
+                model, this.User.Identity.Name, isAdmin);
             return result;
         }
 
@@ -43,7 +49,8 @@
         [HttpDelete("{id}")]
         public ActionResult<bool> Delete(int id)
         {
-            return this.noteService.DeleteApi(id, this.User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            return this.noteService.DeleteApi(id, this.User.Identity.Name,isAdmin);
         }
     }
 }

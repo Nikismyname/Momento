@@ -4,20 +4,29 @@
 
     public interface IDirectoryService
     {
-        DirectoryIndex GetIndex(string username);
+        DirectoryIndexSingle GetIndexSingle(
+            int? directoryId, string username, bool isAdmin = false);
 
-        DirectoryIndexSingle GetIndexSingle(int? directoryId, string username);
+        DirectoryIndexSingle GetIndexSingleApi(
+            int? directoryId, string username, bool isAdmin = false);
 
-        DirectoryIndexSingle GetIndexSingleApi(int? directoryId, string username);
+        int Create(
+            int parentDirId, string dirName, string username, 
+            bool isAdmin = false);
 
-        int Create(int parentDirId, string dirName, string username);
+        int CreateApi(
+            int parentDirId, string dirName, string username, 
+            bool isAdmin = false);
 
-        int CreateApi(int parentDirId, string dirName, string username);
+        Momento.Models.Directories.Directory Delete(
+            int id, string username, bool isAdmin = false);
+
+        bool DeleteApi(
+            int id, string username, bool isAdmin = false);
 
         void CreateRoot(string username);
 
-        void Delete(int id, string username);
-
-        bool DeleteApi(int id, string username);
+        ///Not in use
+        DirectoryIndex GetIndex(string username);
     }
 }

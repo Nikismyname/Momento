@@ -60,7 +60,7 @@
         public void GetViewThrowsIfVideoNotesUserIsNotTheCurrentUser()
         {
             UserS.SeedPeshoAndGosho(this.context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.PeshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.PeshoId);
 
             Action action = () => this.videoService.GetView(video.Id, UserS.GoshoUsername);
             action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to view does not belong to you");
@@ -70,7 +70,7 @@
         public void GetViewShouldReturnCorrectView()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.PeshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.PeshoId);
             var expectedResultView = new VideoView
             {
                 Description = video.Description,
@@ -88,7 +88,7 @@
         public void GetViewShouldReturnCorrectViewWithNestedNotes()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.PeshoId, true);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.PeshoId, true);
             var resultView = this.videoService.GetView(video.Id, UserS.PeshoUsername);
             var expectedResultView = new VideoView
             {
@@ -260,7 +260,7 @@
             UserS.SeedPeshoAndGosho(context);
             var nonExistantUsername = "Gosho420";
 
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, nonExistantUsername);
             function.Should().Throw<UserNotFound>();
         }
@@ -269,7 +269,7 @@
         public void GetVideoForEditShouldThrowIfVideoDoesNoteBelongToUser()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, UserS.PeshoUsername);
             function.Should().Throw<AccessDenied>().WithMessage("You can note edit video that does not belong to you!");
         }
@@ -278,7 +278,7 @@
         public void GetVideoForEditShouldReturnCorrectResult()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId, true);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId, true);
             Func<VideoCreate> function = () => this.videoService.GetVideoForEdit(video.Id, UserS.GoshoUsername);
             var result = function.Invoke();
 
@@ -328,7 +328,7 @@
             UserS.SeedPeshoAndGosho(context);
             var nonExistantUsername = "Gosho420";
 
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             Action action = () => this.videoService.Delete(video.Id, nonExistantUsername, DateTime.UtcNow);
             action.Should().Throw<UserNotFound>();
 
@@ -338,7 +338,7 @@
         public void DeleteShouldThrowIfVideoDoesNoteBelongToUser()
         {
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
             Action action = () => this.videoService.Delete(video.Id, UserS.PeshoUsername, DateTime.UtcNow);
             action.Should().Throw<AccessDenied>().WithMessage("The video you are trying to delete does not belong to you!");
         }
@@ -348,7 +348,7 @@
         {
             var now = DateTime.Now;
             UserS.SeedPeshoAndGosho(context);
-            var video = VideoS.SeedVideoToUserWithNotes(context, UserS.GoshoId, true);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId, true);
             Action action = () => this.videoService.Delete(video.Id, UserS.GoshoUsername, now);
             action.Invoke();
             video.IsDeleted.Should().Be(true);

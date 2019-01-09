@@ -46,7 +46,7 @@
         public const int preExistingNote2Id = 2;
         public const int preExistingNote3Id = 3;
 
-        public static Video SeedVideoToUserWithNotes(MomentoDbContext context, string userId, bool nestedNote = false, int? dirId = null)
+        public static Video SeedVideoToUserWithTwoOrThreeNotes(MomentoDbContext context, string userId, bool nestedNote = false, int? dirId = null)
         {
             var user = context.Users.SingleOrDefault(x => x.Id == userId);
 

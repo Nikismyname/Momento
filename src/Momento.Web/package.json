@@ -38,6 +38,7 @@
         "node-sass": "^4.9.3",
         "react": "^16.6.3",
         "react-bootstrap": "^0.32.4",
+        "react-bootstrap-table-next": "^2.0.1",
         "react-color": "^2.17.0",
         "react-contenteditable": "^3.2.4",
         "react-contextmenu": "^2.10.0",

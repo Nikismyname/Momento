@@ -36,6 +36,8 @@
     using Momento.Services.Implementations.Notes;
     using Momento.Services.Contracts.Utilities;
     using Momento.Services.Implementations.Utilities;
+    using Momento.Services.Implementations.Admin;
+    using Momento.Services.Contracts.Admin;
 
     public class Startup
     {
@@ -94,6 +96,7 @@
             services.AddTransient<IComparisonService, ComparisonService>();
             services.AddTransient<INoteService, NoteService>();
             services.AddTransient<IUtilitiesService, UtilitiesService>();
+            services.AddTransient<IAdminService, AdminService>();
 
             services.AddScoped<ILayoutViewService, LayoutViewService>();
 
@@ -151,9 +154,9 @@
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
 
-                //routes.MapSpaFallbackRoute(
-                //    name: "spa-fallback",
-                //    defaults: new { controller = "Directory", action = "IndexReact" });
+                routes.MapSpaFallbackRoute(
+                    name: "spa-fallback",
+                    defaults: new { controller = "Directory", action = "IndexReact" });
             });
         }
     }

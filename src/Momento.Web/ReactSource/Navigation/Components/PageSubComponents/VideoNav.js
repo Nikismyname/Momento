@@ -50,6 +50,7 @@ class VideoNav extends Component {
                 <div className="card-body">
                     <h6 className="card-title">{this.props.video.name}</h6>
                     <p className="card-text">{this.props.video.description}</p>
+                    <h6>{"Notes count: "+this.props.video.notesCount}</h6>
                     {linkSSRSafe(c.rootDir + c.videoViewPath + "/" + this.props.video.id, "View", null, null)}
                     {linkSSRSafe(c.rootDir + c.videoNotesPath + "/" + this.props.video.id + "/" + this.props.parentState.currentDir.id, "Edit", null, "ml-1")}
                     <a className="ml-1" href="#" onClick={(e) => this.onClickDeleteVideo(e, this.props.video.id)} >Delete</a>

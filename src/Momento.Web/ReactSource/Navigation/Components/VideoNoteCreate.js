@@ -44,7 +44,10 @@ export default class VideoNoteCreate extends Component {
 
     onClickCreate() {
         ///Reset The error messages
+        ///ToDo a bug where setState({ERRORS: []}); does not clear all the errors 
         this.setState({ ERRORS: [] });
+        console.log("After Cleaning");
+        console.log(this.state.ERRORS);
 
         if (extractVideoToken(this.state.url).length == 0) {
             clientSideValidation("Not a valid YouTube URL!","URL", this);
@@ -61,8 +64,8 @@ export default class VideoNoteCreate extends Component {
         fetch("/api/Video/Create", {
             method: "POST",
             headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Accept': "application/json",
+                'Content-Type': "application/json"
             },
             body: JSON.stringify(videoCreate)
         })

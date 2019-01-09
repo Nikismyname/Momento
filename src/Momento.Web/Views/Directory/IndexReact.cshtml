@@ -9,19 +9,23 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 
 @{
+    var isAdmin = this.User.IsInRole("Admin");
     var dirData = (DirectoryIndexSingle)null;
     var compData = (ComparisonEdit)null;
     string component = "";
 
-    if (Model.WantedComponent == ReactComponent.index)
+    if (Model.ShouldPrerender)
     {
-        dirData = directoryService.GetIndexSingle(Model.WantedIndex, this.User.Identity.Name);
-        component = "index";
-    }
-    else if (Model.WantedComponent == ReactComponent.compare)
-    {
-        compData = comparisonService.GetForEditApi(Model.WantedIndex, this.User.Identity.Name);
-        component = "compare";
+        if (Model.WantedComponent == ReactComponent.index)
+        {
+            dirData = directoryService.GetIndexSingle(Model.WantedIndex, this.User.Identity.Name, isAdmin);
+            component = "index";
+        }
+        else if (Model.WantedComponent == ReactComponent.compare)
+        {
+            compData = comparisonService.GetForEditApi(Model.WantedIndex, this.User.Identity.Name, isAdmin);
+            component = "compare";
+        }
     }
 }
 <div id="react"></div>
@@ -30,6 +34,7 @@
     initialDir = dirData,
     initialComp = compData,
     comp = component,
+    prerender = Model.ShouldPrerender,
 })
 
 @section Scripts {

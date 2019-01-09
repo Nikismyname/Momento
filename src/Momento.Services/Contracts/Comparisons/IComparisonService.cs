@@ -4,16 +4,16 @@
 
     public interface IComparisonService
     {
-        Momento.Models.Comparisons.Comparison Create(ComparisonCreate data, string username);
-        bool CreateApi(ComparisonCreate data, string username);
+        Momento.Models.Comparisons.Comparison Create(ComparisonCreate data, string username, bool isAdmin=false);
+        bool CreateApi(ComparisonCreate data, string username, bool isAdmin = false);
 
-        ComparisonEdit GetForEdit(int compId, string username);
-        ComparisonEdit GetForEditApi(int compId, string username);
+        ComparisonEdit GetForEdit(int compId, string username, bool isAdmin = false);
+        ComparisonEdit GetForEditApi(int compId, string username, bool isAdmin = false);
 
-        void Save(ComparisonSave saveData, string username);
-        bool SaveApi(ComparisonSave saveData, string username);
+        void Save(ComparisonSave saveData, string username, bool isAdmin = false);
+        bool SaveApi(ComparisonSave saveData, string username, bool isAdmin = false);
 
-        Momento.Models.Comparisons.Comparison Delete(int id, string username);
-        bool DeleteApi(int id, string username);
+        Momento.Models.Comparisons.Comparison Delete(int id, string username, bool isAdmin = false);
+        bool DeleteApi(int id, string username, bool isAdmin = false);
     }
 }

@@ -4,7 +4,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.ListToDo;
     using Momento.Services.Models.ListToDoModels;
-    using Momento.Services.Utilities;
+    using Services.Utilities;
     using System.Linq;
 
     public class ListToDoController : Controller
@@ -31,7 +31,8 @@
         {
             if (ModelState.IsValid)
             {
-                toDoService.Create(model, User.Identity.Name);
+                var isAdmin = this.User.IsInRole("Admin");
+                toDoService.Create(model, User.Identity.Name, isAdmin);
                 return Redirect(Constants.ReactAppPath + "/" + model.DirectoryId);
             }
 
@@ -42,7 +43,8 @@
         [Authorize]
         public IActionResult Use(int id)
         {
-            var model = toDoService.GetUseModel(id, User.Identity.Name);
+            var isAdmin = this.User.IsInRole("Admin");
+            var model = toDoService.GetUseModel(id, User.Identity.Name, isAdmin);
             return View(model);
         }
 
@@ -53,7 +55,8 @@
             model.Items = model.Items.Where(x => x.Deleted == false).ToList();
             if (ModelState.IsValid)
             {
-                toDoService.Save(model, User.Identity.Name);
+                var isAdmin = this.User.IsInRole("Admin");
+                toDoService.Save(model, User.Identity.Name, isAdmin);
                 return Redirect($"{Constants.ReactAppPath}/{model.DirectoryId}");
             }
 
