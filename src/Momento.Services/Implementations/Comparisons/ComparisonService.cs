@@ -151,7 +151,7 @@
                 this.Save(saveData, username, isAdmin);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }

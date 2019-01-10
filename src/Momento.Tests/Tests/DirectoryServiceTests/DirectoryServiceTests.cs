@@ -3,20 +3,19 @@
 
     using FluentAssertions;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Models.Comparisons;
     using Momento.Models.Contracts;
-    using Momento.Models.Directories;
+    using Models.Directories;
     using Momento.Services.Contracts.Directory;
-    using Momento.Services.Exceptions;
-    using Momento.Services.Implementations.Directory;
+    using Services.Exceptions;
+    using Services.Implementations.Directory;
     using Momento.Services.Models.ComparisonModels;
     using Momento.Services.Models.DirectoryModels;
     using Momento.Services.Models.ListToDoModels;
     using Momento.Services.Models.NoteModels;
     using Momento.Services.Models.VideoModels;
-    using Momento.Tests.Contracts;
-    using Momento.Tests.Seeding;
-    using Momento.Tests.Utilities;
+    using Contracts;
+    using Seeding;
+    using Utilities;
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
@@ -190,10 +189,8 @@
         }
 
         [Test]
-        public void GetIndexDHouldThrowIfDirectoryIdDoesNotBelingToUser()
+        public void GetIndexShouldThrowIfDirectoryIdDoesNotBelingToUser()
         {
-            const int NonExistantDirId = 42;
-
             UserS.SeedPeshoAndGosho(this.context);
 
             Func<DirectoryIndexSingle> action = () => this.directoryService.GetIndexSingle(UserS.GoshoRootDirId, UserS.PeshoUsername);

@@ -16,7 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Contracts\ListRemind\" />
     <Folder Include="Contracts\ReactFallback\" />
+    <Folder Include="Implementations\ListRemind\" />
   </ItemGroup>
 
 </Project>

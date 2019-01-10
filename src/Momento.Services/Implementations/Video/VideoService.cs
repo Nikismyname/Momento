@@ -498,12 +498,6 @@
                     var inPageParentId = pageNote.InPageParentId;
                     var pageParent = newPageNotes.FirstOrDefault(x => x.InPageId == inPageParentId);
 
-                    ///TODO: Remove This
-                    if (pageParent == null)
-                    {
-                        throw new Exception("You done goofed!");
-                    }
-
                     var indexOfPageParent = Array.IndexOf(newPageNotes, pageParent);
                     var dbParent = dbNotesToBe[indexOfPageParent];
                     dbParent.ChildNotes.Add(dbNoteToBe);

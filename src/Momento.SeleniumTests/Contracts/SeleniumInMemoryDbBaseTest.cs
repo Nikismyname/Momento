@@ -1,8 +1,8 @@
 ﻿namespace Momento.Tests.Contracts
 {
     using FunApp.Web.Tests;
-    using Momento.Data;
-    using Momento.Web;
+    using Data;
+    using Web;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Remote;

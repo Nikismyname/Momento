@@ -1,4 +1,4 @@
-﻿namespace Momento.Tests.SeleniumTests
+﻿namespace Momento.SeleniumTests.Tests
 {
     using FluentAssertions;
     using FunApp.Web.Tests;

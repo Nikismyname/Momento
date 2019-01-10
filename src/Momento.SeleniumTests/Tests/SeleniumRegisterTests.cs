@@ -1,18 +1,16 @@
-﻿namespace Momento.Tests.SeleniumTests
+﻿using Momento.SeleniumTests.Seeding;
+
+namespace Momento.SeleniumTests.Tests
 {
     using FluentAssertions;
     using FunApp.Web.Tests;
     using Momento.Tests.Contracts;
     using Momento.Tests.Seeding;
     using Momento.Tests.Utilities;
-    using Momento.Web;
+    using Web;
     using System.Linq;
     using Xunit;
 
-    //SeleniumServerFactoryInMemory<Startup> Server { get; }
-    //IWebDriver Browser { get; }
-    //MomentoDbContext Context { get; }
-    //string RootUri { get; set; }
 
     public class SeleniumRegisterTests : SeleniumInMemoryDbBaseTest
     {
@@ -21,6 +19,7 @@
         [Fact]
         public void RegisterRegistesNewUser()
         {
+            GeneralS.SeedRoles(this.Context);
             SeleniumActions.RegisterUser(UserS.PeshoUsername, UserS.PeshoEmail,
                 UserS.PeshoPassword, this.Browser, this.RootUri);
 
@@ -33,6 +32,7 @@
         [Fact]
         public void RegisterCreatesSettingsAndRootDirectoryeForRegisteredUser()
         {
+            GeneralS.SeedRoles(this.Context);
             SeleniumActions.RegisterUser(UserS.PeshoUsername, UserS.PeshoEmail,
                 UserS.PeshoPassword, this.Browser, this.RootUri);
 

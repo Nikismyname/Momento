@@ -3,7 +3,6 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Services.Contracts.Directory;
-    using Momento.Services.Models.DirectoryModels;
     using Momento.Web.Models.React;
     using Momento.Web.Models.React.Enums;
     using System;
@@ -21,16 +20,16 @@
             this.reorderService = reorderService;
         }
 
-        public IActionResult Index(int? id)
-        {
-            var model = directoryService.GetIndex(User.Identity.Name);
-            if (id == null)
-            {
-                id = model.Id;
-            }
-            model.CurrentDirId = id;
-            return View(model);
-        }
+        //public IActionResult Index(int? id)
+        //{
+        //    var model = directoryService.GetIndex(User.Identity.Name);
+        //    if (id == null)
+        //    {
+        //        id = model.Id;
+        //    }
+        //    model.CurrentDirId = id;
+        //    return View(model);
+        //}
 
         public IActionResult IndexReact(int id)
         {
@@ -66,27 +65,27 @@
             return View(reactPrerenderInfo);
         }
 
-        public ActionResult<DirectoryIndex> IndexApi(int? id)
-        {
-            var model = directoryService.GetIndex(User.Identity.Name);
-            if (id == null)
-            {
-                id = model.Id;
-            }
-            return model;
-        }
+        //public ActionResult<DirectoryIndex> IndexApi(int? id)
+        //{
+        //    var model = directoryService.GetIndex(User.Identity.Name);
+        //    if (id == null)
+        //    {
+        //        id = model.Id;
+        //    }
+        //    return model;
+        //}
 
-        [HttpPost]
-        public IActionResult Create(int id, string name, int returnDirId)
-        {
-            directoryService.Create(id, name, User.Identity.Name);
-            return RedirectToAction(nameof(Index), new { id = returnDirId });
-        }
+        //[HttpPost]
+        //public IActionResult Create(int id, string name, int returnDirId)
+        //{
+        //    directoryService.Create(id, name, User.Identity.Name);
+        //    return RedirectToAction(nameof(Index), new { id = returnDirId });
+        //}
 
-        public IActionResult Delete(int id, int returnDirId)
-        {
-            directoryService.Delete(id, this.User.Identity.Name);
-            return RedirectToAction(nameof(Index), new { id = returnDirId });
-        }
+        //public IActionResult Delete(int id, int returnDirId)
+        //{
+        //    directoryService.Delete(id, this.User.Identity.Name);
+        //    return RedirectToAction(nameof(Index), new { id = returnDirId });
+        //}
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Web.Http;
 using Microsoft.AspNetCore.Mvc;
 using Momento.Services.Contracts.ListToDo;
 
 namespace Momento.Web.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ListToDoController : ControllerBase
     {
         private readonly IListToDoService listToDoService;
@@ -16,8 +18,8 @@ namespace Momento.Web.Controllers.Api
         }
 
         // DELETE: api/ListToDo/5
-        [HttpDelete(/*"{id}"*/)]
-        public ActionResult<bool> Delete([FromBody]int id)
+        [Microsoft.AspNetCore.Mvc.HttpDelete(/*"{id}"*/)]
+        public ActionResult<bool> Delete([Microsoft.AspNetCore.Mvc.FromBody]int id)
         {
             var isAdmin = this.User.IsInRole("Admin");
             var result = this.listToDoService.DeleteApi(id, this.User.Identity.Name, isAdmin);

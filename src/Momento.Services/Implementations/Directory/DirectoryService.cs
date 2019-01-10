@@ -1,7 +1,7 @@
 ﻿namespace Momento.Services.Implementations.Directory
 {
-    using System.Linq;
     using AutoMapper;
+    using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using Data;
     using Momento.Services.Contracts.Directory;
@@ -307,68 +307,68 @@
 
         #region Deprecated
         ///Deprecated
-        public DirectoryIndex GetIndex(string username)
-        {
-            var dirs = context.Directories
-                    .Include(x => x.Videos)
-                        .ThenInclude(x => x.Notes)
-                    .Include(x => x.ListsToDo)
-                .Where(x => x.User.UserName == username)
-                .ToArray();
+        //public DirectoryIndex GetIndex(string username)
+        //{
+        //    var dirs = context.Directories
+        //            .Include(x => x.Videos)
+        //                .ThenInclude(x => x.Notes)
+        //            .Include(x => x.ListsToDo)
+        //        .Where(x => x.User.UserName == username)
+        //        .ToArray();
 
-            var dir = dirs.SingleOrDefault(x => x.ParentDirectoryId == null);
+        //    var dir = dirs.SingleOrDefault(x => x.ParentDirectoryId == null);
 
-            var indexDir = Mapper.Instance.Map<DirectoryIndex>(dir);
-            return indexDir;
-        }
+        //    var indexDir = Mapper.Instance.Map<DirectoryIndex>(dir);
+        //    return indexDir;
+        //}
 
-        private void HardDelete(int id)
-        {
-            CascadeDelete(id);
-        }
+        //private void HardDelete(int id)
+        //{
+        //    CascadeDelete(id);
+        //}
 
-        private void CascadeDelete(int dirId)
-        {
-            var dirInfo = context.Directories
-                .Select(x => new
-                {
-                    dir = x,
-                    subdirs = x.Subdirectories.Select(y => y.Id).ToArray(),
-                    contents = x.Videos.Select(z => z.Notes.Where(y => y.NoteId == null).Select(y => y.Id).ToArray()).ToArray()
-                })
-                .SingleOrDefault(x => x.dir.Id == dirId);
+        //private void CascadeDelete(int dirId)
+        //{
+        //    var dirInfo = context.Directories
+        //        .Select(x => new
+        //        {
+        //            dir = x,
+        //            subdirs = x.Subdirectories.Select(y => y.Id).ToArray(),
+        //            contents = x.Videos.Select(z => z.Notes.Where(y => y.NoteId == null).Select(y => y.Id).ToArray()).ToArray()
+        //        })
+        //        .SingleOrDefault(x => x.dir.Id == dirId);
 
-            foreach (var cnt in dirInfo.contents)
-            {
-                foreach (int rootDirId in cnt)
-                {
-                    CascadeDeleteVideoNotes(rootDirId);
-                }
-            }
+        //    foreach (var cnt in dirInfo.contents)
+        //    {
+        //        foreach (int rootDirId in cnt)
+        //        {
+        //            CascadeDeleteVideoNotes(rootDirId);
+        //        }
+        //    }
 
-            foreach (var subDirId in dirInfo.subdirs)
-            {
-                CascadeDelete(subDirId);
-            }
+        //    foreach (var subDirId in dirInfo.subdirs)
+        //    {
+        //        CascadeDelete(subDirId);
+        //    }
 
-            context.Directories.Remove(dirInfo.dir);
-            context.SaveChanges();
-        }
+        //    context.Directories.Remove(dirInfo.dir);
+        //    context.SaveChanges();
+        //}
 
-        private void CascadeDeleteVideoNotes(int noteId)
-        {
-            var noteInfo = context.VideoNotes
-                .Select(x => new { note = x, subnotes = x.ChildNotes.Select(y => y.Id).ToArray() })
-                .SingleOrDefault(x => x.note.Id == noteId);
+        //private void CascadeDeleteVideoNotes(int noteId)
+        //{
+        //    var noteInfo = context.VideoNotes
+        //        .Select(x => new { note = x, subnotes = x.ChildNotes.Select(y => y.Id).ToArray() })
+        //        .SingleOrDefault(x => x.note.Id == noteId);
 
-            foreach (var subnoteId in noteInfo.subnotes)
-            {
-                CascadeDeleteVideoNotes(subnoteId);
-            }
+        //    foreach (var subnoteId in noteInfo.subnotes)
+        //    {
+        //        CascadeDeleteVideoNotes(subnoteId);
+        //    }
 
-            context.VideoNotes.Remove(noteInfo.note);
-            context.SaveChanges();
-        }
+        //    context.VideoNotes.Remove(noteInfo.note);
+        //    context.SaveChanges();
+        //}
         #endregion
     }
 }

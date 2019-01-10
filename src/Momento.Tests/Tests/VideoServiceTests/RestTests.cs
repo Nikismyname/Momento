@@ -84,7 +84,7 @@
             resultView.Should().BeEquivalentTo(expectedResultView);
         }
 
-        [Test]///Checked
+        [Test]
         public void GetViewShouldReturnCorrectViewWithNestedNotes()
         {
             UserS.SeedPeshoAndGosho(context);
@@ -100,6 +100,35 @@
             };
 
             resultView.Should().BeEquivalentTo(expectedResultView);
+        }
+
+        [Test]
+        public void GetViewApiShouldReturnCorrectViewWithNestedNotes()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.PeshoId, true);
+            var resultView = this.videoService.GetViewApi(video.Id, UserS.PeshoUsername);
+            var expectedResultView = new VideoView
+            {
+                Description = video.Description,
+                Name = video.Name,
+                Url = video.Url,
+                ///We ignore the notes that are also nested in parent notes
+                Notes = video.Notes.Where(x => x.Note == null).Select(x => MapVideoNoteToView(x)).ToList()
+            };
+
+            resultView.Should().BeEquivalentTo(expectedResultView);
+        }
+
+        [Test]
+        public void GetViewApiReturnsNullIfVideoNotesUserIsNotTheCurrentUser()
+        {
+            UserS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.PeshoId);
+
+            Func<VideoView> action = () => this.videoService.GetViewApi(video.Id, UserS.GoshoUsername);
+            var result = action.Invoke();
+            result.Should().Be(null);
         }
         #endregion
 
@@ -219,7 +248,7 @@
         }
 
         [Test]///Checked
-        public void CreateSetNewVidosOrderToTheCountOfVideosMinusOne()
+        public void CreateSetNewVideosOrderToTheCountOfVideosMinusOne()
         {
             ///Also seeds their root directories
             UserS.SeedPeshoAndGosho(context);
@@ -241,6 +270,52 @@
             var video = funk.Invoke();
 
             video.Order.Should().Be(4);
+        }
+
+        [Test]///Checked
+        public void CreateApiTeturnsFlaseIfDirectoryDoesNotExist()
+        {
+            const int nonExistantDirectoryId = 42;
+            const string NonExistantUsername = "NonExistantUsername";
+
+            UserS.SeedPeshoAndGosho(this.context);
+
+            var initCreate = new VideoInitialCreate
+            {
+                Description = "",
+                DirectoryId = nonExistantDirectoryId,
+                Name = "",
+                Url = "",
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Func<bool> action = () => this.videoService.CreateApi(initCreate, UserS.PeshoUsername);
+            var result = action.Invoke();
+            result.Should().Be(false);
+        }
+        [Test]///TODO fix this up
+        public void CreateApiCreatsVideo()
+        {
+            const string initialDescription = "best description ever!";
+            const string initialName = "best name ever";
+            const string initialUrl = "definitely a valid url, who is asking?";
+
+            ///Also seeds their root directories
+            UserS.SeedPeshoAndGosho(context);
+
+            var initCreate = new VideoInitialCreate
+            {
+                DirectoryId = UserS.GoshoRootDirId,
+
+                Description = initialDescription,
+                Name = initialName,
+                Url = initialUrl,
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Func<bool> action = () => this.videoService.CreateApi(initCreate, UserS.GoshoUsername);
+            var result = action.Invoke();
+            result.Should().Be(true);
         }
         #endregion
 
@@ -274,7 +349,7 @@
             function.Should().Throw<AccessDenied>().WithMessage("You can note edit video that does not belong to you!");
         }
 
-        [Test]///Checked
+        [Test]
         public void GetVideoForEditShouldReturnCorrectResult()
         {
             UserS.SeedPeshoAndGosho(context);
@@ -283,6 +358,55 @@
             var result = function.Invoke();
 
             var dbNote0 = video.Notes.SingleOrDefault(x=>x.Order == 0);
+            var dbNote1 = video.Notes.SingleOrDefault(x => x.Order == 1);
+            var dbNote2 = video.Notes.SingleOrDefault(x => x.Order == 2);
+
+            var pageNote0 = MapVideoNoteToNoteCreate(dbNote0);
+            var pageNote1 = MapVideoNoteToNoteCreate(dbNote1);
+            var pageNote2 = MapVideoNoteToNoteCreate(dbNote2);
+
+            pageNote0.Level = 1;
+            pageNote1.Level = 2;
+            pageNote2.Level = 1;
+
+            pageNote1.InPageParentId = pageNote0.InPageId;
+
+            var expectedResult = new VideoCreate
+            {
+                Description = video.Description,
+                DirectoryId = video.DirectoryId,
+                Id = video.Id,
+                Name = video.Name,
+                Order = video.Order,
+                SeekTo = video.SeekTo,
+                Url = video.Url,
+                Notes = new List<VideoNoteCreate> { pageNote0, pageNote1, pageNote2 }
+            };
+
+            result.Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void GetVideoForEditApiShouldReturnNullIfUserIsNotFound()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var nonExistantUsername = "Gosho420";
+
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
+            Func<VideoCreate> action = () => this.videoService.GetVideoForEditApi(video.Id, nonExistantUsername);
+            var result = action.Invoke();
+            result.Should().Be(null);
+        }
+
+        [Test]
+        public void GetVideoForEditApiShouldReturnCorrectResult()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId, true);
+            Func<VideoCreate> function = () => this.videoService.GetVideoForEditApi(video.Id, UserS.GoshoUsername);
+            var result = function.Invoke();
+
+            var dbNote0 = video.Notes.SingleOrDefault(x => x.Order == 0);
             var dbNote1 = video.Notes.SingleOrDefault(x => x.Order == 1);
             var dbNote2 = video.Notes.SingleOrDefault(x => x.Order == 2);
 
@@ -355,6 +479,28 @@
             video.DeletedOn.Should().Be(now);
             video.Notes.Select(x => x.IsDeleted).Should().AllBeEquivalentTo(true);
             video.Notes.Select(x => x.DeletedOn).Should().AllBeEquivalentTo(now);
+        }
+        ///API 
+        [Test]///Checked
+        public void DeleteApiShouldReturnFlaseIfVideoDoesNoteBelongToUser()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
+            Func<bool> action = () => this.videoService.DeleteApi(video.Id, UserS.PeshoUsername);
+            var result = action.Invoke();
+            result.Should().Be(false);
+        }
+
+        [Test]///Checked
+        public void DeleteAPIShouldSoftDeleteTheVideoAndAllItsNotesAndReturTrue()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId, true);
+            Func<bool> action = () => this.videoService.DeleteApi(video.Id, UserS.GoshoUsername);
+            var result = action.Invoke();
+            result.Should().Be(true);
+            video.IsDeleted.Should().Be(true);
+            video.Notes.Select(x => x.IsDeleted).Should().AllBeEquivalentTo(true);
         }
         #endregion
 

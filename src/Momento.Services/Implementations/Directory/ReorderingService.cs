@@ -5,7 +5,7 @@
     using System.Linq;
     using Momento.Models.Contracts;
     using System.Collections.Generic;
-    using Momento.Services.Exceptions;
+    using Exceptions;
     using Microsoft.EntityFrameworkCore;
 
     public class ReorderingService : IReorderingService

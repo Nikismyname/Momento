@@ -26,7 +26,7 @@
 
         void CreateRoot(string username);
 
-        ///Not in use
-        DirectoryIndex GetIndex(string username);
+        ///Not in use///In use apparently///Not in user anymore 
+        //DirectoryIndex GetIndex(string username);
     }
 }

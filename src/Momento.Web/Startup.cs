@@ -5,39 +5,37 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
-    using Momento.Data;
+    using Data;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using AutoMapper;
-    using Momento.Services.Contracts.Other;
-    using Momento.Services.Contracts.Directory;
-    using Momento.Services.Contracts.ListRemind;
-    using Momento.Services.Implementations.Other;
-    using Momento.Services.Implementations.Directory;
-    using Momento.Services.Implementations.ListRemind;
-    using Momento.Services.Contracts.Video;
-    using Momento.Services.Implementations.Video;
+    using Services.Contracts.Other;
+    using Services.Contracts.Directory;
+    using Services.Implementations.Other;
+    using Services.Implementations.Directory;
+    using Services.Contracts.Video;
+    using Services.Implementations.Video;
     using Momento.Models.Users;
-    using Momento.Services.Contracts.View;
-    using Momento.Services.Implementations.View;
-    using Momento.Web.Middleware;
-    using Momento.Services.Contracts.ListToDo;
-    using Momento.Services.Implementations.ListToDo;
+    using Services.Contracts.View;
+    using Services.Implementations.View;
+    using Middleware;
+    using Services.Contracts.ListToDo;
+    using Services.Implementations.ListToDo;
     using Microsoft.AspNetCore.Identity;
-    using Momento.Services.Contracts.Shared;
-    using Momento.Services.Implementations.Shared;
+    using Services.Contracts.Shared;
+    using Services.Implementations.Shared;
     using React.AspNet;
     using System;
-    using Momento.Services.Mapping;
+    using Services.Mapping;
     using Momento.Services.Models.VideoModels;
-    using Momento.Services.Implementations.Comparisons;
-    using Momento.Services.Contracts.Comparisons;
-    using Momento.Services.Contracts.Notes;
-    using Momento.Services.Implementations.Notes;
-    using Momento.Services.Contracts.Utilities;
-    using Momento.Services.Implementations.Utilities;
-    using Momento.Services.Implementations.Admin;
-    using Momento.Services.Contracts.Admin;
+    using Services.Implementations.Comparisons;
+    using Services.Contracts.Comparisons;
+    using Services.Contracts.Notes;
+    using Services.Implementations.Notes;
+    using Services.Contracts.Utilities;
+    using Services.Implementations.Utilities;
+    using Services.Implementations.Admin;
+    using Services.Contracts.Admin;
 
     public class Startup
     {
@@ -85,12 +83,9 @@
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IVideoService, VideoService>();
-            services.AddTransient<IListRemindService, ListRemindService>();
-            services.AddTransient<IListRemindItemService, ListRemindItemService>();
             services.AddTransient<IDirectoryService, DirectoryService>();
             services.AddTransient<IReorderingService, ReorderingService>();
             services.AddTransient<ISettingsService, SettingsService>();
-            services.AddTransient<ISaveData, SaveData>();
             services.AddTransient<IListToDoService, ListToDoService>();
             services.AddTransient<ITrackableService, TrackableService>();
             services.AddTransient<IComparisonService, ComparisonService>();
@@ -155,7 +150,7 @@
                     template: "{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
+                    name: "SPA-fallback",
                     defaults: new { controller = "Directory", action = "IndexReact" });
             });
         }

@@ -288,7 +288,7 @@
             const Formatting formatting = Formatting.CSharp;
             const int seekTo = 42;
             const VideoNoteType type = VideoNoteType.TimeStamp;
-            const int level = 1;  
+            const int level = 1;
 
             UserS.SeedPeshoAndGosho(this.context);
             var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
@@ -314,7 +314,7 @@
             };
 
             ChangeTrackerOperations.DetachAll(this.context);
-            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername,new VideoNoteCreate[] { newNote });
+            Action action = GetPartialSaveAction(video.Id, UserS.GoshoUsername, new VideoNoteCreate[] { newNote });
             action.Invoke();
 
             video = context.Videos
@@ -323,7 +323,7 @@
 
             var allNotes = video.Notes;
 
-            var note = video.Notes.SingleOrDefault(x=>x.Id != VideoS.preExistingNote1Id && x.Id != VideoS.preExistingNote2Id);
+            var note = video.Notes.SingleOrDefault(x => x.Id != VideoS.preExistingNote1Id && x.Id != VideoS.preExistingNote2Id);
 
             note.BorderColor.Should().Be(borderColor);
             note.BorderThickness.Should().Be(borderThickness);
@@ -445,6 +445,84 @@
                 separatedResult.RemoveAt(ind);
             }
             separatedResult.Should().HaveCount(0);
+        }
+        #endregion
+
+        #region PartialSaveAPI
+        [Test]///Checked
+        public void PartialSaveApiShouldSaveAllFieldsOfANewNoteCorectly()
+        {
+            const string borderColor = "Some great color!";
+            const int borderThickness = 12;
+            const string content = "Some great content";
+            const Formatting formatting = Formatting.CSharp;
+            const int seekTo = 42;
+            const VideoNoteType type = VideoNoteType.TimeStamp;
+            const int level = 1;
+
+            UserS.SeedPeshoAndGosho(this.context);
+            var video = VideoS.SeedVideoToUserWithTwoOrThreeNotes(context, UserS.GoshoId);
+
+            var newNote = new VideoNoteCreate
+            {
+                Id = 0,
+                BorderColor = borderColor,
+                BorderThickness = borderThickness,
+                Content = content,
+                Formatting = formatting,
+                SeekTo = seekTo,
+                Type = type,
+                Level = level,
+
+                ParentDbId = -1,
+                ///Not in use currently
+                TextColor = "",
+                Deleted = false,
+                BackgroundColor = "",
+                InPageId = 0,
+                InPageParentId = 0,
+            };
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Func<bool> action = () => this.videoService.PartialSaveApi(
+                video.Id,UserS.GoshoUsername,null,null,null,
+                new string[][]{}, new VideoNoteCreate[] { newNote },false);
+            var result = action.Invoke();
+
+            result.Should().Be(true);
+
+            video = context.Videos
+                .Include(x => x.Notes)
+                .SingleOrDefault(x => x.Id == video.Id);
+
+            var allNotes = video.Notes;
+
+            var note = video.Notes.SingleOrDefault(x => x.Id != VideoS.preExistingNote1Id && x.Id != VideoS.preExistingNote2Id);
+
+            note.BorderColor.Should().Be(borderColor);
+            note.BorderThickness.Should().Be(borderThickness);
+            note.Content.Should().Be(content);
+            note.Formatting.Should().Be(formatting);
+            note.SeekTo.Should().Be(seekTo);
+            note.Type.Should().Be(type);
+            note.Level.Should().Be(level);
+        }
+
+        [Test]
+        public void PartialSaveShouldReturnFalseIfVIdeoDoesNotBelogToUser()
+        {
+            UserS.SeedPeshoAndGosho(context);
+            var video = VideoS.SeedVideosToUser(context, UserS.GoshoId);
+
+            ChangeTrackerOperations.DetachAll(this.context);
+            Func<bool> action = () => this.videoService.PartialSaveApi(
+                 video.Id,UserS.PeshoUsername,null, null,
+                 null,new string[][]{},
+                 new VideoNoteCreate[]{},true   
+                );
+
+            var result = action.Invoke();
+            result.Should().Be(false);
         }
         #endregion
 

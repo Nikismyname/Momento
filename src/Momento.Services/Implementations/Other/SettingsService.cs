@@ -1,21 +1,19 @@
 ﻿namespace Momento.Services.Implementations.Other
 {
-    using Momento.Data;
+    using Data;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
     using System.Linq;
     using Momento.Models.Attributes;
-    using Momento.Services.Models.Settings;
+    using Models.Settings;
 
     public class SettingsService : ISettingsService
     {
         private readonly MomentoDbContext context;
-        private readonly IUserService userService;
 
-        public SettingsService(MomentoDbContext context, IUserService userService)
+        public SettingsService(MomentoDbContext context)
         {
             this.context = context;
-            this.userService = userService;
         }
 
         public UserSettings GetSettings(string username)
@@ -36,7 +34,7 @@
         public UserSettings CreateSettings(string username)
         {
             var settings = new UserSettings();
-            var user = userService.ByUsername(username);
+            var user = context.Users.SingleOrDefault(x => x.UserName == username);
             user.UserSettings = settings;
             context.SaveChanges();
             return settings;

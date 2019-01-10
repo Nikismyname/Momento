@@ -1,9 +1,9 @@
 ﻿namespace Momento.Services.Implementations.Other
 {
-    using Momento.Data;
+    using Data;
     using Momento.Models.Users;
     using Momento.Services.Contracts.Other;
-    using Momento.Services.Exceptions;
+    using Exceptions;
     using System.Linq;
 
     public class UserService : IUserService

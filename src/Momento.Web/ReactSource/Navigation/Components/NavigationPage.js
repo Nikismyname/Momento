@@ -21,6 +21,7 @@ export default class NavigationPage extends Component {
         super(props);
 
         if (typeof this.props.initialDir === "undefined") {
+            console.log("Did not get initial Dir");
             this.state = {
 
                 showErrors: true,
@@ -43,7 +44,7 @@ export default class NavigationPage extends Component {
             this.state = {
                 history: [data],
                 currentDir: data,
-                itemsLoaded: true,
+                itemsLoaded: true
             };
         }
 
@@ -86,7 +87,7 @@ export default class NavigationPage extends Component {
             this.fetch(id);
             console.log("NOT Prerendered");
         } else {
-            console.log("Prerenderd")
+            console.log("Prerendered HERE")
         }
     }
 

@@ -29,4 +29,9 @@
     <ProjectReference Include="..\Momento.Web\Momento.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tests\ITrackableServiceTests\" />
+    <Folder Include="Tests\ViewServiceTests\" />
+  </ItemGroup>
+
 </Project>

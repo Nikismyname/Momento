@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Momento.Services.Contracts.Admin;
-using Momento.Services.Models.Admin;
-
-namespace Momento.Web.Areas.Admin.Controllers
+﻿namespace Momento.Web.Areas.Admin.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Momento.Services.Contracts.Admin;
+    using Momento.Services.Models.Admin;
+
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]

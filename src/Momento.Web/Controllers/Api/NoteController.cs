@@ -1,4 +1,6 @@
-﻿namespace Momento.Web.Controllers.Api
+﻿using System.Web.Http;
+
+namespace Momento.Web.Controllers.Api
 {
     using Microsoft.AspNetCore.Mvc;
     using Momento.Services.Contracts.Notes;
@@ -6,6 +8,7 @@
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class NoteController : ControllerBase
     {
         private readonly INoteService noteService;
